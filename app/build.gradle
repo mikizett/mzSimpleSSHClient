@@ -16,19 +16,34 @@ plugins {
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    // This dependency is used by the application.
-    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+
+    // Pure Java Terminal Emulator, works with SSH and PTY
+    implementation 'org.jetbrains.jediterm:jediterm-pty:2.42'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
+
+    // lombok
+    testCompileOnly 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'mzsimplesshclient.App'
+    mainClass = 'com.mz.sshclient.mzSimpleSSHClientMain'
 }
 
 tasks.named('test') {

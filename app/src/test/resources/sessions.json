@@ -1,0 +1,53 @@
+{
+  "folder": {
+    "id": "1",
+    "name": "Sessions",
+    "folders": [
+      {
+        "id": "1a",
+        "name": "session-1a",
+        "folders": [
+          {
+            "id": "1b",
+            "name": "session-1b",
+            "folders": [
+              {
+                "id": "1c",
+                "name": "session-1c",
+                "folders": [],
+                "items": [
+                  {
+                    "id": "item-1",
+                    "name": "ITEM-1",
+                    "host": "host-1",
+                    "port": "22",
+                    "user": "user-1",
+                    "localFolder": "",
+                    "remoteFolder": "",
+                    "privateKeyFile": "privateKey",
+                    "jumpHost": ""
+                  }
+                ]
+              }
+            ],
+            "items": [
+              {
+                "id": "item-2",
+                "sessionName": "ITEM-2",
+                "host": "host-2",
+                "port": "22",
+                "user": "user-1",
+                "localFolder": "",
+                "remoteFolder": "",
+                "privateKeyFile": "privateKey",
+                "jumpHost": ""
+              }
+            ]
+          }
+        ],
+        "items": []
+      }
+    ],
+    "items": []
+  }
+}
