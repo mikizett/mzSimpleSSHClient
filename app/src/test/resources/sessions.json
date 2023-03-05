@@ -33,7 +33,7 @@
             "items": [
               {
                 "id": "item-2",
-                "sessionName": "ITEM-2",
+                "name": "ITEM-2",
                 "host": "host-2",
                 "port": "22",
                 "user": "user-1",

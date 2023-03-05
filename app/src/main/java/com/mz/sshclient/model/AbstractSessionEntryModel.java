@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public abstract class AbstractSessionEntryModel {
+public abstract class AbstractSessionEntryModel implements ISessionEntryModel {
     protected String id;
     protected String name;
 }

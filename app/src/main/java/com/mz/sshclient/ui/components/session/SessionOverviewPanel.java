@@ -1,7 +1,9 @@
 package com.mz.sshclient.ui.components.session;
 
+import com.mz.sshclient.ui.actions.ActionSaveSessions;
 import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
+import com.mz.sshclient.ui.events.listener.ISessionDataChangedListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -11,9 +13,11 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-public class SessionOverviewPanel extends JPanel {
+public class SessionOverviewPanel extends JPanel implements ISessionDataChangedListener {
 
-    private SessionTreeComponent sessionTreeComponent = new SessionTreeComponent();
+    private JButton saveButton;
+
+    private SessionTreeComponent sessionTreeComponent;
 
     private final JToggleButton popupButton = new JToggleButton("Actions");
 
@@ -28,6 +32,8 @@ public class SessionOverviewPanel extends JPanel {
 
         add(createActionsPanel(), BorderLayout.NORTH);
 
+        sessionTreeComponent = new SessionTreeComponent();
+        sessionTreeComponent.addSessionDataChangedListener(this);
         add(new JScrollPane(sessionTreeComponent));
     }
 
@@ -47,7 +53,7 @@ public class SessionOverviewPanel extends JPanel {
         });
         north.add(popupButton);
 
-        JButton saveButton = new JButton("Save Sessions"/*new ActionSaveSessions("Save Sessions")*/);
+        saveButton = new JButton(new ActionSaveSessions("Save Sessions"));
         north.add(saveButton);
 
         panel.add(north, BorderLayout.NORTH);
@@ -67,5 +73,9 @@ public class SessionOverviewPanel extends JPanel {
         return popupMenu;
     }
 
+    @Override
+    public void sessionDataChanged() {
+        saveButton.setEnabled(true);
+    }
 }
 

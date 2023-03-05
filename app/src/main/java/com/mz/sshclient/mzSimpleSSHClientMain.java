@@ -1,6 +1,7 @@
 package com.mz.sshclient;
 
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
+import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.ConfigFile;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
@@ -31,7 +32,7 @@ public class mzSimpleSSHClientMain {
             System.exit(-1);
         }
 
-        final String location = ConfigFile.getSessionsLocation();
+        final String location = ConfigFile.getStorageLocation();
         System.setProperty("logPath", location + File.separatorChar + Constants.LOG_PATH_NAME);
     }
 
@@ -75,6 +76,9 @@ public class mzSimpleSSHClientMain {
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();
         preloadJediTermLib();
+
+        // load services
+        ServiceRegistration.registration();
 
         final MainFrame mainFrame = new MainFrame();
         AWTInvokerUtils.invokeLaterShowWindow(mainFrame);

@@ -14,6 +14,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 
 public class TreeTransferHandler extends TransferHandler {
+
     private static final Logger LOG = LogManager.getLogger(TreeTransferHandler.class);
 
     private DataFlavor nodesFlavor;
@@ -22,8 +23,10 @@ public class TreeTransferHandler extends TransferHandler {
 
     public TreeTransferHandler() {
         try {
-            String mimeType = DataFlavor.javaJVMLocalObjectMimeType + ";class=\""
-                    + DefaultMutableTreeNode[].class.getName() + "\"";
+            final String mimeType =
+                    DataFlavor.javaJVMLocalObjectMimeType + ";class=\"" +
+                            DefaultMutableTreeNode[].class.getName() + "\"";
+
             nodesFlavor = new DataFlavor(mimeType);
             flavors[0] = nodesFlavor;
         } catch (ClassNotFoundException e) {
@@ -40,7 +43,7 @@ public class TreeTransferHandler extends TransferHandler {
         if (!support.isDataFlavorSupported(nodesFlavor)) {
             return false;
         }
-        // Do not allow a drop on the drag source selections.
+        // Do not allow a drop on the drag source selections
         JTree.DropLocation dl = (JTree.DropLocation) support.getDropLocation();
         JTree tree = (JTree) support.getComponent();
         int dropRow = tree.getRowForPath(dl.getPath());
@@ -68,8 +71,7 @@ public class TreeTransferHandler extends TransferHandler {
     }
 
     @Override
-    protected void exportDone(JComponent source, Transferable data, int action) {
-    }
+    protected void exportDone(JComponent source, Transferable data, int action) {}
 
     @Override
     public int getSourceActions(JComponent c) {
@@ -137,5 +139,6 @@ public class TreeTransferHandler extends TransferHandler {
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return nodesFlavor.equals(flavor);
         }
-    }
+    };
+
 }

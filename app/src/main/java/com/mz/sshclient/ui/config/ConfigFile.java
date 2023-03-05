@@ -17,10 +17,10 @@ public final class ConfigFile {
     private ConfigFile() {}
 
     private static final File CONFI_FILE = new File(Constants.CONFIG_FILE_LOCATION);
-    private static String location;
+    private static String storageLocation;
 
-    public static String getSessionsLocation() {
-        return location;
+    public static String getStorageLocation() {
+        return storageLocation;
     }
 
     public static void init() throws ReadWriteConfigfileException {
@@ -77,7 +77,7 @@ public final class ConfigFile {
 
     private static void readConfigFile() throws ReadWriteConfigfileException {
         try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(CONFI_FILE))) {
-            location = bufferedReader.readLine();
+            storageLocation = bufferedReader.readLine();
         } catch (IOException e) {
             throw new ReadWriteConfigfileException("Cannot write storage location to file", e);
         }
