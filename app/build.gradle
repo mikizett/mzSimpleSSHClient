@@ -32,6 +32,10 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.1'
 
+    // This package is a Java implementation of cryptographic algorithms.
+    // This jar contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 and up.
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.64'
+
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
