@@ -1,7 +1,9 @@
 package com.mz.sshclient;
 
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
+import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.ConfigFile;
+import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.ui.utils.UIUtils;
 import org.apache.logging.log4j.LogManager;
@@ -73,5 +75,8 @@ public class mzSimpleSSHClientMain {
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();
         preloadJediTermLib();
+
+        final MainFrame mainFrame = new MainFrame();
+        AWTInvokerUtils.invokeLaterShowWindow(mainFrame);
     }
 }
