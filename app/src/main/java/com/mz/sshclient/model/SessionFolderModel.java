@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,5 +25,20 @@ public class SessionFolderModel extends AbstractSessionEntryModel {
             return true;
         }
         return false;
+    }
+
+    public SessionFolderModel deepCopy() {
+        final SessionFolderModel folder = new SessionFolderModel();
+
+        folder.setId(UUID.randomUUID().toString());
+        folder.setName(this.name + " (Copy)");
+        folder.setFolders(new ArrayList<>(this.folders));
+
+        final List<SessionItemModel> copySessionItemModelList = new ArrayList<>(this.items.size());
+        this.items.forEach(item -> copySessionItemModelList.add(item.deepCopy()));
+        folder.setItems(copySessionItemModelList);
+        //folder.setItems(new ArrayList<>(this.items));
+
+        return folder;
     }
 }

@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui;
 
-import com.mz.sshclient.ui.components.session.SessionOverviewPanel;
+import com.mz.sshclient.ui.components.session.panels.SessionOverviewPanel;
 
 import javax.swing.JTabbedPane;
 import javax.swing.border.MatteBorder;

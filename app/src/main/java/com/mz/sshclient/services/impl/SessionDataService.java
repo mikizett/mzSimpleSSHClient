@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mz.sshclient.Constants;
 import com.mz.sshclient.model.SessionFolderModel;
+import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionModel;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
@@ -61,12 +62,21 @@ public final class SessionDataService implements ISessionDataService {
         return model;
     }
 
+    private void checkIfSessionFileLocationExists() {
+        if (!sessionFile.exists()) {
+            final File f = sessionFile.getParentFile();
+            f.mkdirs();
+        }
+    }
+
     @Override
     public void saveToFile() throws SaveSessionDataException {
         if (hasSessionModelChanged()) {
             synchronized (this) {
                 final ObjectMapper objectMapper = new ObjectMapper();
                 try {
+                    // make sure folder exists
+                    checkIfSessionFileLocationExists();
                     objectMapper.writeValue(sessionFile, sessionModel);
                     loadSessionModelFromFile();
                 } catch (IOException e) {
@@ -82,10 +92,44 @@ public final class SessionDataService implements ISessionDataService {
     }
 
     @Override
-    public SessionFolderModel addSessionFolderModel(final SessionFolderModel parentSessionFolderModel) {
+    public SessionFolderModel createNewSessionFolder(final SessionFolderModel parentSessionFolder) {
         final SessionFolderModel folder = createNewSessionFolderModel();
-        parentSessionFolderModel.getFolders().add(folder);
+        parentSessionFolder.getFolders().add(folder);
+
+        LOG.info("Created new session folder: " + folder.getName() + " in parent: " + parentSessionFolder.getName());
         return folder;
+    }
+
+    @Override
+    public SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder) {
+        parentSessionFolder.getFolders().add(newSessionFolder);
+
+        LOG.info("Created new session folder: " + newSessionFolder.getName() + " in parent: " + parentSessionFolder.getName());
+
+        return newSessionFolder;
+    }
+
+    @Override
+    public SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem) {
+        parentSessionFolder.getItems().add(newSessionItem);
+
+        LOG.info("Created new session item: " + newSessionItem.getName() + " in parent folder: " + parentSessionFolder.getName());
+
+        return newSessionItem;
+    }
+
+    @Override
+    public void removeSessionItemFrom(final SessionFolderModel parentSessionFolderModel, final SessionItemModel sessionItemModel) {
+        parentSessionFolderModel.getItems().remove(sessionItemModel);
+
+        LOG.info("Removed session item: " + sessionItemModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
+    }
+
+    @Override
+    public void removeSessionFolderFrom(SessionFolderModel parentSessionFolderModel, SessionFolderModel sessionFolderModel) {
+        parentSessionFolderModel.getFolders().remove(sessionFolderModel);
+
+        LOG.info("Removed session folder: " + sessionFolderModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
     }
 
     @Override

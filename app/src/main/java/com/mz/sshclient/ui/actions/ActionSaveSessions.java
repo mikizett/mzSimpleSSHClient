@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -19,14 +20,15 @@ public class ActionSaveSessions extends AbstractAction {
 
     public ActionSaveSessions(final String title) {
         super(title);
-        setEnabled(false);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
             sessionDataService.saveToFile();
-            setEnabled(false);
+            if (e.getSource() instanceof JButton) {
+                ((JButton) e.getSource()).setEnabled(false);
+            }
         } catch (SaveSessionDataException ex) {
             LOG.error(ex.getMessage(), ex);
             MessageDisplayUtil.showErrorMessage(SwingUtilities.getWindowAncestor((Component) e.getSource()), ex.getMessage());

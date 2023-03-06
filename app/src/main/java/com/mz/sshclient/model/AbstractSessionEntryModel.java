@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public abstract class AbstractSessionEntryModel implements ISessionEntryModel {
-    protected String id;
-    protected String name;
+    protected String id = "";
+    protected String name = "";
 }

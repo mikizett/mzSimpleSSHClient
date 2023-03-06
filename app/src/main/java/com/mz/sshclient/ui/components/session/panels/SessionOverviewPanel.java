@@ -1,4 +1,4 @@
-package com.mz.sshclient.ui.components.session;
+package com.mz.sshclient.ui.components.session.panels;
 
 import com.mz.sshclient.ui.actions.ActionSaveSessions;
 import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
@@ -54,6 +54,7 @@ public class SessionOverviewPanel extends JPanel implements ISessionDataChangedL
         north.add(popupButton);
 
         saveButton = new JButton(new ActionSaveSessions("Save Sessions"));
+        saveButton.setEnabled(false);
         north.add(saveButton);
 
         panel.add(north, BorderLayout.NORTH);
