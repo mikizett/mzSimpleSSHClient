@@ -4,6 +4,8 @@ import com.mz.sshclient.model.AbstractSessionEntryModel;
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.services.ServiceRegistry;
+import com.mz.sshclient.services.events.ConnectSSHEvent;
+import com.mz.sshclient.services.interfaces.ISSHConnectionService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
@@ -31,12 +33,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.UUID;
 
 public class SessionTreeComponent extends JTree implements TreeSelectionListener, TreeModelListener {
     private static final Logger LOG = LogManager.getLogger(SessionTreeComponent.class);
 
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+    private final ISSHConnectionService sshConnectionService = ServiceRegistry.get(ISSHConnectionService.class);
 
     private DefaultTreeModel defaultTreeModel;
     private DefaultMutableTreeNode rootNode;
@@ -275,6 +277,14 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         }
     }
 
+    public void connectSSH() {
+        final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+        if (selectedNode.getUserObject() instanceof SessionItemModel) {
+            final SessionItemModel selectedSessionItemModel = (SessionItemModel) selectedNode.getUserObject();
+            sshConnectionService.fireConnectSSHEvent(new ConnectSSHEvent(this, selectedSessionItemModel));
+        }
+    }
+
     // -------------------------------------------------------------------------
     // TreeSelectionListener
 
@@ -311,11 +321,57 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         fireSessionDataChangedEvent();
 
         LOG.debug("Inserted tree path: " + e.getTreePath());
+
+        SessionFolderModel parentFolder = null;
+
+        DefaultMutableTreeNode lastSessionFolderNode = (DefaultMutableTreeNode) e.getTreePath().getLastPathComponent();
+        if (lastSessionFolderNode != null && lastSessionFolderNode.getUserObject() instanceof SessionFolderModel) {
+            parentFolder = (SessionFolderModel) lastSessionFolderNode.getUserObject();
+        }
+
+        int[] index = e.getChildIndices();
+        Object lastInsertedNode = lastSessionFolderNode.getChildAt(index[0]);
+        if (lastInsertedNode != null && lastInsertedNode instanceof DefaultMutableTreeNode) {
+            DefaultMutableTreeNode insertedChild = (DefaultMutableTreeNode) lastInsertedNode;
+            Object userObject = insertedChild.getUserObject();
+
+            if (userObject instanceof SessionFolderModel) {
+                final SessionFolderModel folder = (SessionFolderModel) userObject;
+                sessionDataService.addSessionFolder(parentFolder, folder);
+                LOG.debug("Inserted session folder: " + folder.getName() + " to session parentFolder: " + parentFolder.getName());
+
+            } else if (userObject instanceof SessionItemModel) {
+                final SessionItemModel item = (SessionItemModel) userObject;
+                sessionDataService.addSessionItem(parentFolder, item);
+                LOG.debug("Inserted session item: " + item.getName() + " to session parentFolder: " + parentFolder.getName());
+            }
+        }
     }
 
     @Override
     public void treeNodesRemoved(TreeModelEvent e) {
-        System.out.println("******** treeNodesRemoved");
+        SessionFolderModel parentFolder = null;
+
+        DefaultMutableTreeNode lastSessionFolderNode = (DefaultMutableTreeNode) e.getTreePath().getLastPathComponent();
+        if (lastSessionFolderNode != null && lastSessionFolderNode.getUserObject() instanceof SessionFolderModel) {
+            parentFolder = (SessionFolderModel) lastSessionFolderNode.getUserObject();
+        }
+
+        DefaultMutableTreeNode selectedSessionItemNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
+        if (selectedSessionItemNode != null && parentFolder != null) {
+            final Object userObject = selectedSessionItemNode.getUserObject();
+
+            if (userObject instanceof SessionFolderModel) {
+                final SessionFolderModel folder = (SessionFolderModel) userObject;
+                sessionDataService.removeSessionFolderFrom(parentFolder, folder);
+                LOG.debug("Removed session folder: " + folder.getName() + " from session parentFolder: " + parentFolder.getName());
+
+            } else if (userObject instanceof SessionItemModel) {
+                final SessionItemModel item = (SessionItemModel) selectedSessionItemNode.getUserObject();
+                sessionDataService.removeSessionItemFrom(parentFolder, item);
+                LOG.debug("Removed session item: " + item.getName() + " from session parentFolder: " + parentFolder.getName());
+            }
+        }
     }
 
     @Override
@@ -341,9 +397,9 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                         tree.expandPath(new TreePath(node.getPath()));
                     }
                     return;
+                } else {
+                    tree.connectSSH();
                 }
-                // TODO: implement connection here
-                //connectSSH();
             }
         }
 

@@ -14,6 +14,6 @@ public class ActionConnectSelectedTreeItem extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("TO BE IMPLEMENTED !!!");
+        tree.connectSSH();
     }
 }

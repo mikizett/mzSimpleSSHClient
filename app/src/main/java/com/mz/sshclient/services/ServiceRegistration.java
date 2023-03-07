@@ -1,7 +1,9 @@
 package com.mz.sshclient.services;
 
 import com.mz.sshclient.services.exceptions.ServiceRegistrationException;
+import com.mz.sshclient.services.impl.SSHConnectionService;
 import com.mz.sshclient.services.impl.SessionDataService;
+import com.mz.sshclient.services.interfaces.ISSHConnectionService;
 import com.mz.sshclient.services.interfaces.IService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +15,7 @@ public final class ServiceRegistration {
 
     public static void registration() {
         register(ISessionDataService.class, new SessionDataService());
+        register(ISSHConnectionService.class, new SSHConnectionService());
     }
 
     private static <T extends IService, E extends T> void register(Class<? extends IService> clazz, E objectReference) {
