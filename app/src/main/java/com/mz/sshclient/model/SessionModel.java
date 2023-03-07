@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SessionModel extends AbstractSessionEntryModel {
+public class SessionModel {
+
     private SessionFolderModel folder;
 
     @Override
@@ -21,4 +22,5 @@ public class SessionModel extends AbstractSessionEntryModel {
         }
         return false;
     }
+
 }

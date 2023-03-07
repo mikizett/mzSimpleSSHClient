@@ -3,6 +3,8 @@ package com.mz.sshclient.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class SessionItemModel extends AbstractSessionEntryModel {
@@ -30,5 +32,33 @@ public class SessionItemModel extends AbstractSessionEntryModel {
         }
 
         return false;
+    }
+
+    public SessionItemModel deepCopy() {
+        final SessionItemModel copy = new SessionItemModel();
+
+        copy.id = new String(UUID.randomUUID().toString());
+        copy.name = new String(this.name + " (Copy)");
+        copy.host = new String(this.host);
+        copy.port = new String(this.port);
+        copy.user = new String(this.user);
+        copy.privateKeyFile = new String(this.privateKeyFile);
+        copy.localFolder = new String(this.localFolder);
+        copy.remoteFolder = new String(this.remoteFolder);
+        copy.jumpHost = new String(this.jumpHost);
+
+        return copy;
+    }
+
+    public <T extends SessionItemModel> void deepCopyFrom(T model) {
+        id = new String(model.id);
+        name = new String(model.name);
+        host = new String(model.getHost());
+        port = new String(model.getPort());
+        user = new String(model.getUser());
+        privateKeyFile = new String(model.getPrivateKeyFile());
+        localFolder = new String(model.getLocalFolder());
+        remoteFolder = new String(model.getRemoteFolder());
+        jumpHost = new String(model.getJumpHost());
     }
 }
