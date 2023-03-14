@@ -1,6 +1,6 @@
 package com.mz.sshclient.services.impl;
 
-import com.mz.sshclient.services.events.ConnectSSHEvent;
+import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.events.listener.ISshConnectListener;
 import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
 
@@ -19,9 +19,9 @@ public class SshConnectionService implements ISSHConnectionObservableService {
     }
 
     @Override
-    public void fireConnectSSHEvent(ConnectSSHEvent event) {
+    public void fireConnectSSHEvent(ConnectSshEvent event) {
         if (event != null) {
-            connectSSHListeners.forEach(l -> l.connectSSH(event));
+            connectSSHListeners.forEach(l -> l.connectSsh(event));
         }
     }
 }

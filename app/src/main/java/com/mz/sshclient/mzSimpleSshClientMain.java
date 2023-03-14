@@ -1,5 +1,6 @@
 package com.mz.sshclient;
 
+import com.jediterm.terminal.ui.JediTermWidget;
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
 import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.ui.MainFrame;
@@ -18,7 +19,7 @@ import java.security.Security;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
-public class mzSimpleSSHClientMain {
+public class mzSimpleSshClientMain {
 
     static {
         Locale.setDefault(Locale.US);
@@ -35,7 +36,9 @@ public class mzSimpleSSHClientMain {
         System.setProperty("logPath", AppConfig.getLogFileLocation());
     }
 
-    private static final Logger LOG = LogManager.getLogger(mzSimpleSSHClientMain.class);
+    private static final Logger LOG = LogManager.getLogger(mzSimpleSshClientMain.class);
+
+    public static MainFrame MAIN_FRAME;
 
     private static void initBountyCastleCryptographySecurityProvider() {
         Security.addProvider(new BouncyCastleProvider());
@@ -62,7 +65,7 @@ public class mzSimpleSSHClientMain {
     private static void preloadJediTermLib() {
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
-                Class.forName("com.jediterm.terminal.ui.JediTermWidget");
+                Class.forName(JediTermWidget.class.getName());
             } catch (ClassNotFoundException e) {
                 LOG.warn("Could not preload jedi-term-lib", e);
             }
@@ -79,7 +82,8 @@ public class mzSimpleSSHClientMain {
         // load services
         ServiceRegistration.registration();
 
-        final MainFrame mainFrame = new MainFrame();
-        AWTInvokerUtils.invokeLaterShowWindow(mainFrame);
+        //final MainFrame mainFrame = new MainFrame();
+        MAIN_FRAME = new MainFrame();
+        AWTInvokerUtils.invokeLaterShowWindow(MAIN_FRAME);
     }
 }

@@ -135,9 +135,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
         if (addOrEditEnum == AddOrEditEnum.ADD) {
             final SessionItemModel model = SessionItemModelHelper.convertToSessionItemModel(sessionItemDraftModel);
-            parentSessionFolderModel.getItems().add(model);
-
-            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(model);
+            final DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(model);
             childNode.setAllowsChildren(false);
             ((DefaultTreeModel) tree.getModel()).insertNodeInto(childNode, parentTreeNode, parentTreeNode.getChildCount());
             tree.scrollPathToVisible(new TreePath(childNode.getPath()));

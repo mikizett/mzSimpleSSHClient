@@ -2,7 +2,6 @@ package com.mz.sshclient.ssh;
 
 import com.jediterm.terminal.Questioner;
 import com.jediterm.terminal.TtyConnector;
-import com.mz.sshclient.model.SessionItemModel;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.SessionChannel;
 import net.schmizz.sshj.transport.TransportException;
@@ -22,7 +21,6 @@ public class SshTtyConnector implements TtyConnector {
     private OutputStream outputStream;
     private SessionChannel shell;
     private Session channel;
-    private SshClient wr;
 
     private Dimension myPendingTermSize;
     private Dimension myPendingPixelSize;
@@ -31,24 +29,10 @@ public class SshTtyConnector implements TtyConnector {
     private boolean canceled = false;
     private boolean stopped = false;
 
-    private SessionItemModel sessionItemModel;
-    private final HostKeyVerifier hostKeyVerifier;
-    private final IPasswordFinderCallback passwordFinderCallback;
-    private final IInteractiveResponseProvider interactiveResponseProvider;
-    private final IPasswordRetryCallback passwordRetryCallback;
+    private final SshClient sshClient;
 
-    public SshTtyConnector(
-            final SessionItemModel sessionItemModel,
-            final HostKeyVerifier hostKeyVerifier,
-            final IPasswordFinderCallback passwordFinderCallback,
-            final IInteractiveResponseProvider interactiveResponseProvider,
-            final IPasswordRetryCallback passwordRetryCallback
-    ) {
-        this.sessionItemModel = sessionItemModel;
-        this.hostKeyVerifier = hostKeyVerifier;
-        this.passwordFinderCallback = passwordFinderCallback;
-        this.interactiveResponseProvider = interactiveResponseProvider;
-        this.passwordRetryCallback = passwordRetryCallback;
+    public SshTtyConnector(final SshClient sshClient) {
+        this.sshClient = sshClient;
     }
 
     private void resizeImmediately() {
@@ -72,16 +56,10 @@ public class SshTtyConnector implements TtyConnector {
         }
     }
 
-    public void setSessionItemModel(final SessionItemModel sessionItemModel) {
-        this.sessionItemModel = sessionItemModel;
-    }
-
     @Override
     public boolean init(Questioner q) {
         try {
-            this.wr = new SshClient(sessionItemModel, hostKeyVerifier, passwordFinderCallback, interactiveResponseProvider, passwordRetryCallback);
-            this.wr.connect();
-            this.channel = wr.openSession();
+            this.channel = sshClient.openSession();
             this.channel.setAutoExpand(true);
 
             this.channel.allocatePTY("xterm-256color", 80, 24, 0, 0, Collections.emptyMap());
@@ -118,7 +96,7 @@ public class SshTtyConnector implements TtyConnector {
         try {
             stopped = true;
             System.out.println("Terminal wrapper disconnecting");
-            wr.disconnect();
+            sshClient.disconnect();
         } catch (Exception e) {
         }
     }

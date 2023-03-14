@@ -6,6 +6,7 @@ import com.mz.sshclient.ssh.SshTtyConnector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
@@ -22,13 +23,18 @@ public class TabContentPanel extends JPanel {
     private JToggleButton shellToggleButton = new JToggleButton("Shell", true);
     private JToggleButton browserToggleButton = new JToggleButton("Browser");
 
-    private final JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
+    private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
 
     private final SshTtyConnector sshTtyConnector;
 
     public TabContentPanel(final SshTtyConnector sshTtyConnector) {
         this.sshTtyConnector = sshTtyConnector;
+
         init();
+
+        if (jediTermWidget != null) {
+            jediTermWidget.start();
+        }
     }
 
     private void init() {
@@ -45,7 +51,11 @@ public class TabContentPanel extends JPanel {
         shellOrBrowserPanel = new JPanel(cardLayout);
 
         JPanel shellPanel = new JPanel();
-        shellPanel.add(new JLabel("SHELL_PANEL"));
+        shellPanel.add(jediTermWidget);
+
+        JRootPane rootPane = new JRootPane();
+        rootPane.setContentPane(shellPanel);
+        add(rootPane);
 
         JPanel browserPanel = new JPanel();
         browserPanel.add(new JLabel("BROWSER_PANEL"));

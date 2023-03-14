@@ -11,10 +11,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 public class NewSessionDialog extends JDialog {
+
+    private final Window parentWindow;
     private final JTree tree;
 
-    public NewSessionDialog(final Window parent, final JTree tree) {
-        super(parent, "Create new session...");
+    public NewSessionDialog(final Window parentWindow, final JTree tree) {
+        super(parentWindow, "Create new session...");
+        this.parentWindow = parentWindow;
         this.tree = tree;
         init();
     }
@@ -36,7 +39,7 @@ public class NewSessionDialog extends JDialog {
 
         add(new AddOrEditSessionPanel(this, tree));
 
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(parentWindow);
 
         AWTInvokerUtils.invokeLaterShowWindow(this);
     }

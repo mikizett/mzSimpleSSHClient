@@ -1,7 +1,7 @@
 package com.mz.sshclient.services.events.listener;
 
-import com.mz.sshclient.services.events.ConnectSSHEvent;
+import com.mz.sshclient.services.events.ConnectSshEvent;
 
 public interface ISshConnectListener {
-    void connectSSH(ConnectSSHEvent event);
+    void connectSsh(ConnectSshEvent event);
 }

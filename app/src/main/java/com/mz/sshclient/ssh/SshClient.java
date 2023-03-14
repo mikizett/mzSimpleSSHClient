@@ -4,7 +4,7 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.ssh.exceptions.SshConnectionException;
 import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
-import net.schmizz.keepalive.KeepAliveProvider;
+import com.mz.sshclient.ssh.exceptions.SshPrivateKeyMissingException;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.DirectConnection;
@@ -106,15 +106,16 @@ public class SshClient implements Closeable {
         }
     }
 
-    private void authPublicKey() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {
+    private void authPublicKey() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException, SshPrivateKeyMissingException {
         KeyProvider provider = null;
         if (StringUtils.isNotBlank(sessionItemModel.getPrivateKeyFile())) {
             final File keyFile = new File(sessionItemModel.getPrivateKeyFile());
             if (keyFile.exists()) {
                 try {
                     provider = sshj.loadKeys(sessionItemModel.getPrivateKeyFile(), passwordFinderCallback);
-                    System.out.println("Key provider: " + provider);
-                    System.out.println("Key type: " + provider.getType());
+
+                    LOG.debug("Key provider: " + provider);
+                    LOG.debug("Key type: " + provider.getType());
                 } catch (IOException e) {
                     throw new SshConnectionException("Could not load private/public key", e);
                 }
@@ -127,7 +128,7 @@ public class SshClient implements Closeable {
         }
 
         if (provider == null) {
-            throw new SshConnectionException("No suitable key providers");
+            throw new SshPrivateKeyMissingException("No suitable key providers (no private key selected).");
         }
 
         try {
@@ -140,12 +141,9 @@ public class SshClient implements Closeable {
     private void authPassword() throws SshOperationCanceledException, SshConnectionException {
         String user = sessionItemModel.getUser();
         char[] password = getPassword();
-        if (user == null || user.length() < 1) {
-            password = null;
-        }
-        // keep on trying with password
+
         while (!closed) {
-            if (StringUtils.isEmpty(new String(password))) {
+            if (password == null || password.length < 1) {
                 password = passwordRetryCallback.readPassword(user, passwordFinderCallback);
                 if (password == null) {
                     throw new SshOperationCanceledException("Password not set");
@@ -153,6 +151,7 @@ public class SshClient implements Closeable {
             }
             try {
                 sshj.authPassword(user, password);
+                break;
             } catch (UserAuthException | TransportException e) {
                 throw new SshConnectionException("Could not set password", e);
             }
@@ -187,8 +186,6 @@ public class SshClient implements Closeable {
                 connectJumpHost();
                 connectJumpHostViaTcpForwarding();
             }
-
-            sshj.getConnection().getKeepAlive().setKeepAliveInterval(5);
         } catch (IOException e) {
             throw new SshConnectionException("Could not connect to server: " + sessionItemModel.getHost(), e);
         }
@@ -227,6 +224,8 @@ public class SshClient implements Closeable {
                     } catch (SshOperationCanceledException e) {
                         disconnect();
                         throw e;
+                    } catch (SshPrivateKeyMissingException e) {
+                        LOG.warn(e);
                     }
                     break;
 
@@ -235,7 +234,7 @@ public class SshClient implements Closeable {
                         sshj.auth(sessionItemModel.getUser(), new AuthKeyboardInteractive(interactiveResponseProvider));
                         authenticated = true;
                     } catch (UserAuthException | TransportException e) {
-                        throw new SshConnectionException("Could not authenticate keyboard-interactive", e);
+                        LOG.warn("Could not authenticate keyboard-interactive", e);
                     }
                     break;
 
@@ -243,24 +242,25 @@ public class SshClient implements Closeable {
                     try {
                         authPassword();
                         authenticated = true;
-                    } catch (SshOperationCanceledException | SshConnectionException e) {
+                    } catch (SshOperationCanceledException e) {
                         disconnect();
                         throw e;
+                    } catch (SshConnectionException e) {
+                        LOG.warn(e);
                     }
                     break;
             }
-
-            if (!authenticated) {
-                if (this.sshj != null) {
-                    try {
-                        this.sshj.close();
-                    } catch (IOException e) {
-                        LOG.error(e);
-                        // do nothing
-                    }
+        }
+        if (!authenticated) {
+            if (this.sshj != null) {
+                try {
+                    this.sshj.close();
+                } catch (IOException e) {
+                    LOG.error(e);
+                    // do nothing
                 }
-                throw new SshConnectionException("Could not connect to server: " + sessionItemModel);
             }
+            throw new SshConnectionException("Could not connect to server: " + sessionItemModel);
         }
     }
 

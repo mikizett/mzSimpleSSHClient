@@ -20,6 +20,7 @@ public class HostKeyVerifier extends OpenSSHKnownHosts {
     @Override
     protected boolean hostKeyUnverifiableAction(String hostname, PublicKey key) {
         final KeyType keyType = KeyType.fromKey(key);
+
         if (callback != null && callback.getHostKeyUnverifiableConfirmation(hostname, key, keyType) == IHostKeyVerifyCallback.Confirmation.CONFIRMED) {
             try {
                 this.entries.add(new HostEntry(null, hostname, KeyType.fromKey(key), key));
@@ -54,12 +55,12 @@ public class HostKeyVerifier extends OpenSSHKnownHosts {
     public boolean verify(String hostname, int port, PublicKey key) {
         try {
             if (!super.verify(hostname, port, key)) {
-                return this.hostKeyUnverifiableAction(hostname, key);
+                return hostKeyUnverifiableAction(hostname, key);
             }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return this.hostKeyUnverifiableAction(hostname, key);
+            return hostKeyUnverifiableAction(hostname, key);
         }
     }
 

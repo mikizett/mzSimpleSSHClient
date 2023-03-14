@@ -4,7 +4,7 @@ import com.mz.sshclient.model.AbstractSessionEntryModel;
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.events.ConnectSSHEvent;
+import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
@@ -277,11 +277,11 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         }
     }
 
-    public void connectSSH() {
+    public void connectSsh() {
         final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
         if (selectedNode.getUserObject() instanceof SessionItemModel) {
             final SessionItemModel selectedSessionItemModel = (SessionItemModel) selectedNode.getUserObject();
-            sshConnectionService.fireConnectSSHEvent(new ConnectSSHEvent(this, selectedSessionItemModel));
+            sshConnectionService.fireConnectSSHEvent(new ConnectSshEvent(this, selectedSessionItemModel));
         }
     }
 
@@ -350,33 +350,12 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     @Override
     public void treeNodesRemoved(TreeModelEvent e) {
-        SessionFolderModel parentFolder = null;
-
-        DefaultMutableTreeNode lastSessionFolderNode = (DefaultMutableTreeNode) e.getTreePath().getLastPathComponent();
-        if (lastSessionFolderNode != null && lastSessionFolderNode.getUserObject() instanceof SessionFolderModel) {
-            parentFolder = (SessionFolderModel) lastSessionFolderNode.getUserObject();
-        }
-
-        DefaultMutableTreeNode selectedSessionItemNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
-        if (selectedSessionItemNode != null && parentFolder != null) {
-            final Object userObject = selectedSessionItemNode.getUserObject();
-
-            if (userObject instanceof SessionFolderModel) {
-                final SessionFolderModel folder = (SessionFolderModel) userObject;
-                sessionDataService.removeSessionFolderFrom(parentFolder, folder);
-                LOG.debug("Removed session folder: " + folder.getName() + " from session parentFolder: " + parentFolder.getName());
-
-            } else if (userObject instanceof SessionItemModel) {
-                final SessionItemModel item = (SessionItemModel) selectedSessionItemNode.getUserObject();
-                sessionDataService.removeSessionItemFrom(parentFolder, item);
-                LOG.debug("Removed session item: " + item.getName() + " from session parentFolder: " + parentFolder.getName());
-            }
-        }
+        fireSessionDataChangedEvent();
     }
 
     @Override
     public void treeStructureChanged(TreeModelEvent e) {
-        System.out.println("******** treeStructureChanged");
+        fireSessionDataChangedEvent();
     }
 
     /**
@@ -396,9 +375,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                     } else {
                         tree.expandPath(new TreePath(node.getPath()));
                     }
-                    return;
                 } else {
-                    tree.connectSSH();
+                    tree.connectSsh();
                 }
             }
         }

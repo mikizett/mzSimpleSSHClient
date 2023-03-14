@@ -204,6 +204,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         portTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
         userTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
         passField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+        privateKeyFileTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
     }
 
     public String getHost() {

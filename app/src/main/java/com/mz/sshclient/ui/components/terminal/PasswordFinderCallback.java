@@ -1,12 +1,12 @@
 package com.mz.sshclient.ui.components.terminal;
 
+import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IPasswordFinderCallback;
 import net.schmizz.sshj.userauth.password.Resource;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
-import java.awt.Window;
 
 public class PasswordFinderCallback implements IPasswordFinderCallback {
 
@@ -14,12 +14,6 @@ public class PasswordFinderCallback implements IPasswordFinderCallback {
 
     private char[] cachedPassword;
     private char[] cachedPassPhrase;
-
-    private final Window parentWindow;
-
-    public PasswordFinderCallback(final Window parentWindow) {
-        this.parentWindow = parentWindow;
-    }
 
     @Override
     public char[] getCachedPassword() {
@@ -52,7 +46,7 @@ public class PasswordFinderCallback implements IPasswordFinderCallback {
         final JCheckBox chkUseCache = new JCheckBox("Remember for this session");
 
         int answer = JOptionPane.showOptionDialog(
-                parentWindow,
+                mzSimpleSshClientMain.MAIN_FRAME,
                 new Object[] {
                         resource != null ? resource.toString() : "Private key passphrase:",
                         txtPass,
