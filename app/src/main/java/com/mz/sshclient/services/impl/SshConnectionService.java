@@ -1,18 +1,18 @@
 package com.mz.sshclient.services.impl;
 
 import com.mz.sshclient.services.events.ConnectSSHEvent;
-import com.mz.sshclient.services.events.listener.IConnectSSHListener;
-import com.mz.sshclient.services.interfaces.ISSHConnectionService;
+import com.mz.sshclient.services.events.listener.ISshConnectListener;
+import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SSHConnectionService implements ISSHConnectionService {
+public class SshConnectionService implements ISSHConnectionObservableService {
 
-    private final List<IConnectSSHListener> connectSSHListeners = new ArrayList<>(0);
+    private final List<ISshConnectListener> connectSSHListeners = new ArrayList<>(0);
 
     @Override
-    public void addConnectSSHListener(IConnectSSHListener l) {
+    public void addConnectSshListener(ISshConnectListener l) {
         if (!connectSSHListeners.contains(l)) {
             connectSSHListeners.add(l);
         }

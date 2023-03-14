@@ -8,9 +8,7 @@ public final class AWTInvokerUtils {
     private AWTInvokerUtils() {}
 
     public static void invokeLaterShowWindow(Window window) {
-        SwingUtilities.invokeLater(() -> {
-            window.setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> window.setVisible(true));
     }
 
 }

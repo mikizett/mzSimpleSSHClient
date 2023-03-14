@@ -19,6 +19,9 @@ public interface ISessionDataService extends IService {
     void removeSessionItemFrom(SessionFolderModel parentSessionFolderModel, SessionItemModel sessionItemModel);
     void removeSessionFolderFrom(SessionFolderModel parentSessionFolderModel, SessionFolderModel sessionFolderModel);
 
+    void setSelectedSessionItemModel(SessionItemModel selectedSessionItemModel);
+    SessionItemModel getSelectedSessionItemModel();
+
     boolean hasSessionModelChanged();
 
 }

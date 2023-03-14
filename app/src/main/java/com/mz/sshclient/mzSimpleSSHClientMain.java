@@ -3,6 +3,7 @@ package com.mz.sshclient;
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
 import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.ui.MainFrame;
+import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.config.ConfigFile;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
@@ -12,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
-import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Locale;
@@ -32,8 +32,7 @@ public class mzSimpleSSHClientMain {
             System.exit(-1);
         }
 
-        final String location = ConfigFile.getStorageLocation();
-        System.setProperty("logPath", location + File.separatorChar + Constants.LOG_PATH_NAME);
+        System.setProperty("logPath", AppConfig.getLogFileLocation());
     }
 
     private static final Logger LOG = LogManager.getLogger(mzSimpleSSHClientMain.class);

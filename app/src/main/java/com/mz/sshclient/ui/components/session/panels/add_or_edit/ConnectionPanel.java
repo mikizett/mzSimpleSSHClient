@@ -195,14 +195,15 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         hostTextField.setText(sessionItemDraftModel.getHost());
         portTextField.setText(sessionItemDraftModel.getPort());
         userTextField.setText(sessionItemDraftModel.getUser());
-        //passField.setText(sessionItemModel.get);
+        passField.setText(sessionItemDraftModel.getPassword());
         privateKeyFileTextField.setText(sessionItemDraftModel.getPrivateKeyFile());
     }
 
     private void addListeners() {
         hostTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
         portTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
-        userTextField.getDocument().addDocumentListener(new InputFieldDocumentListener((changeValueListener)));
+        userTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+        passField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
     }
 
     public String getHost() {
@@ -222,6 +223,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         sessionItemDraftModel.setHost(hostTextField.getText());
         sessionItemDraftModel.setPort(portTextField.getText());
         sessionItemDraftModel.setUser(userTextField.getText());
+        sessionItemDraftModel.setPassword(new String(passField.getPassword()));
         sessionItemDraftModel.setPrivateKeyFile(privateKeyFileTextField.getText());
     }
 

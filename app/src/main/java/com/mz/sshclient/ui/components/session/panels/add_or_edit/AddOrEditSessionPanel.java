@@ -62,6 +62,8 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
             }
         } else {
             parentTreeNode = (DefaultMutableTreeNode) tree.getModel().getRoot();
+            parentSessionFolderModel = (SessionFolderModel) parentTreeNode.getUserObject();
+
             setNewSessionItemDraftModel();
         }
         init();

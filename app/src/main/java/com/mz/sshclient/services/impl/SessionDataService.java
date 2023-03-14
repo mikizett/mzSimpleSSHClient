@@ -2,13 +2,12 @@ package com.mz.sshclient.services.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mz.sshclient.Constants;
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionModel;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
-import com.mz.sshclient.ui.config.ConfigFile;
+import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,9 +24,10 @@ public final class SessionDataService implements ISessionDataService {
     private SessionModel sessionModel;
     private SessionModel defaultSessionModel;
 
+    private SessionItemModel selectedSessionItemModel;
+
     public SessionDataService() {
-        final String sessionsFileLocation = ConfigFile.getStorageLocation() + File.separatorChar + Constants.SESSIONS_LOCATION;
-        sessionFile = new File(sessionsFileLocation);
+        sessionFile = new File(AppConfig.getSessionFileLocation());
         loadSessionModelFromFile();
     }
 
@@ -130,6 +130,16 @@ public final class SessionDataService implements ISessionDataService {
         parentSessionFolderModel.getFolders().remove(sessionFolderModel);
 
         LOG.info("Removed session folder: " + sessionFolderModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
+    }
+
+    @Override
+    public void setSelectedSessionItemModel(final SessionItemModel selectedSessionItemModel) {
+        this.selectedSessionItemModel = selectedSessionItemModel;
+    }
+
+    @Override
+    public SessionItemModel getSelectedSessionItemModel() {
+        return selectedSessionItemModel;
     }
 
     @Override

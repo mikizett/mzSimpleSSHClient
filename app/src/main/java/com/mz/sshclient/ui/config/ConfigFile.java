@@ -16,7 +16,7 @@ import java.io.IOException;
 public final class ConfigFile {
     private ConfigFile() {}
 
-    private static final File CONFI_FILE = new File(Constants.CONFIG_FILE_LOCATION);
+    private static final File CONFIG_FILE = new File(Constants.CONFIG_FILE_LOCATION);
     private static String storageLocation;
 
     public static String getStorageLocation() {
@@ -24,7 +24,7 @@ public final class ConfigFile {
     }
 
     public static void init() throws ReadWriteConfigfileException {
-        if (!CONFI_FILE.exists() && !CONFI_FILE.isFile()) {
+        if (!CONFIG_FILE.exists() && !CONFIG_FILE.isFile()) {
             final StringBuilder b = new StringBuilder();
             b.append("Do you want to use the default folder to store sessions?\n")
                     .append("Default folder is located in: " + Constants.DEFAULT_STORAGE_LOCATION);
@@ -76,7 +76,7 @@ public final class ConfigFile {
     }
 
     private static void readConfigFile() throws ReadWriteConfigfileException {
-        try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(CONFI_FILE))) {
+        try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(CONFIG_FILE))) {
             storageLocation = bufferedReader.readLine();
         } catch (IOException e) {
             throw new ReadWriteConfigfileException("Cannot write storage location to file", e);
@@ -84,7 +84,7 @@ public final class ConfigFile {
     }
 
     private static void writeConfigFile(final String location) throws ReadWriteConfigfileException {
-        try (final FileWriter fileWriter = new FileWriter(CONFI_FILE)) {
+        try (final FileWriter fileWriter = new FileWriter(CONFIG_FILE)) {
             fileWriter.write(location);
             fileWriter.flush();
         } catch (IOException e) {

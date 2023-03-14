@@ -43,12 +43,13 @@ public class SessionOverviewPanel extends JPanel implements ISessionDataChangedL
         final JPanel north = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         popupButton.addActionListener(l -> {
-            if (popupButton.isSelected()) {
-                popupMenu = createSessionActionsPopupMenu();
-                popupMenu.show(popupButton, 5, popupButton.getHeight() + 1);
-            } else {
+            if (popupMenu != null) {
                 popupButton.setSelected(false);
                 popupMenu.setVisible(false);
+                popupMenu = null;
+            } else {
+                popupMenu = createSessionActionsPopupMenu();
+                popupMenu.show(popupButton, 5, popupButton.getHeight() + 1);
             }
         });
         north.add(popupButton);

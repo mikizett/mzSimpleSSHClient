@@ -5,7 +5,7 @@ import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSSHEvent;
-import com.mz.sshclient.services.interfaces.ISSHConnectionService;
+import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
@@ -38,7 +38,7 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
     private static final Logger LOG = LogManager.getLogger(SessionTreeComponent.class);
 
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
-    private final ISSHConnectionService sshConnectionService = ServiceRegistry.get(ISSHConnectionService.class);
+    private final ISSHConnectionObservableService sshConnectionService = ServiceRegistry.get(ISSHConnectionObservableService.class);
 
     private DefaultTreeModel defaultTreeModel;
     private DefaultMutableTreeNode rootNode;

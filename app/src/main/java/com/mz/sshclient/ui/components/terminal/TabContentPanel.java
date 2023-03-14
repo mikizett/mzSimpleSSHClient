@@ -1,4 +1,8 @@
-package com.mz.sshclient.ui.components.tab;
+package com.mz.sshclient.ui.components.terminal;
+
+import com.jediterm.terminal.ui.JediTermWidget;
+import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+import com.mz.sshclient.ssh.SshTtyConnector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,7 +22,12 @@ public class TabContentPanel extends JPanel {
     private JToggleButton shellToggleButton = new JToggleButton("Shell", true);
     private JToggleButton browserToggleButton = new JToggleButton("Browser");
 
-    public TabContentPanel() {
+    private final JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
+
+    private final SshTtyConnector sshTtyConnector;
+
+    public TabContentPanel(final SshTtyConnector sshTtyConnector) {
+        this.sshTtyConnector = sshTtyConnector;
         init();
     }
 
@@ -29,9 +38,6 @@ public class TabContentPanel extends JPanel {
         headerComponent.setBorder(new MatteBorder(1, 1, 1, 1, Color.GRAY));
         headerComponent.add(shellToggleButton);
         headerComponent.add(browserToggleButton);
-
-        boolean b1 = shellToggleButton.isSelected();
-        boolean b2 = browserToggleButton.isSelected();
 
         add(headerComponent, BorderLayout.NORTH);
 
