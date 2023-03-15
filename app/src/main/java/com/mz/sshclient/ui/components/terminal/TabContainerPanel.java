@@ -5,14 +5,16 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
-import com.mz.sshclient.services.events.listener.ISshConnectListener;
+import com.mz.sshclient.services.events.listener.ISshConnectionListener;
 import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
 import com.mz.sshclient.ssh.HostKeyVerifier;
+import com.mz.sshclient.ssh.IClosedSshConnectionCallback;
 import com.mz.sshclient.ssh.SshClient;
 import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.exceptions.SshConnectionException;
 import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
+import com.mz.sshclient.ui.actions.ActionCloseSshTab;
 import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneClosable;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
@@ -21,13 +23,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
-public class TabContainerPanel extends JPanel implements ISshConnectListener {
+public class TabContainerPanel extends JPanel implements ISshConnectionListener, IClosedSshConnectionCallback {
 
     private static final Logger LOG = LogManager.getLogger(TabContainerPanel.class);
 
@@ -35,10 +38,9 @@ public class TabContainerPanel extends JPanel implements ISshConnectListener {
 
     private CustomTabbedPaneClosable tabbedPane;
 
-    private HostKeyVerifier hostKeyVerifier;
-
     private SshClient sshClient;
 
+    private HostKeyVerifier hostKeyVerifier;
     private final PasswordFinderCallback passwordFinderCallback = new PasswordFinderCallback();
     private final InteractiveResponseProvider interactiveResponseProvider = new InteractiveResponseProvider();
     private final PasswordRetryCallback passwordRetryCallback = new PasswordRetryCallback();
@@ -87,10 +89,14 @@ public class TabContainerPanel extends JPanel implements ISshConnectListener {
             sshClient.connect();
 
             final SshTtyConnector sshTtyConnector = new SshTtyConnector(sshClient);
+            sshTtyConnector.addClosedSshConnectionCallback(this);
 
-            tabbedPane.addTab(item.getName(), new TabContentPanel(sshTtyConnector));
-            tabbedPane.toggleTabLayoutPolicy();
-
+            SwingUtilities.invokeLater(() -> {
+                tabbedPane.addTab(item.getName(), new TabContentPanel(sshTtyConnector));
+                tabbedPane.toggleTabLayoutPolicy();
+                tabbedPane.setClosableHeaderTabAction(new ActionCloseSshTab(sshTtyConnector));
+                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+            });
         } catch (SshConnectionException | SshDisconnectException | SshOperationCanceledException e) {
             LOG.error("Could not connect", e);
             MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
@@ -104,9 +110,16 @@ public class TabContainerPanel extends JPanel implements ISshConnectListener {
             createSshClient(item);
             connectSshClient(item);
         });
+    }
 
-        //tabbedPane.addTab(item.getName(), new TabContentPanel());
-        //tabbedPane.toggleTabLayoutPolicy();
+    @Override
+    public void closedSshConnection() {
+        if (tabbedPane.getTabCount() > 0) {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex > -1) {
+                tabbedPane.removeTabAt(selectedIndex);
+            }
+        }
     }
 
 }

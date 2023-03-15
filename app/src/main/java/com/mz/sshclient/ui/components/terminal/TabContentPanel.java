@@ -6,7 +6,6 @@ import com.mz.sshclient.ssh.SshTtyConnector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JToggleButton;
 import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
@@ -25,16 +24,11 @@ public class TabContentPanel extends JPanel {
 
     private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
 
-    private final SshTtyConnector sshTtyConnector;
-
     public TabContentPanel(final SshTtyConnector sshTtyConnector) {
-        this.sshTtyConnector = sshTtyConnector;
-
         init();
 
-        if (jediTermWidget != null) {
-            jediTermWidget.start();
-        }
+        jediTermWidget.setTtyConnector(sshTtyConnector);
+        jediTermWidget.start();
     }
 
     private void init() {
@@ -50,14 +44,11 @@ public class TabContentPanel extends JPanel {
         CardLayout cardLayout = new CardLayout();
         shellOrBrowserPanel = new JPanel(cardLayout);
 
-        JPanel shellPanel = new JPanel();
+        JPanel shellPanel = new JPanel(new BorderLayout());
+        jediTermWidget.requestFocusInWindow();
         shellPanel.add(jediTermWidget);
 
-        JRootPane rootPane = new JRootPane();
-        rootPane.setContentPane(shellPanel);
-        add(rootPane);
-
-        JPanel browserPanel = new JPanel();
+        JPanel browserPanel = new JPanel(new BorderLayout());
         browserPanel.add(new JLabel("BROWSER_PANEL"));
 
         shellOrBrowserPanel.add(shellPanel);
@@ -70,6 +61,10 @@ public class TabContentPanel extends JPanel {
         browserToggleButton.addActionListener(actionListener);
 
         normalizeButtonSize();
+
+        shellPanel.requestFocusInWindow();
+        jediTermWidget.requestFocusInWindow();
+        jediTermWidget.requestFocus();
     }
 
     private void normalizeButtonSize() {

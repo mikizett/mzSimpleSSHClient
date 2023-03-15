@@ -7,6 +7,7 @@ import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
 import com.mz.sshclient.ssh.exceptions.SshPrivateKeyMissingException;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.DirectConnection;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.transport.TransportException;
@@ -21,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +35,6 @@ public class SshClient implements Closeable {
     private SSHClient sshj;
 
     private SshClient jumpHostSshClient;
-
-    private ServerSocket serverSocket;
 
     private boolean authenticated = false;
     private boolean closed = false;
@@ -287,18 +285,33 @@ public class SshClient implements Closeable {
         } catch (IOException e) {
             throw new SshDisconnectException(e.getMessage(), e);
         }
-
-        try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-        } catch (IOException e) {
-            throw new SshDisconnectException(e.getMessage(), e);
-        }
     }
 
-    public Session openSession() {
-        return null;
+    public Session openSession() throws SshConnectionException, SshOperationCanceledException {
+        try {
+            if (closed) {
+                disconnect();
+            }
+        } catch (SshDisconnectException e) {
+            throw new SshOperationCanceledException("ssh closed by user");
+        }
+
+        Session session;
+        try {
+            session = sshj.startSession();
+        } catch (ConnectionException | TransportException e) {
+            throw new SshConnectionException("Could not create ssh session", e);
+        }
+
+        try {
+            if (closed) {
+                disconnect();
+            }
+        } catch (SshDisconnectException e) {
+            throw new SshOperationCanceledException("ssh closed by user");
+        }
+
+        return session;
     }
 
     public boolean isConnected() {

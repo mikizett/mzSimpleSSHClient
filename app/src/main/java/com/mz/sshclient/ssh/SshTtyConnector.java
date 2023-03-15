@@ -2,9 +2,17 @@ package com.mz.sshclient.ssh;
 
 import com.jediterm.terminal.Questioner;
 import com.jediterm.terminal.TtyConnector;
+import com.mz.sshclient.mzSimpleSshClientMain;
+import com.mz.sshclient.ssh.exceptions.SshConnectionException;
+import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
+import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.SessionChannel;
 import net.schmizz.sshj.transport.TransportException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.Dimension;
 import java.io.IOException;
@@ -16,18 +24,22 @@ import java.util.Collections;
 
 public class SshTtyConnector implements TtyConnector {
 
+    private static final Logger LOG = LogManager.getLogger(SshTtyConnector.class);
+
     private InputStreamReader inputStreamReader;
     private InputStream inputStream;
     private OutputStream outputStream;
     private SessionChannel shell;
     private Session channel;
 
-    private Dimension myPendingTermSize;
-    private Dimension myPendingPixelSize;
+    private Dimension pendingTermSize;
+    private Dimension pendingPixelSize;
 
     private boolean initiated = false;
     private boolean canceled = false;
     private boolean stopped = false;
+
+    private IClosedSshConnectionCallback closedSshConnectionCallback;
 
     private final SshClient sshClient;
 
@@ -36,98 +48,138 @@ public class SshTtyConnector implements TtyConnector {
     }
 
     private void resizeImmediately() {
-        if (myPendingTermSize != null && myPendingPixelSize != null) {
-            setPtySize(shell, myPendingTermSize.width, myPendingTermSize.height, myPendingPixelSize.width,
-                    myPendingPixelSize.height);
-            myPendingTermSize = null;
-            myPendingPixelSize = null;
+        if (pendingTermSize != null && pendingPixelSize != null) {
+            setPtySize(
+                    shell,
+                    pendingTermSize.width,
+                    pendingTermSize.height,
+                    pendingPixelSize.width,
+                    pendingPixelSize.height
+            );
+            pendingTermSize = null;
+            pendingPixelSize = null;
         }
     }
 
     private void setPtySize(Session.Shell shell, int col, int row, int wp, int hp) {
-        System.out.println("Exec pty resized:- col: " + col + " row: " + row + " wp: " + wp + " hp: " + hp);
         if (shell != null) {
             try {
                 shell.changeWindowDimensions(col, row, wp, hp);
             } catch (TransportException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.error(e);
             }
         }
+    }
+
+    public void addClosedSshConnectionCallback(IClosedSshConnectionCallback callback) {
+        this.closedSshConnectionCallback = callback;
+    }
+
+    public boolean isRunning() {
+        return shell != null && shell.isOpen();
     }
 
     @Override
     public boolean init(Questioner q) {
         try {
-            this.channel = sshClient.openSession();
-            this.channel.setAutoExpand(true);
+            channel = sshClient.openSession();
+            channel.setAutoExpand(true);
 
-            this.channel.allocatePTY("xterm-256color", 80, 24, 0, 0, Collections.emptyMap());
+            final int width = 80;
+            final int height = 24;
 
             try {
-                this.channel.setEnvVar("LANG", "en_US.UTF-8");
+                channel.allocatePTY("xterm-256color", width, height, 0, 0, Collections.emptyMap());
+                channel.setEnvVar("LANG", "en_US.UTF-8");
+                shell = (SessionChannel) this.channel.startShell();
+
+                inputStream = shell.getInputStream();
+                outputStream = shell.getOutputStream();
+                inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+
+                initiated = true;
+                return true;
             } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Cannot set environment variable Lang: " + e.getMessage());
+                LOG.error(e);
+                MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
             }
 
 
-            this.shell = (SessionChannel) this.channel.startShell();
-
-            inputStream = shell.getInputStream();
-            outputStream = shell.getOutputStream();
-            inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-
-            resizeImmediately();
-            System.out.println("Initiated");
-
-            initiated = true;
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SshOperationCanceledException | SshConnectionException e) {
+            LOG.error(e);
+            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
             initiated = false;
             canceled = true;
-            return false;
         }
+        return false;
     }
 
     @Override
     public void close() {
         try {
             stopped = true;
-            System.out.println("Terminal wrapper disconnecting");
             sshClient.disconnect();
-        } catch (Exception e) {
+
+            if (closedSshConnectionCallback != null) {
+                closedSshConnectionCallback.closedSshConnection();
+            }
+
+            LOG.info("Terminal wrapper disconnected");
+        } catch (SshDisconnectException e) {
+            LOG.error(e);
+            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, "Could not disconnect ssh session");
+        }
+    }
+
+    @Override
+    public void resize(Dimension termSize, Dimension pixelSize) {
+        pendingTermSize = termSize;
+        pendingPixelSize = pixelSize;
+        if (channel != null) {
+            resizeImmediately();
         }
     }
 
     @Override
     public String getName() {
-        return null;
+        return "Remote";
     }
 
     @Override
     public int read(char[] buf, int offset, int length) throws IOException {
-        return 0;
+        return inputStreamReader.read(buf, offset, length);
     }
 
     @Override
     public void write(byte[] bytes) throws IOException {
-
+        outputStream.write(bytes);
+        outputStream.flush();
     }
 
     @Override
     public boolean isConnected() {
-        return false;
+        return channel != null && channel.isOpen() && initiated;
     }
 
     @Override
     public void write(String string) throws IOException {
-
+        write(string.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
     public int waitFor() throws InterruptedException {
-        return 0;
+        LOG.debug("Start waiting...");
+        while (!initiated || isRunning()) {
+            LOG.debug("waiting");
+            Thread.sleep(100); // TODO: remove busy wait
+        }
+        LOG.debug("waiting exit");
+        try {
+            shell.join();
+        } catch (ConnectionException e) {
+            LOG.error(e);
+            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+        }
+        return shell.getExitStatus();
     }
 }

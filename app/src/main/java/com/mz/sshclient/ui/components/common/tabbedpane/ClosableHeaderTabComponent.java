@@ -209,7 +209,9 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         @Override
         protected void fireActionPerformed(ActionEvent event) {
             super.fireActionPerformed(event);
-            DEFAULT_CLOSE_ACTION.actionPerformed(event);
+            if (action == null) {
+                DEFAULT_CLOSE_ACTION.actionPerformed(event);
+            }
         }
 
         /**
@@ -264,7 +266,7 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     /**
      * Removes a tab by clicking on the close button
      */
-    private class RemoveTabAction extends AbstractAction {
+    public class RemoveTabAction extends AbstractAction {
         private final static String SHORT_DESCRIPTION_CLOSE = "Close selected tab";
 
         protected RemoveTabAction() {
@@ -275,9 +277,11 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         @Override
         public void actionPerformed(ActionEvent e) {
             int index = indexOfTabComponent(tabbedPane, ClosableHeaderTabComponent.this);
-            tabbedPane.removeTabAt(index);
-            tabbedPane.revalidate();
-            tabbedPane.repaint();
+            if (index > -1 && tabbedPane.getTabCount() > 0) {
+                tabbedPane.removeTabAt(index);
+                tabbedPane.revalidate();
+                tabbedPane.repaint();
+            }
         }
 
         private int indexOfTabComponent(final JTabbedPane tabbedPane, final Component tabComponent) {
