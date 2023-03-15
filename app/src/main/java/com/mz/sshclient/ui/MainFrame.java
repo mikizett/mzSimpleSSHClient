@@ -42,8 +42,13 @@ public class MainFrame extends JFrame {
                         }
                     }
                 }
+
+                // close all opened ssh sessions
+                OpenedSshSessions.closeAllSshSessions();
+
                 dispose();
                 setVisible(false);
+                System.exit(0);
             }
         });
         setPreferredSize();

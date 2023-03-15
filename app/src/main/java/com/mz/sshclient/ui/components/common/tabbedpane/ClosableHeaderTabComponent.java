@@ -45,10 +45,6 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     private final Color crossRolloverColor;
     private final int textButtonGap;
 
-    protected ClosableHeaderTabComponent(final JTabbedPane tabbedPane, final String title) {
-        this(tabbedPane, title, null);
-    }
-
     protected ClosableHeaderTabComponent(final JTabbedPane tabbedPane, final String title, final Action action) {
         this(tabbedPane, title, action, DEFAULT_BORDER_COLOR, DEFAULT_CROSS_COLOR, DEFAULT_CROSS_ROLL_OVER_COLOR, DEFAULT_TEXT_BUTTON_GAP);
     }

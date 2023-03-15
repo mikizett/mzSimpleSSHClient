@@ -73,8 +73,10 @@ public class mzSimpleSshClientMain {
     }
 
     public static void main(String[] args) {
-        //UiUtils.setNimbusLookAndFeel();
+        //UIUtils.setNimbusLookAndFeel();
+        //UIUtils.setSystemLookAndFeel();
         UIUtils.setMetalLookAndFeel();
+
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();
         preloadJediTermLib();
@@ -84,6 +86,7 @@ public class mzSimpleSshClientMain {
 
         //final MainFrame mainFrame = new MainFrame();
         MAIN_FRAME = new MainFrame();
+        MAIN_FRAME.setFocusable(false);
         AWTInvokerUtils.invokeLaterShowWindow(MAIN_FRAME);
     }
 }

@@ -1,5 +1,7 @@
 package com.mz.sshclient.ssh;
 
+import java.io.Serializable;
+
 public interface IClosedSshConnectionCallback {
-    void closedSshConnection();
+    void closedSshConnection(Serializable reference);
 }

@@ -20,6 +20,10 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
         final JPasswordField passwordField = new JPasswordField(30);
         final JCheckBox useCacheCheckBox = new JCheckBox("Remember for this session");
         userTextField.setText(user);
+        passwordField.setFocusable(true);
+        passwordField.setRequestFocusEnabled(true);
+        passwordField.requestFocusInWindow();
+
         int answer = JOptionPane.showOptionDialog(
                 mzSimpleSshClientMain.MAIN_FRAME,
                 new Object[] {

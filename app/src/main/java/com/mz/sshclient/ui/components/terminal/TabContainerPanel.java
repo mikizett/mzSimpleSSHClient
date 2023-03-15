@@ -14,6 +14,7 @@ import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.exceptions.SshConnectionException;
 import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
+import com.mz.sshclient.ui.OpenedSshSessions;
 import com.mz.sshclient.ui.actions.ActionCloseSshTab;
 import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneClosable;
 import com.mz.sshclient.ui.config.AppConfig;
@@ -29,6 +30,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Optional;
 
 public class TabContainerPanel extends JPanel implements ISshConnectionListener, IClosedSshConnectionCallback {
 
@@ -39,6 +43,8 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
     private CustomTabbedPaneClosable tabbedPane;
 
     private SshClient sshClient;
+
+    //private final List<SshTerminalHolder> sshTerminalList = new ArrayList<>(0);
 
     private HostKeyVerifier hostKeyVerifier;
     private final PasswordFinderCallback passwordFinderCallback = new PasswordFinderCallback();
@@ -92,10 +98,12 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
             sshTtyConnector.addClosedSshConnectionCallback(this);
 
             SwingUtilities.invokeLater(() -> {
-                tabbedPane.addTab(item.getName(), new TabContentPanel(sshTtyConnector));
+                final TabContentPanel tabContainerPanel = new TabContentPanel(sshTtyConnector);
+                tabbedPane.addTabWithAction(item.getName(), tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
                 tabbedPane.toggleTabLayoutPolicy();
-                tabbedPane.setClosableHeaderTabAction(new ActionCloseSshTab(sshTtyConnector));
                 tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+
+                OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector);
             });
         } catch (SshConnectionException | SshDisconnectException | SshOperationCanceledException e) {
             LOG.error("Could not connect", e);
@@ -113,13 +121,25 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
     }
 
     @Override
-    public void closedSshConnection() {
-        if (tabbedPane.getTabCount() > 0) {
-            int selectedIndex = tabbedPane.getSelectedIndex();
-            if (selectedIndex > -1) {
-                tabbedPane.removeTabAt(selectedIndex);
+    public void closedSshConnection(final Serializable reference) {
+        Optional<OpenedSshSessions.SshSessionHolder> sshTerminalHolderOptional = OpenedSshSessions.getOpenSshSessions()
+                .stream()
+                .filter(ref -> ref.getSessionItemModel().getId() == ((SessionItemModel) reference).getId())
+                .findFirst();
+
+        sshTerminalHolderOptional.ifPresent(item -> {
+            final int index = tabbedPane.indexOfComponent(item.getTabContentPanel());
+            if (index > -1) {
+                try {
+                    SwingUtilities.invokeAndWait(() -> {
+                        tabbedPane.removeTabAt(index);
+                        OpenedSshSessions.removeSshSession(item);
+                    });
+                } catch (Exception e) {
+                    // do nothing !!!
+                }
             }
-        }
+        });
     }
 
 }

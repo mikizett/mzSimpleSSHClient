@@ -151,7 +151,7 @@ public class SshClient implements Closeable {
                 sshj.authPassword(user, password);
                 break;
             } catch (UserAuthException | TransportException e) {
-                throw new SshConnectionException("Could not set password", e);
+                throw new SshConnectionException("Wrong password", e);
             }
         }
     }
@@ -245,6 +245,7 @@ public class SshClient implements Closeable {
                         throw e;
                     } catch (SshConnectionException e) {
                         LOG.warn(e);
+                        throw e;
                     }
                     break;
             }
@@ -316,6 +317,10 @@ public class SshClient implements Closeable {
 
     public boolean isConnected() {
         return sshj != null && sshj.isConnected();
+    }
+
+    public SessionItemModel getSessionItemModel() {
+        return sessionItemModel;
     }
 
     @Override

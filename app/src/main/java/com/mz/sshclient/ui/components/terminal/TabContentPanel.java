@@ -93,4 +93,5 @@ public class TabContentPanel extends JPanel {
             cardLayout.next(parent);
         };
     }
+
 }

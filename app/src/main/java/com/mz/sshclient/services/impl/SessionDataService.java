@@ -51,10 +51,6 @@ public final class SessionDataService implements ISessionDataService {
         }
     }
 
-    private SessionFolderModel createNewSessionFolderModel() {
-        return createNewSessionFolderModel(UUID.randomUUID().toString(), "New Folder");
-    }
-
     private SessionFolderModel createNewSessionFolderModel(final String id, final String name) {
         final SessionFolderModel model = new SessionFolderModel();
         model.setId(id);
@@ -92,7 +88,12 @@ public final class SessionDataService implements ISessionDataService {
     }
 
     @Override
-    public SessionFolderModel createNewSessionFolder(final SessionFolderModel parentSessionFolder) {
+    public SessionFolderModel createNewSessionFolderModel() {
+        return createNewSessionFolderModel(UUID.randomUUID().toString(), "New Folder");
+    }
+
+    @Override
+    public SessionFolderModel createAndAddNewSessionFolder(final SessionFolderModel parentSessionFolder) {
         final SessionFolderModel folder = createNewSessionFolderModel();
         parentSessionFolder.getFolders().add(folder);
 

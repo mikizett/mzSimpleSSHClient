@@ -137,7 +137,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
             parentNode = (DefaultMutableTreeNode) parentNode.getParent();
         }
 
-        final SessionFolderModel newSessionFolderModel = sessionDataService.createNewSessionFolder((SessionFolderModel) parentNode.getUserObject());
+        //final SessionFolderModel newSessionFolderModel = sessionDataService.createNewSessionFolder((SessionFolderModel) parentNode.getUserObject());
+        final SessionFolderModel newSessionFolderModel = sessionDataService.createNewSessionFolderModel();
 
         DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(newSessionFolderModel);
 
@@ -197,27 +198,15 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
         if (node != null && parentNode != null && (nodeUserObject instanceof SessionItemModel)) {
             final SessionItemModel newSessionItem = ((SessionItemModel) node.getUserObject()).deepCopy();
-            //newSessionItem.setName(newSessionItem.getName() + " (Copy)");
-
             final DefaultMutableTreeNode child = new DefaultMutableTreeNode(newSessionItem);
             child.setAllowsChildren(false);
 
             defaultTreeModel.insertNodeInto(child, (MutableTreeNode) node.getParent(), node.getParent().getChildCount());
 
             selectNode(newSessionItem.getId(), child);
-
-            final SessionFolderModel parentSessionFolder = (SessionFolderModel) parentNode.getUserObject();
-            sessionDataService.addSessionItem(parentSessionFolder, newSessionItem);
-
         } else if (node != null && parentNode != null && (nodeUserObject instanceof SessionFolderModel)) {
             final SessionFolderModel newSessionFolder = ((SessionFolderModel) node.getUserObject()).deepCopy();
-            //newSessionFolder.setId(UUID.randomUUID().toString());
-            //newSessionFolder.setName(((AbstractSessionEntryModel) nodeUserObject).getName() + " (Copy)");
-
             final DefaultMutableTreeNode newFolderTree = new DefaultMutableTreeNode(newSessionFolder);
-
-            final SessionFolderModel parentSessionFolder = (SessionFolderModel) parentNode.getUserObject();
-            sessionDataService.addSessionFolder(parentSessionFolder, newSessionFolder);
 
             final Enumeration<TreeNode> children = node.children();
             while (children.hasMoreElements()) {
@@ -225,22 +214,12 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                 final Object defaultMutalbeTreeNodeUserObject = defaultMutableTreeNode.getUserObject();
                 if (defaultMutalbeTreeNodeUserObject instanceof SessionItemModel) {
                     final SessionItemModel newCopySessionItem = ((SessionItemModel) defaultMutableTreeNode.getUserObject()).deepCopy();
-                    //newCopySessionItem.setName(newCopySessionItem.getName() + " (Copy)");
-
                     DefaultMutableTreeNode subChild = new DefaultMutableTreeNode(newCopySessionItem);
                     subChild.setAllowsChildren(false);
-
                     newFolderTree.add(subChild);
-
-                    sessionDataService.addSessionItem(newSessionFolder, newCopySessionItem);
-
                 } else if (defaultMutalbeTreeNodeUserObject instanceof SessionFolderModel) {
                     final SessionFolderModel copySessionFolder = ((SessionFolderModel) defaultMutalbeTreeNodeUserObject).deepCopy();
-                    //newSessionFolder.setName(copySessionFolder.getName() + " (Copy)");
-
                     newFolderTree.add(cloneChildFolder(copySessionFolder));
-
-                    sessionDataService.addSessionFolder(newSessionFolder, copySessionFolder);
                 }
             }
 
@@ -318,8 +297,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     @Override
     public void treeNodesInserted(TreeModelEvent e) {
-        fireSessionDataChangedEvent();
-
         LOG.debug("Inserted tree path: " + e.getTreePath());
 
         SessionFolderModel parentFolder = null;
@@ -345,6 +322,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                 sessionDataService.addSessionItem(parentFolder, item);
                 LOG.debug("Inserted session item: " + item.getName() + " to session parentFolder: " + parentFolder.getName());
             }
+
+            fireSessionDataChangedEvent();
         }
     }
 

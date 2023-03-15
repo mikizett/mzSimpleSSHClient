@@ -71,6 +71,10 @@ public class SshTtyConnector implements TtyConnector {
         }
     }
 
+    public SshClient getSshClient() {
+        return sshClient;
+    }
+
     public void addClosedSshConnectionCallback(IClosedSshConnectionCallback callback) {
         this.closedSshConnectionCallback = callback;
     }
@@ -121,7 +125,7 @@ public class SshTtyConnector implements TtyConnector {
             sshClient.disconnect();
 
             if (closedSshConnectionCallback != null) {
-                closedSshConnectionCallback.closedSshConnection();
+                closedSshConnectionCallback.closedSshConnection(sshClient.getSessionItemModel());
             }
 
             LOG.info("Terminal wrapper disconnected");
