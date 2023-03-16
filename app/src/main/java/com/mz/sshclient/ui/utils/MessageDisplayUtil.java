@@ -9,7 +9,7 @@ public final class MessageDisplayUtil {
     private MessageDisplayUtil() {}
 
     public static void showErrorMessage(final String errorMessage) {
-        JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void showErrorMessage(final Window parent, final String errorMessage) {

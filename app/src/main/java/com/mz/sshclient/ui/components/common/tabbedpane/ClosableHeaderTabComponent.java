@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabComponent {
+
     private static final Color DEFAULT_BORDER_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_ROLL_OVER_COLOR = Color.RED;
@@ -44,10 +45,6 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     private final Color crossColor;
     private final Color crossRolloverColor;
     private final int textButtonGap;
-
-    protected ClosableHeaderTabComponent(final JTabbedPane tabbedPane, final String title) {
-        this(tabbedPane, title, null);
-    }
 
     protected ClosableHeaderTabComponent(final JTabbedPane tabbedPane, final String title, final Action action) {
         this(tabbedPane, title, action, DEFAULT_BORDER_COLOR, DEFAULT_CROSS_COLOR, DEFAULT_CROSS_ROLL_OVER_COLOR, DEFAULT_TEXT_BUTTON_GAP);
@@ -165,14 +162,12 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     private final class CloseTabButton extends JButton {
         private final AbstractAction DEFAULT_CLOSE_ACTION = new RemoveTabAction();
         private final Action action;
-        private final ClosableHeaderTabComponent tabComponent;
 
         private CloseTabButton(final ClosableHeaderTabComponent tabComponent) {
             this(tabComponent, null);
         }
 
         private CloseTabButton(final ClosableHeaderTabComponent tabComponent, final Action action) {
-            this.tabComponent = tabComponent;
 
             this.action = action;
             setPreferredSize(new Dimension(TAB_BUTTON_SIZE, TAB_BUTTON_SIZE));
@@ -181,7 +176,7 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
             setUI(new BasicButtonUI());
             // Make it transparent
             setContentAreaFilled(false);
-            // No need to be focusable.
+            // No need to be focusable
             setFocusable(false);
             // Make a simple border
             setBorder(BorderFactory.createLineBorder(borderColor));
@@ -209,7 +204,9 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         @Override
         protected void fireActionPerformed(ActionEvent event) {
             super.fireActionPerformed(event);
-            DEFAULT_CLOSE_ACTION.actionPerformed(event);
+            if (action == null) {
+                DEFAULT_CLOSE_ACTION.actionPerformed(event);
+            }
         }
 
         /**
@@ -264,7 +261,7 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     /**
      * Removes a tab by clicking on the close button
      */
-    private class RemoveTabAction extends AbstractAction {
+    public class RemoveTabAction extends AbstractAction {
         private final static String SHORT_DESCRIPTION_CLOSE = "Close selected tab";
 
         protected RemoveTabAction() {
@@ -275,9 +272,11 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         @Override
         public void actionPerformed(ActionEvent e) {
             int index = indexOfTabComponent(tabbedPane, ClosableHeaderTabComponent.this);
-            tabbedPane.removeTabAt(index);
-            tabbedPane.revalidate();
-            tabbedPane.repaint();
+            if (index > -1 && tabbedPane.getTabCount() > 0) {
+                tabbedPane.removeTabAt(index);
+                tabbedPane.revalidate();
+                tabbedPane.repaint();
+            }
         }
 
         private int indexOfTabComponent(final JTabbedPane tabbedPane, final Component tabComponent) {

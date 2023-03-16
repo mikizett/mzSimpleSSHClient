@@ -7,13 +7,21 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.io.File;
-import java.nio.file.Files;
 
 public final class UIUtils {
     private UIUtils() {}
 
     private static final File CONFIG_FILE = new File(Constants.CONFIG_FILE_LOCATION);
+
+    private static void setLookAndFeel(final String laf) {
+        try {
+            UIManager.setLookAndFeel(laf);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     /**
      * Set the Nimbus look and feel
@@ -21,30 +29,17 @@ public final class UIUtils {
      * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
      */
     public static void setNimbusLookAndFeel() {
-        try {
-            for (UIManager.LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(lafInfo.getName())) {
-                    UIManager.setLookAndFeel(lafInfo.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
-        }
+        setLookAndFeel(NimbusLookAndFeel.class.getName());
     }
 
     public static void setMetalLookAndFeel() {
-        try {
-            for (UIManager.LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
-                if (lafInfo.getClassName().equals(MetalLookAndFeel.class.getName())) {
-                    UIManager.setLookAndFeel(lafInfo.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            ex.printStackTrace();
-        }
+        setLookAndFeel(MetalLookAndFeel.class.getName());
     }
+
+    public static void setSystemLookAndFeel() {
+        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+
 
     public static void selectSessionStorageLocation() {
         final FileFilter fileFilter = new FileFilter() {

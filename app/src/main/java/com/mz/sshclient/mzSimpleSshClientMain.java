@@ -1,8 +1,10 @@
 package com.mz.sshclient;
 
+import com.jediterm.terminal.ui.JediTermWidget;
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
 import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.ui.MainFrame;
+import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.config.ConfigFile;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
@@ -12,13 +14,12 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.Cipher;
-import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
-public class mzSimpleSSHClientMain {
+public class mzSimpleSshClientMain {
 
     static {
         Locale.setDefault(Locale.US);
@@ -32,11 +33,12 @@ public class mzSimpleSSHClientMain {
             System.exit(-1);
         }
 
-        final String location = ConfigFile.getStorageLocation();
-        System.setProperty("logPath", location + File.separatorChar + Constants.LOG_PATH_NAME);
+        System.setProperty("logPath", AppConfig.getLogFileLocation());
     }
 
-    private static final Logger LOG = LogManager.getLogger(mzSimpleSSHClientMain.class);
+    private static final Logger LOG = LogManager.getLogger(mzSimpleSshClientMain.class);
+
+    public static MainFrame MAIN_FRAME;
 
     private static void initBountyCastleCryptographySecurityProvider() {
         Security.addProvider(new BouncyCastleProvider());
@@ -63,7 +65,7 @@ public class mzSimpleSSHClientMain {
     private static void preloadJediTermLib() {
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
-                Class.forName("com.jediterm.terminal.ui.JediTermWidget");
+                Class.forName(JediTermWidget.class.getName());
             } catch (ClassNotFoundException e) {
                 LOG.warn("Could not preload jedi-term-lib", e);
             }
@@ -71,8 +73,10 @@ public class mzSimpleSSHClientMain {
     }
 
     public static void main(String[] args) {
-        //UiUtils.setNimbusLookAndFeel();
+        //UIUtils.setNimbusLookAndFeel();
+        //UIUtils.setSystemLookAndFeel();
         UIUtils.setMetalLookAndFeel();
+
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();
         preloadJediTermLib();
@@ -80,7 +84,9 @@ public class mzSimpleSSHClientMain {
         // load services
         ServiceRegistration.registration();
 
-        final MainFrame mainFrame = new MainFrame();
-        AWTInvokerUtils.invokeLaterShowWindow(mainFrame);
+        //final MainFrame mainFrame = new MainFrame();
+        MAIN_FRAME = new MainFrame();
+        MAIN_FRAME.setFocusable(false);
+        AWTInvokerUtils.invokeLaterShowWindow(MAIN_FRAME);
     }
 }

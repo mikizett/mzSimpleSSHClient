@@ -14,9 +14,10 @@ public interface Constants {
     String SESSIONS_FILE_NAME = "sessions.json";
     String SESSIONS_LOCATION = SESSIONS_PATH_NAME + File.separatorChar + SESSIONS_FILE_NAME;
 
+    String KNOWN_HOSTS_FILE_NAME = "known_hosts";
+
     String DEFAULT_STORAGE_PATH_NAME = "mzSimpleSSHClient";
     String DEFAULT_STORAGE_LOCATION = USER_HOME + File.separatorChar + DEFAULT_STORAGE_PATH_NAME;
-    String DEFAULT_SESSIONS_LOCATION = DEFAULT_STORAGE_LOCATION + File.separatorChar + SESSIONS_LOCATION;
 
     String CONFIG_FILE_LOCATION = USER_HOME + File.separatorChar + ".mzSimpleSSHClient.conf";
 

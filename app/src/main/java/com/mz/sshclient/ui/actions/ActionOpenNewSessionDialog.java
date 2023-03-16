@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 
 public class ActionOpenNewSessionDialog extends AbstractAction {
+
     private final JTree tree;
 
     public ActionOpenNewSessionDialog(final JTree tree) {
@@ -20,4 +21,5 @@ public class ActionOpenNewSessionDialog extends AbstractAction {
         final NewSessionDialog dialog = new NewSessionDialog(SwingUtilities.getWindowAncestor(tree), tree);
         AWTInvokerUtils.invokeLaterShowWindow(dialog);
     }
+
 }

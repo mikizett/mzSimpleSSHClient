@@ -29,6 +29,7 @@ public final class SessionItemModelHelper {
             t.setHost(new String(e.getHost()));
             t.setPort(new String(e.getPort()));
             t.setUser(new String(e.getUser()));
+            t.setPassword(new String(e.getPassword()));
             t.setPrivateKeyFile(new String(e.getPrivateKeyFile()));
             t.setLocalFolder(new String(e.getLocalFolder()));
             t.setRemoteFolder(new String(e.getRemoteFolder()));

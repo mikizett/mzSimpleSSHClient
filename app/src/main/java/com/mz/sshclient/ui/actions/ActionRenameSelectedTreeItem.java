@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 public class ActionRenameSelectedTreeItem extends AbstractAction {
+
     private final SessionTreeComponent tree;
 
     public ActionRenameSelectedTreeItem(final SessionTreeComponent tree) {
@@ -16,4 +17,5 @@ public class ActionRenameSelectedTreeItem extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         tree.renameSelectedNode();
     }
+
 }

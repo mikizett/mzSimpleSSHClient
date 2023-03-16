@@ -1,5 +1,6 @@
 package com.mz.sshclient.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,11 @@ public class SessionItemModel extends AbstractSessionEntryModel {
     private String host = "";
     private String port = "";
     private String user = "";
+
+    @Getter(onMethod = @__(@JsonIgnore))
+    @Setter
+    private String password = "";
+
     private String privateKeyFile = "";
     private String localFolder = "";
     private String remoteFolder = "";
@@ -25,7 +31,7 @@ public class SessionItemModel extends AbstractSessionEntryModel {
     public boolean equals(Object obj) {
         final SessionItemModel that = (SessionItemModel) obj;
         if (id.equals(that.id) && name.equals(that.name) && host.equals(that.host) && port.equals(that.port)
-                && user.equals(that.user) && privateKeyFile.equals(that.privateKeyFile) && localFolder.equals(that.localFolder)
+                && user.equals(that.user) && password.equals(that.password) && privateKeyFile.equals(that.privateKeyFile) && localFolder.equals(that.localFolder)
                 && remoteFolder.equals(that.remoteFolder) && jumpHost.equals(that.jumpHost)
         ) {
             return true;
@@ -42,6 +48,7 @@ public class SessionItemModel extends AbstractSessionEntryModel {
         copy.host = new String(this.host);
         copy.port = new String(this.port);
         copy.user = new String(this.user);
+        copy.password = new String(this.password);
         copy.privateKeyFile = new String(this.privateKeyFile);
         copy.localFolder = new String(this.localFolder);
         copy.remoteFolder = new String(this.remoteFolder);
@@ -56,6 +63,7 @@ public class SessionItemModel extends AbstractSessionEntryModel {
         host = new String(model.getHost());
         port = new String(model.getPort());
         user = new String(model.getUser());
+        password = new String(model.getPassword());
         privateKeyFile = new String(model.getPrivateKeyFile());
         localFolder = new String(model.getLocalFolder());
         remoteFolder = new String(model.getRemoteFolder());

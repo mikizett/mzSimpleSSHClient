@@ -17,6 +17,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 public class CustomTabbedPaneClosable extends JTabbedPane {
+
     private CustomMetalTabbedPaneUIDecorator customMetalTabbedPaneUIDecorator;
     private PropertyChangeListener tabLayoutPolicyListener;
 
@@ -60,10 +61,10 @@ public class CustomTabbedPaneClosable extends JTabbedPane {
     }
 
     private void addCloseableTabComponent() {
-        addCloseableTabComponent(null);
+        addCloseableTabComponent(null, null);
     }
 
-    private void addCloseableTabComponent(String title) {
+    private void addCloseableTabComponent(String title, Action action) {
         final int countTabComponent = getTabCount();
         final int index = Math.max(countTabComponent - 1, 0);
 
@@ -71,26 +72,31 @@ public class CustomTabbedPaneClosable extends JTabbedPane {
             title = getTitleAt(index);
         }
 
-        closableHeaderTabComponent = new ClosableHeaderTabComponent(this, title);
+        closableHeaderTabComponent = new ClosableHeaderTabComponent(this, title, action);
         setTabComponentAt(index, closableHeaderTabComponent);
+    }
+
+    public void addTabWithAction(String title, Component component, Action action) {
+        super.addTab(title, component);
+        addCloseableTabComponent(title, action);
     }
 
     @Override
     public void addTab(String title, Icon icon, Component component, String tip) {
         super.addTab(title, icon, component, tip);
-        addCloseableTabComponent(title);
+        addCloseableTabComponent(title, null);
     }
 
     @Override
     public void addTab(String title, Icon icon, Component component) {
         super.addTab(title, icon, component);
-        addCloseableTabComponent(title);
+        addCloseableTabComponent(title, null);
     }
 
     @Override
     public void addTab(String title, Component component) {
         super.addTab(title, component);
-        addCloseableTabComponent(title);
+        addCloseableTabComponent(title, null);
     }
 
     @Override
@@ -207,4 +213,5 @@ public class CustomTabbedPaneClosable extends JTabbedPane {
             this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         }
     }
+
 }

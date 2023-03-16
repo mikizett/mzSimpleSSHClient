@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 public class ActionCloneSelectedTreeItem extends AbstractAction {
+
     private final SessionTreeComponent tree;
 
     public ActionCloneSelectedTreeItem(final SessionTreeComponent tree) {
@@ -16,4 +17,5 @@ public class ActionCloneSelectedTreeItem extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         tree.cloneSelectedNode();
     }
+
 }

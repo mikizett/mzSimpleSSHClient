@@ -1,4 +1,8 @@
-package com.mz.sshclient.ui.components.tab;
+package com.mz.sshclient.ui.components.terminal;
+
+import com.jediterm.terminal.ui.JediTermWidget;
+import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+import com.mz.sshclient.ssh.SshTtyConnector;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,8 +22,13 @@ public class TabContentPanel extends JPanel {
     private JToggleButton shellToggleButton = new JToggleButton("Shell", true);
     private JToggleButton browserToggleButton = new JToggleButton("Browser");
 
-    public TabContentPanel() {
+    private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
+
+    public TabContentPanel(final SshTtyConnector sshTtyConnector) {
         init();
+
+        jediTermWidget.setTtyConnector(sshTtyConnector);
+        jediTermWidget.start();
     }
 
     private void init() {
@@ -30,18 +39,16 @@ public class TabContentPanel extends JPanel {
         headerComponent.add(shellToggleButton);
         headerComponent.add(browserToggleButton);
 
-        boolean b1 = shellToggleButton.isSelected();
-        boolean b2 = browserToggleButton.isSelected();
-
         add(headerComponent, BorderLayout.NORTH);
 
         CardLayout cardLayout = new CardLayout();
         shellOrBrowserPanel = new JPanel(cardLayout);
 
-        JPanel shellPanel = new JPanel();
-        shellPanel.add(new JLabel("SHELL_PANEL"));
+        JPanel shellPanel = new JPanel(new BorderLayout());
+        jediTermWidget.requestFocusInWindow();
+        shellPanel.add(jediTermWidget);
 
-        JPanel browserPanel = new JPanel();
+        JPanel browserPanel = new JPanel(new BorderLayout());
         browserPanel.add(new JLabel("BROWSER_PANEL"));
 
         shellOrBrowserPanel.add(shellPanel);
@@ -54,6 +61,10 @@ public class TabContentPanel extends JPanel {
         browserToggleButton.addActionListener(actionListener);
 
         normalizeButtonSize();
+
+        shellPanel.requestFocusInWindow();
+        jediTermWidget.requestFocusInWindow();
+        jediTermWidget.requestFocus();
     }
 
     private void normalizeButtonSize() {
@@ -82,4 +93,5 @@ public class TabContentPanel extends JPanel {
             cardLayout.next(parent);
         };
     }
+
 }
