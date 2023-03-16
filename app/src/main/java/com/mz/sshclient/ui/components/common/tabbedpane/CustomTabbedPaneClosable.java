@@ -17,6 +17,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 public class CustomTabbedPaneClosable extends JTabbedPane {
+
     private CustomMetalTabbedPaneUIDecorator customMetalTabbedPaneUIDecorator;
     private PropertyChangeListener tabLayoutPolicyListener;
 
@@ -212,4 +213,5 @@ public class CustomTabbedPaneClosable extends JTabbedPane {
             this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         }
     }
+
 }

@@ -10,11 +10,9 @@ import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.SessionChannel;
-import net.schmizz.sshj.transport.TransportException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -27,17 +25,11 @@ public class SshTtyConnector implements TtyConnector {
     private static final Logger LOG = LogManager.getLogger(SshTtyConnector.class);
 
     private InputStreamReader inputStreamReader;
-    private InputStream inputStream;
     private OutputStream outputStream;
     private SessionChannel shell;
     private Session channel;
 
-    private Dimension pendingTermSize;
-    private Dimension pendingPixelSize;
-
     private boolean initiated = false;
-    private boolean canceled = false;
-    private boolean stopped = false;
 
     private IClosedSshConnectionCallback closedSshConnectionCallback;
 
@@ -45,20 +37,6 @@ public class SshTtyConnector implements TtyConnector {
 
     public SshTtyConnector(final SshClient sshClient) {
         this.sshClient = sshClient;
-    }
-
-    private void setPtySize(Session.Shell shell, int col, int row, int wp, int hp) {
-        if (shell != null) {
-            try {
-                shell.changeWindowDimensions(col, row, wp, hp);
-            } catch (TransportException e) {
-                LOG.error(e);
-            }
-        }
-    }
-
-    public SshClient getSshClient() {
-        return sshClient;
     }
 
     public void addClosedSshConnectionCallback(IClosedSshConnectionCallback callback) {
@@ -83,7 +61,7 @@ public class SshTtyConnector implements TtyConnector {
                 channel.setEnvVar("LANG", "en_US.UTF-8");
                 shell = (SessionChannel) this.channel.startShell();
 
-                inputStream = shell.getInputStream();
+                final InputStream inputStream = shell.getInputStream();
                 outputStream = shell.getOutputStream();
                 inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 
@@ -99,7 +77,6 @@ public class SshTtyConnector implements TtyConnector {
             LOG.error(e);
             MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
             initiated = false;
-            canceled = true;
         }
         return false;
     }
@@ -107,7 +84,6 @@ public class SshTtyConnector implements TtyConnector {
     @Override
     public void close() {
         try {
-            stopped = true;
             sshClient.disconnect();
 
             if (closedSshConnectionCallback != null) {
@@ -117,7 +93,6 @@ public class SshTtyConnector implements TtyConnector {
             LOG.info("Terminal wrapper disconnected");
         } catch (SshDisconnectException e) {
             LOG.error(e);
-            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, "Could not disconnect ssh session");
         }
     }
 
@@ -149,17 +124,14 @@ public class SshTtyConnector implements TtyConnector {
 
     @Override
     public int waitFor() throws InterruptedException {
-        LOG.debug("Start waiting...");
         while (!initiated || isRunning()) {
-            LOG.debug("waiting");
-            Thread.sleep(100); // TODO: remove busy wait
+            Thread.sleep(100);
         }
-        LOG.debug("waiting exit");
+
         try {
             shell.join();
         } catch (ConnectionException e) {
             LOG.error(e);
-            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
         }
         return shell.getExitStatus();
     }

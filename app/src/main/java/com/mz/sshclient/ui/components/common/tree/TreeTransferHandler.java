@@ -30,7 +30,7 @@ public class TreeTransferHandler extends TransferHandler {
             nodesFlavor = new DataFlavor(mimeType);
             flavors[0] = nodesFlavor;
         } catch (ClassNotFoundException e) {
-            LOG.error("ClassNotFound: " + e.getMessage());
+            LOG.error(e);
         }
     }
 

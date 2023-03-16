@@ -3,12 +3,16 @@ package com.mz.sshclient.ssh;
 import net.schmizz.sshj.common.KeyType;
 import net.schmizz.sshj.common.SecurityUtils;
 import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.PublicKey;
 
 public class HostKeyVerifier extends OpenSSHKnownHosts {
+
+    private static final Logger LOG = LogManager.getLogger(HostKeyVerifier.class);
 
     private final IHostKeyVerifyCallback callback;
 
@@ -26,7 +30,7 @@ public class HostKeyVerifier extends OpenSSHKnownHosts {
                 this.entries.add(new HostEntry(null, hostname, KeyType.fromKey(key), key));
                 write();
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e);
             }
             return true;
         }
@@ -59,13 +63,13 @@ public class HostKeyVerifier extends OpenSSHKnownHosts {
             }
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error(e);
             return hostKeyUnverifiableAction(hostname, key);
         }
     }
 
     /**
-     *
+     * This interface can be implemented to show the confirmation
      */
     public interface IHostKeyVerifyCallback {
 

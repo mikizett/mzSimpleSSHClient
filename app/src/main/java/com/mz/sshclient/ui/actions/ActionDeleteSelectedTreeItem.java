@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 public class ActionDeleteSelectedTreeItem extends AbstractAction {
+
     private final SessionTreeComponent tree;
 
     public ActionDeleteSelectedTreeItem(final SessionTreeComponent tree) {
@@ -16,4 +17,5 @@ public class ActionDeleteSelectedTreeItem extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         tree.deleteNode();
     }
+
 }

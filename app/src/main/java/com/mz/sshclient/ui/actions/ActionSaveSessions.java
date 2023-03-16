@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 public class ActionSaveSessions extends AbstractAction {
+
     private static final Logger LOG = LogManager.getLogger(ActionSaveSessions.class);
 
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
@@ -30,8 +31,9 @@ public class ActionSaveSessions extends AbstractAction {
                 ((JButton) e.getSource()).setEnabled(false);
             }
         } catch (SaveSessionDataException ex) {
-            LOG.error(ex.getMessage(), ex);
+            LOG.error(ex);
             MessageDisplayUtil.showErrorMessage(SwingUtilities.getWindowAncestor((Component) e.getSource()), ex.getMessage());
         }
     }
+
 }

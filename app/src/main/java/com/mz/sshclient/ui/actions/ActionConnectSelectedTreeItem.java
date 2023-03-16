@@ -6,6 +6,7 @@ import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 
 public class ActionConnectSelectedTreeItem extends AbstractAction {
+
     private final SessionTreeComponent tree;
 
     public ActionConnectSelectedTreeItem(final SessionTreeComponent tree) {
@@ -16,4 +17,5 @@ public class ActionConnectSelectedTreeItem extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         tree.connectSsh();
     }
+
 }

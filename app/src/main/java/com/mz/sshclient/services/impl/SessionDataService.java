@@ -97,7 +97,8 @@ public final class SessionDataService implements ISessionDataService {
         final SessionFolderModel folder = createNewSessionFolderModel();
         parentSessionFolder.getFolders().add(folder);
 
-        LOG.info("Created new session folder: " + folder.getName() + " in parent: " + parentSessionFolder.getName());
+        LOG.debug("Created new session folder: " + folder.getName() + " in parent: " + parentSessionFolder.getName());
+
         return folder;
     }
 
@@ -105,7 +106,7 @@ public final class SessionDataService implements ISessionDataService {
     public SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder) {
         parentSessionFolder.getFolders().add(newSessionFolder);
 
-        LOG.info("Created new session folder: " + newSessionFolder.getName() + " in parent: " + parentSessionFolder.getName());
+        LOG.debug("Created new session folder: " + newSessionFolder.getName() + " in parent: " + parentSessionFolder.getName());
 
         return newSessionFolder;
     }
@@ -114,7 +115,7 @@ public final class SessionDataService implements ISessionDataService {
     public SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem) {
         parentSessionFolder.getItems().add(newSessionItem);
 
-        LOG.info("Created new session item: " + newSessionItem.getName() + " in parent folder: " + parentSessionFolder.getName());
+        LOG.debug("Created new session item: " + newSessionItem.getName() + " in parent folder: " + parentSessionFolder.getName());
 
         return newSessionItem;
     }
@@ -123,14 +124,14 @@ public final class SessionDataService implements ISessionDataService {
     public void removeSessionItemFrom(final SessionFolderModel parentSessionFolderModel, final SessionItemModel sessionItemModel) {
         parentSessionFolderModel.getItems().remove(sessionItemModel);
 
-        LOG.info("Removed session item: " + sessionItemModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
+        LOG.debug("Removed session item: " + sessionItemModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
     }
 
     @Override
     public void removeSessionFolderFrom(SessionFolderModel parentSessionFolderModel, SessionFolderModel sessionFolderModel) {
         parentSessionFolderModel.getFolders().remove(sessionFolderModel);
 
-        LOG.info("Removed session folder: " + sessionFolderModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
+        LOG.debug("Removed session folder: " + sessionFolderModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
     }
 
     @Override

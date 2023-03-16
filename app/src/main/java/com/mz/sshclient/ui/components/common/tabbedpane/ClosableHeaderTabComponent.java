@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabComponent {
+
     private static final Color DEFAULT_BORDER_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_ROLL_OVER_COLOR = Color.RED;
@@ -161,14 +162,12 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     private final class CloseTabButton extends JButton {
         private final AbstractAction DEFAULT_CLOSE_ACTION = new RemoveTabAction();
         private final Action action;
-        private final ClosableHeaderTabComponent tabComponent;
 
         private CloseTabButton(final ClosableHeaderTabComponent tabComponent) {
             this(tabComponent, null);
         }
 
         private CloseTabButton(final ClosableHeaderTabComponent tabComponent, final Action action) {
-            this.tabComponent = tabComponent;
 
             this.action = action;
             setPreferredSize(new Dimension(TAB_BUTTON_SIZE, TAB_BUTTON_SIZE));
@@ -177,7 +176,7 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
             setUI(new BasicButtonUI());
             // Make it transparent
             setContentAreaFilled(false);
-            // No need to be focusable.
+            // No need to be focusable
             setFocusable(false);
             // Make a simple border
             setBorder(BorderFactory.createLineBorder(borderColor));

@@ -36,7 +36,6 @@ public class SshClient implements Closeable {
 
     private SshClient jumpHostSshClient;
 
-    private boolean authenticated = false;
     private boolean closed = false;
 
     private SessionItemModel  sessionItemModel;
@@ -162,10 +161,6 @@ public class SshClient implements Closeable {
             password = sessionItemModel.getPassword().toCharArray();
         }
         return password;
-    }
-
-    public void setSessionItemModel(final SessionItemModel sessionItemModel) {
-        this.sessionItemModel = sessionItemModel;
     }
 
     public void connect() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {
@@ -326,10 +321,11 @@ public class SshClient implements Closeable {
     @Override
     public void close() throws IOException {
         try {
-            LOG.debug("Wrapper closing for: " + sessionItemModel);
+            LOG.debug("Auto closing for: " + sessionItemModel);
             disconnect();
         } catch (SshDisconnectException e) {
             throw new IOException(e);
         }
     }
+
 }
