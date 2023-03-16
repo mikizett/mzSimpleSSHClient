@@ -8,6 +8,7 @@ import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import java.awt.Dimension;
@@ -16,6 +17,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 public class MainFrame extends JFrame {
     private static final Logger LOG = LogManager.getLogger(MainFrame.class);
@@ -28,6 +30,12 @@ public class MainFrame extends JFrame {
     }
 
     private void init() {
+        try {
+            this.setIconImage(ImageIO.read(MainFrame.class.getResource("/img/logo.png")));
+        } catch (IOException e) {
+            LOG.error("Could not load logo img", e);
+        }
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
