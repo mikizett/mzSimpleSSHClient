@@ -6,6 +6,7 @@ import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.config.ConfigFile;
+import com.mz.sshclient.ui.laf.CustomUIDefaults;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.ui.utils.UIUtils;
@@ -76,6 +77,8 @@ public class mzSimpleSshClientMain {
         //UIUtils.setNimbusLookAndFeel();
         //UIUtils.setSystemLookAndFeel();
         UIUtils.setMetalLookAndFeel();
+
+        CustomUIDefaults.init();
 
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();
