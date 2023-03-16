@@ -47,20 +47,6 @@ public class SshTtyConnector implements TtyConnector {
         this.sshClient = sshClient;
     }
 
-    private void resizeImmediately() {
-        if (pendingTermSize != null && pendingPixelSize != null) {
-            setPtySize(
-                    shell,
-                    pendingTermSize.width,
-                    pendingTermSize.height,
-                    pendingPixelSize.width,
-                    pendingPixelSize.height
-            );
-            pendingTermSize = null;
-            pendingPixelSize = null;
-        }
-    }
-
     private void setPtySize(Session.Shell shell, int col, int row, int wp, int hp) {
         if (shell != null) {
             try {
@@ -132,15 +118,6 @@ public class SshTtyConnector implements TtyConnector {
         } catch (SshDisconnectException e) {
             LOG.error(e);
             MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, "Could not disconnect ssh session");
-        }
-    }
-
-    @Override
-    public void resize(Dimension termSize, Dimension pixelSize) {
-        pendingTermSize = termSize;
-        pendingPixelSize = pixelSize;
-        if (channel != null) {
-            resizeImmediately();
         }
     }
 

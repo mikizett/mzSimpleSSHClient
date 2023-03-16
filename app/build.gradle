@@ -13,6 +13,10 @@ plugins {
     id 'eclipse'
 }
 
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-Xlint:deprecation']
+}
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()

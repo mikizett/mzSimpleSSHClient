@@ -65,7 +65,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         tabbedPane = new CustomTabbedPaneClosable();
 
         /*for (int i = 1; i <= 30; i++) {
-            tabbedPane.addTab("Shell-" + i, new TabContentPanel());
+            tabbedPane.addTab("Shell-" + i, new TabContentPanel(null));
         }*/
 
         add(tabbedPane);
