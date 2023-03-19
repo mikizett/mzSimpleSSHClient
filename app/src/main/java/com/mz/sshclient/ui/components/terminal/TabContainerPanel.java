@@ -6,7 +6,7 @@ import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.events.listener.ISshConnectionListener;
-import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
+import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.ssh.HostKeyVerifier;
 import com.mz.sshclient.ssh.IClosedSshConnectionCallback;
 import com.mz.sshclient.ssh.SshClient;
@@ -31,14 +31,13 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 public class TabContainerPanel extends JPanel implements ISshConnectionListener, IClosedSshConnectionCallback {
 
     private static final Logger LOG = LogManager.getLogger(TabContainerPanel.class);
 
-    private final ISSHConnectionObservableService sshConnectionService = ServiceRegistry.get(ISSHConnectionObservableService.class);
+    private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
     private CustomTabbedPaneClosable tabbedPane;
 

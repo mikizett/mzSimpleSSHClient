@@ -4,6 +4,7 @@ import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IPasswordFinderCallback;
 import com.mz.sshclient.ssh.IPasswordRetryCallback;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
+import com.mz.sshclient.ui.utils.UIUtils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -17,12 +18,12 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
         char[] password;
 
         final JTextField userTextField = new JTextField(30);
-        final JPasswordField passwordField = new JPasswordField(30);
-        final JCheckBox useCacheCheckBox = new JCheckBox("Remember for this session");
         userTextField.setText(user);
-        passwordField.setFocusable(true);
-        passwordField.setRequestFocusEnabled(true);
-        passwordField.requestFocusInWindow();
+
+        final JPasswordField passwordField = new JPasswordField(30);
+        UIUtils.addAncestorAndFocusListenerToPasswordField(passwordField);
+
+        final JCheckBox useCacheCheckBox = new JCheckBox("Remember for this session");
 
         int answer = JOptionPane.showOptionDialog(
                 mzSimpleSshClientMain.MAIN_FRAME,

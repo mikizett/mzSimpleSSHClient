@@ -3,18 +3,23 @@ package com.mz.sshclient.ui.components.common.tree;
 import com.mz.sshclient.model.AbstractSessionEntryModel;
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
-import com.mz.sshclient.services.interfaces.ISSHConnectionObservableService;
+import com.mz.sshclient.services.exceptions.PasswordStorageException;
+import com.mz.sshclient.services.interfaces.IPasswordStorageService;
+import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
-import com.mz.sshclient.ui.events.listener.ISessionDataChangedListener;
-import com.mz.sshclient.ui.events.listener.ITreeSelectionNodeListener;
+import com.mz.sshclient.ui.utils.MasterPasswordUtil;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import com.mz.sshclient.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.DropMode;
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -30,15 +35,14 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 public class SessionTreeComponent extends JTree implements TreeSelectionListener, TreeModelListener {
     private static final Logger LOG = LogManager.getLogger(SessionTreeComponent.class);
 
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
-    private final ISSHConnectionObservableService sshConnectionService = ServiceRegistry.get(ISSHConnectionObservableService.class);
+    private final IPasswordStorageService passwordStorageService = ServiceRegistry.get(IPasswordStorageService.class);
+    private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
     private DefaultTreeModel defaultTreeModel;
     private DefaultMutableTreeNode rootNode;
@@ -47,15 +51,48 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     private AbstractSessionEntryModel selectedNodeModel;
 
-    private final List<ISessionDataChangedListener> sessionDataChangedListeners = new ArrayList<>(0);
-    private final List<ITreeSelectionNodeListener> treeSelectionNodeListeners = new ArrayList<>(0);
-
     public SessionTreeComponent() {
         this.sessionFolderModel = sessionDataService.getSessionModel().getFolder();
         init();
     }
 
     private void init() {
+        if (passwordStorageService.existStorageFile()) {
+            while (true) {
+                try {
+                    final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword());
+                    if (answer.getAnswerType() == JOptionPane.YES_OPTION) {
+                        char[] password = answer.getPassword();
+                        final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
+                        passwordStorageService.unlockPasswordStorage(passwordEncoded);
+                        passwordStorageService.setPasswordsToModel(sessionFolderModel);
+
+                        // reset passwd
+                        password = new char[] {'0'};
+                        break;
+                    } else {
+                        final String message = new StringBuilder("If you don't add the master password, you can't use the stored passwords for the sessions.\n\n")
+                                .append("Do you want to try again?")
+                                .append("\n").append(" ")
+                                .toString();
+                        final int result = MessageDisplayUtil.showYesNoConfirmDialog(mzSimpleSshClientMain.MAIN_FRAME, message, "Question");
+                        if (result != JOptionPane.YES_OPTION) {
+                            break;
+                        }
+                    }
+                } catch (PasswordStorageException e) {
+                    final String message = new StringBuilder("Wrong master password!\n\n")
+                            .append("If you don't add the master password you won't be able\n")
+                            .append("to use the sessions with the stored passwords!\n\n")
+                            .append("Try again?\n").append(" ")
+                            .toString();
+                    final int result = MessageDisplayUtil.showYesNoConfirmDialog(mzSimpleSshClientMain.MAIN_FRAME, message, "Wrong password");
+                    if (result != JOptionPane.YES_OPTION) {
+                        break;
+                    }
+                }
+            }
+        }
         rootNode = createTreeNodes(sessionFolderModel);
         rootNode.setAllowsChildren(true);
         defaultTreeModel = new DefaultTreeModel(rootNode, true);
@@ -116,13 +153,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
             }
         }
         return false;
-    }
-
-    private void fireSessionDataChangedEvent() {
-        // in case data were not changed don't emit the event
-        if (sessionDataService.hasSessionModelChanged()) {
-            sessionDataChangedListeners.forEach(l -> l.sessionDataChanged());
-        }
     }
 
     public void addNewSessionFolder() {
@@ -250,17 +280,11 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     }
 
-    public void addSessionDataChangedListener(final ISessionDataChangedListener l) {
-        if (!sessionDataChangedListeners.contains(l)) {
-            sessionDataChangedListeners.add(l);
-        }
-    }
-
     public void connectSsh() {
         final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) getLastSelectedPathComponent();
         if (selectedNode.getUserObject() instanceof SessionItemModel) {
             final SessionItemModel selectedSessionItemModel = (SessionItemModel) selectedNode.getUserObject();
-            sshConnectionService.fireConnectSSHEvent(new ConnectSshEvent(this, selectedSessionItemModel));
+            sshConnectionService.fireConnectSshEvent(new ConnectSshEvent(this, selectedSessionItemModel));
         }
     }
 
@@ -288,8 +312,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
             final String changedNodeName = (String) childNode.getUserObject();
             selectedNodeModel.setName(changedNodeName);
             childNode.setUserObject(selectedNodeModel);
-
-            fireSessionDataChangedEvent();
 
             LOG.debug("Renamed tree path: " + changedNodeName + " for: " + parentTreeNode);
         }
@@ -322,20 +344,14 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                 sessionDataService.addSessionItem(parentFolder, item);
                 LOG.debug("Inserted session item: " + item.getName() + " to session parentFolder: " + parentFolder.getName());
             }
-
-            fireSessionDataChangedEvent();
         }
     }
 
     @Override
-    public void treeNodesRemoved(TreeModelEvent e) {
-        fireSessionDataChangedEvent();
-    }
+    public void treeNodesRemoved(TreeModelEvent e) {}
 
     @Override
-    public void treeStructureChanged(TreeModelEvent e) {
-        fireSessionDataChangedEvent();
-    }
+    public void treeStructureChanged(TreeModelEvent e) {}
 
     /**
      * Handles mouse clicks on the tree component

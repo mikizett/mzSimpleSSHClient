@@ -17,6 +17,9 @@ public interface Constants {
     String KNOWN_HOSTS_FILE_NAME = "known_hosts";
     String KNOWN_HOSTS_FILE_LOCATION = SESSIONS_PATH_NAME + File.separatorChar + KNOWN_HOSTS_FILE_NAME;
 
+    String PASSWORD_STORAGE_FILE_NAME = "passwords.storage";
+    String PASSWORD_STORAGE_FILE_LOCATION = SESSIONS_PATH_NAME + File.separatorChar + PASSWORD_STORAGE_FILE_NAME;
+
     String DEFAULT_STORAGE_PATH_NAME = "mzSimpleSSHClient";
     String DEFAULT_STORAGE_LOCATION = USER_HOME + File.separatorChar + DEFAULT_STORAGE_PATH_NAME;
 

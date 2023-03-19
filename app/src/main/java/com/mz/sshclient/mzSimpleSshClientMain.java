@@ -3,6 +3,7 @@ package com.mz.sshclient;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
 import com.mz.sshclient.services.ServiceRegistration;
+import com.mz.sshclient.services.exceptions.ServiceRegistrationException;
 import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.config.ConfigFile;
@@ -85,7 +86,12 @@ public class mzSimpleSshClientMain {
         preloadJediTermLib();
 
         // load services
-        ServiceRegistration.registration();
+        try {
+            ServiceRegistration.registration();
+        } catch (ServiceRegistrationException e) {
+            LOG.error(e);
+            MessageDisplayUtil.showErrorMessage("Could not register service. Error: " + e.getMessage());
+        }
 
         //final MainFrame mainFrame = new MainFrame();
         MAIN_FRAME = new MainFrame();

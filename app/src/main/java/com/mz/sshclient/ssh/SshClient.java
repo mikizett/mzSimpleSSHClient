@@ -5,6 +5,7 @@ import com.mz.sshclient.ssh.exceptions.SshConnectionException;
 import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
 import com.mz.sshclient.ssh.exceptions.SshPrivateKeyMissingException;
+import com.mz.sshclient.utils.Utils;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.ConnectionException;
@@ -158,7 +159,11 @@ public class SshClient implements Closeable {
     private char[] getPassword() {
         char[] password = passwordFinderCallback.getCachedPassword();
         if (password == null && StringUtils.isNotBlank(sessionItemModel.getPassword())) {
-            password = sessionItemModel.getPassword().toCharArray();
+            String decodedPassword = Utils.decodeString(sessionItemModel.getPassword());
+            password = decodedPassword.toCharArray();
+
+            // reset passwd
+            decodedPassword = "0";
         }
         return password;
     }

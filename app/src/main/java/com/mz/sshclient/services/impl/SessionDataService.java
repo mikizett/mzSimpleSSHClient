@@ -9,6 +9,7 @@ import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -65,6 +66,16 @@ public final class SessionDataService implements ISessionDataService {
         }
     }
 
+    private void changeDefaultSessionItem(final SessionFolderModel folderModel, final String id, final String passwd) {
+        folderModel.getItems().forEach((item) -> {
+            if (item.getId().equals(id)) {
+                item.setPassword(passwd);
+            }
+        });
+
+        folderModel.getFolders().forEach((folder) -> changeDefaultSessionItem(folder, id, passwd));
+    }
+
     @Override
     public void saveToFile() throws SaveSessionDataException {
         if (hasSessionModelChanged()) {
@@ -79,6 +90,21 @@ public final class SessionDataService implements ISessionDataService {
                     throw new SaveSessionDataException("Could not save file", e);
                 }
             }
+        }
+    }
+
+    @Override
+    public void changedSessionItems(final SessionFolderModel folderModel) {
+        if (folderModel != null) {
+            folderModel.getItems().forEach((item) -> {
+                if (StringUtils.isNotBlank(item.getPassword())) {
+                    final String id = item.getId();
+                    changeDefaultSessionItem(defaultSessionModel.getFolder(), id, item.getPassword());
+
+                }
+            });
+
+            folderModel.getFolders().forEach((folder) -> changedSessionItems(folder));
         }
     }
 
@@ -132,16 +158,6 @@ public final class SessionDataService implements ISessionDataService {
         parentSessionFolderModel.getFolders().remove(sessionFolderModel);
 
         LOG.debug("Removed session folder: " + sessionFolderModel.getName() + " from parent folder: " + parentSessionFolderModel.getName());
-    }
-
-    @Override
-    public void setSelectedSessionItemModel(final SessionItemModel selectedSessionItemModel) {
-        this.selectedSessionItemModel = selectedSessionItemModel;
-    }
-
-    @Override
-    public SessionItemModel getSelectedSessionItemModel() {
-        return selectedSessionItemModel;
     }
 
     @Override

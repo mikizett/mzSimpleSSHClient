@@ -1,16 +1,11 @@
 package com.mz.sshclient.ui;
 
 import com.mz.sshclient.Constants;
-import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.exceptions.SaveSessionDataException;
-import com.mz.sshclient.services.interfaces.ISessionDataService;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
@@ -20,9 +15,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class MainFrame extends JFrame {
-    private static final Logger LOG = LogManager.getLogger(MainFrame.class);
 
-    private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+    private static final Logger LOG = LogManager.getLogger(MainFrame.class);
 
     public MainFrame() {
         super(Constants.APP_NAME_AND_VERSION);
@@ -39,18 +33,6 @@ public class MainFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (sessionDataService.hasSessionModelChanged()) {
-                    int result = MessageDisplayUtil.showYesNoConfirmDialog(MainFrame.this, "Do you want to save the created sessions?", "Save...");
-                    if (result == JOptionPane.YES_OPTION) {
-                        try {
-                            sessionDataService.saveToFile();
-                        } catch (SaveSessionDataException ex) {
-                            LOG.error(ex.getMessage(), ex);
-                            MessageDisplayUtil.showErrorMessage(ex.getMessage());
-                        }
-                    }
-                }
-
                 // close all opened ssh sessions
                 OpenedSshSessions.closeAllSshSessions();
 
