@@ -16,6 +16,10 @@ public final class MessageDisplayUtil {
         JOptionPane.showMessageDialog(parent, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    public static void showMessage(final Window parent, final String message) {
+        JOptionPane.showMessageDialog(parent, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public static int showYesNoConfirmDialog(final String message, final String title) {
         return JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
     }

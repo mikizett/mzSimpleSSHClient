@@ -3,17 +3,16 @@ package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 import com.mz.sshclient.model.SessionItemDraftModel;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 import com.mz.sshclient.ui.events.listener.InputFieldDocumentListener;
+import com.mz.sshclient.ui.utils.UIUtils;
+import com.mz.sshclient.utils.Utils;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -41,7 +40,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
     private final JLabel privateKeyFileLabel = new JLabel("Private key file");
     private final JTextField privateKeyFileTextField = new JTextField(10);
 
-    private final JButton browseButton = new JButton("Browse");
+    private final JButton privateKeyBrowseButton = new JButton("Browse");
     private final JButton showPassButton = new JButton("Show");
 
     private IValueChangeListener changeValueListener;
@@ -67,32 +66,17 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         hostLabel.setHorizontalAlignment(JLabel.LEADING);
         portTextField.setHorizontalAlignment(JTextField.RIGHT);
 
-        browseButton.addActionListener(e -> {
-            JFileChooser jfc = new JFileChooser();
-            jfc.setFileHidingEnabled(false);
-
-            jfc.addChoosableFileFilter(new FileNameExtensionFilter("Putty key files (*.ppk)", "ppk"));
-
-            jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            if (jfc.showOpenDialog(SwingUtilities.getWindowAncestor(this)) == JFileChooser.APPROVE_OPTION) {
-                String selectedFile = jfc.getSelectedFile().getAbsolutePath();
-                if (selectedFile.endsWith(".ppk")) {
-                    /*if (!isSupportedPuttyKeyFile(jfc.getSelectedFile())) {
-                        JOptionPane.showMessageDialog(this, "This key format is not supported, please convert it to OpenSSH format"
-                        );
-                        return;
-                    }*/
-                }
-                privateKeyFileTextField.setText(jfc.getSelectedFile().getAbsolutePath());
-            }
+        privateKeyBrowseButton.addActionListener(e -> {
+            final String privateKeyLocation = UIUtils.showFileChooserPrivateKey(this);
+            privateKeyFileTextField.setText(privateKeyLocation);
         });
 
         showPassButton.addActionListener(e -> {
-            JTextArea ta = new JTextArea();
-            ta.setText(new String(passField.getPassword()));
-            ta.setEditable(false);
-            ta.setLineWrap(false);
-            JOptionPane.showMessageDialog(this, ta, "Password", JOptionPane.PLAIN_MESSAGE);
+            final JTextArea textArea = new JTextArea();
+            textArea.setText(new String(passField.getPassword()));
+            textArea.setEditable(false);
+            textArea.setLineWrap(false);
+            JOptionPane.showMessageDialog(this, textArea, "Password", JOptionPane.PLAIN_MESSAGE);
         });
 
         GridBagConstraints c = new GridBagConstraints();
@@ -178,7 +162,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         c.weightx = 0;
         c.fill = GridBagConstraints.NONE;
         c.insets = new Insets(5, 0, 0, 10);
-        add(browseButton, c);
+        add(privateKeyBrowseButton, c);
 
         JPanel panel = new JPanel(new BorderLayout());
         c.gridx = 0;
@@ -195,7 +179,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         hostTextField.setText(sessionItemDraftModel.getHost());
         portTextField.setText(sessionItemDraftModel.getPort());
         userTextField.setText(sessionItemDraftModel.getUser());
-        passField.setText(sessionItemDraftModel.getPassword());
+        passField.setText(Utils.decodeString(sessionItemDraftModel.getPassword()));
         privateKeyFileTextField.setText(sessionItemDraftModel.getPrivateKeyFile());
     }
 
@@ -224,8 +208,11 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         sessionItemDraftModel.setHost(hostTextField.getText());
         sessionItemDraftModel.setPort(portTextField.getText());
         sessionItemDraftModel.setUser(userTextField.getText());
-        sessionItemDraftModel.setPassword(new String(passField.getPassword()));
+        sessionItemDraftModel.setPassword(Utils.encodeString(new String(passField.getPassword())));
         sessionItemDraftModel.setPrivateKeyFile(privateKeyFileTextField.getText());
+
+        // reset passwd
+        passField.setText("0");
     }
 
 }

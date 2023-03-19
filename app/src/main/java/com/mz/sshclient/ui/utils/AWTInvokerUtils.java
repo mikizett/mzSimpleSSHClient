@@ -22,4 +22,16 @@ public final class AWTInvokerUtils {
         }
     }
 
+    public static void invokeInSeparateThread(final Runnable runnable) {
+        if (runnable != null) {
+            Executors.newSingleThreadExecutor().submit(runnable);
+        }
+    }
+
+    public static void invokeLater(final Runnable runnable) {
+        if (runnable != null) {
+            SwingUtilities.invokeLater(runnable);
+        }
+    }
+
 }

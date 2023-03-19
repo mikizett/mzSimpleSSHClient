@@ -2,6 +2,8 @@ package com.mz.sshclient.ui.components.terminal;
 
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IInteractiveResponseProvider;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import com.mz.sshclient.ui.utils.UIUtils;
 import net.schmizz.sshj.userauth.password.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +30,7 @@ public class InteractiveResponseProvider implements IInteractiveResponseProvider
         LOG.debug("ChallengeResponseProvider init - resource: " + resource + " name: " + name + " instruction: " + instruction);
 
         if (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(instruction)) {
-            JOptionPane.showMessageDialog(mzSimpleSshClientMain.MAIN_FRAME, name + "\n" + instruction);
+            MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, name + "\n" + instruction);
         }
     }
 
@@ -43,6 +45,7 @@ public class InteractiveResponseProvider implements IInteractiveResponseProvider
             }
         } else {
             final JPasswordField passwordField = new JPasswordField(30);
+            UIUtils.addAncestorAndFocusListenerToPasswordField(passwordField);
             int answer = JOptionPane.showOptionDialog(
                     mzSimpleSshClientMain.MAIN_FRAME,
                     new Object[] {

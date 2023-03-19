@@ -4,10 +4,23 @@ import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemDraftModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionItemModelHelper;
+import com.mz.sshclient.mzSimpleSshClientMain;
+import com.mz.sshclient.services.ServiceRegistry;
+import com.mz.sshclient.services.exceptions.PasswordStorageException;
+import com.mz.sshclient.services.exceptions.SaveSessionDataException;
+import com.mz.sshclient.services.interfaces.IPasswordStorageService;
+import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
+import com.mz.sshclient.ui.utils.MasterPasswordUtil;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import com.mz.sshclient.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -23,12 +36,14 @@ import java.util.List;
 import java.util.UUID;
 
 public class AddOrEditSessionPanel extends JPanel implements IValueChangeListener {
+
+    private static final Logger LOG = LogManager.getLogger(AddOrEditSessionPanel.class);
+
     private final Window parentWindow;
     private final JTree tree;
 
     private SessionItemDraftModel sessionItemDraftModel;
     private SessionItemModel sessionItemModel;
-    private SessionFolderModel parentSessionFolderModel;
 
     private DefaultMutableTreeNode selectedTreeNode;
     private DefaultMutableTreeNode parentTreeNode;
@@ -42,6 +57,9 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
     private JButton saveButton;
     private JButton cancelButton;
 
+    private final IPasswordStorageService passwordStorageService = ServiceRegistry.get(IPasswordStorageService.class);
+    private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+
     private final List<IAdjustableSessionItemDraftPanel> adjustablePanels = new ArrayList<>(0);
 
     public AddOrEditSessionPanel(final Window parentWindow, final JTree tree) {
@@ -51,7 +69,6 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
         if (selectedPath != null) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) (selectedPath.getLastPathComponent());
             if (selectedNode.getUserObject() instanceof SessionFolderModel) {
-                parentSessionFolderModel = (SessionFolderModel) selectedNode.getUserObject();
                 parentTreeNode = selectedNode;
                 setNewSessionItemDraftModel();
             } else {
@@ -62,7 +79,6 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
             }
         } else {
             parentTreeNode = (DefaultMutableTreeNode) tree.getModel().getRoot();
-            parentSessionFolderModel = (SessionFolderModel) parentTreeNode.getUserObject();
 
             setNewSessionItemDraftModel();
         }
@@ -100,7 +116,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
         connectButton = new JButton("Connect");
         connectButton.setEnabled(false);
 
-        saveButton = new JButton(addOrEditEnum == AddOrEditEnum.ADD ? "Add" : "Save");
+        saveButton = new JButton("Save");
         saveButton.setEnabled(false);
         saveButton.addActionListener(l -> addSessionItem());
 
@@ -134,8 +150,8 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
         adjustablePanels.forEach(panel -> panel.adjustSessionItemDraft());
 
         if (addOrEditEnum == AddOrEditEnum.ADD) {
-            final SessionItemModel model = SessionItemModelHelper.convertToSessionItemModel(sessionItemDraftModel);
-            final DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(model);
+            sessionItemModel = SessionItemModelHelper.convertToSessionItemModel(sessionItemDraftModel);
+            final DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(sessionItemModel);
             childNode.setAllowsChildren(false);
             ((DefaultTreeModel) tree.getModel()).insertNodeInto(childNode, parentTreeNode, parentTreeNode.getChildCount());
             tree.scrollPathToVisible(new TreePath(childNode.getPath()));
@@ -151,7 +167,52 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
                 tree.setSelectionPath(path);
             }
         }
+
+        saveSessionItem();
+
         parentWindow.dispose();
+    }
+
+    private void saveSessionItem() {
+        if (StringUtils.isNotBlank(sessionItemModel.getPassword())) {
+            final boolean passwordStorageFileExist = passwordStorageService.existStorageFile();
+            final String message = passwordStorageFileExist
+                    ? MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword()
+                    : MasterPasswordUtil.getMessageToStoreSessionsWithMasterPassword();
+
+            final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(message);
+            if (answer.getAnswerType() != JOptionPane.YES_OPTION) {
+                MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, "The sessions won't be stored with passwords!");
+            } else {
+                if (!passwordStorageFileExist) {
+                    char[] password = answer.getPassword();
+                    final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
+                    try {
+                        passwordStorageService.addMasterPassword(passwordEncoded);
+
+                        // reset passwd
+                        password = new char[] {'0'};
+                    } catch (PasswordStorageException e) {
+                        LOG.error(e);
+                        MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+                    }
+                }
+
+                try {
+                    passwordStorageService.storePassword(sessionItemModel);
+                } catch (PasswordStorageException e) {
+                    LOG.error(e);
+                    MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+                }
+            }
+
+            try {
+                sessionDataService.saveToFile();
+            } catch (SaveSessionDataException e) {
+                LOG.error(e);
+                MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+            }
+        }
     }
 
     @Override
