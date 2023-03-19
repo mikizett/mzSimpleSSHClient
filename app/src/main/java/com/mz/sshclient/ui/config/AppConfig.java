@@ -21,6 +21,6 @@ public final class AppConfig {
     }
 
     public static String getKnownHostsLocation() {
-        return getStorageLocation() + File.separatorChar + Constants.KNOWN_HOSTS_FILE_NAME;
+        return getStorageLocation() + File.separatorChar + Constants.KNOWN_HOSTS_FILE_LOCATION;
     }
 }
