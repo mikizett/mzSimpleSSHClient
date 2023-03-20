@@ -45,7 +45,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-public class CustomMetalTabbedPaneUIDecorator extends MetalTabbedPaneUI {
+public class CustomMetalTabbedPaneUIDecorator extends /*BasicTabbedPaneUI*/ MetalTabbedPaneUI {
+
+    protected Color tabAreaBackground;
+
     private JViewport tabViewport;
     private JPanel tabContainer;
     private JButton tabListButton;
@@ -224,6 +227,8 @@ public class CustomMetalTabbedPaneUIDecorator extends MetalTabbedPaneUI {
     protected void installDefaults() {
         super.installDefaults();
         tabsOverlapBorder = UIManager.getBoolean("TabbedPane.tabsOverlapBorder");
+
+        tabAreaBackground = UIManager.getColor("TabbedPane.tabAreaBackground");
     }
 
     @Override
@@ -328,6 +333,9 @@ public class CustomMetalTabbedPaneUIDecorator extends MetalTabbedPaneUI {
         }
 
         basicTabbedPaneUIPaint(g, c);
+    }
+
+    protected void paintHighlightBelowTab() {
     }
 
     protected void basicTabbedPaneUIPaint(Graphics graphics, JComponent c) {

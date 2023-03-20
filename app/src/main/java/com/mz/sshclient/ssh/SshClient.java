@@ -64,7 +64,13 @@ public class SshClient implements Closeable {
     }
 
     private void connectJumpHost() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {
-        final SessionItemModel jumpHostItem = sessionItemModel.deepCopy();
+        final SessionItemModel jumpHostItem = new SessionItemModel();
+        jumpHostItem.setHost(sessionItemModel.getHost());
+        jumpHostItem.setPort(sessionItemModel.getPort());
+        jumpHostItem.setUser(sessionItemModel.getUser());
+        jumpHostItem.setPassword(sessionItemModel.getPassword());
+        jumpHostItem.setPrivateKeyFile(sessionItemModel.getPrivateKeyFile());
+
         jumpHostSshClient = new SshClient(jumpHostItem, hostKeyVerifier, passwordFinderCallback, interactiveResponseProvider, passwordRetryCallback);
         jumpHostSshClient.connect();
     }

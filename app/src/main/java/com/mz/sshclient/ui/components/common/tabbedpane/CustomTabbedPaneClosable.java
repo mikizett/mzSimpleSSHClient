@@ -135,12 +135,12 @@ public class CustomTabbedPaneClosable extends JTabbedPane {
 
     @Override
     public void setUI(TabbedPaneUI ui) {
-        if ("javax.swing.plaf.metal.MetalTabbedPaneUI".equals(ui.getClass().getName())) {
+        //if ("javax.swing.plaf.metal.MetalTabbedPaneUI".equals(ui.getClass().getName())) {
             if (this.customMetalTabbedPaneUIDecorator == null) {
                 this.customMetalTabbedPaneUIDecorator = new CustomMetalTabbedPaneUIDecorator();
                 ui = this.customMetalTabbedPaneUIDecorator;
             }
-        }
+        //}
         super.setUI(ui);
     }
 
