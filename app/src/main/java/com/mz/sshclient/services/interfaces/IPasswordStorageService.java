@@ -13,4 +13,6 @@ public interface IPasswordStorageService extends IService {
     void unlockPasswordStorage(char[] masterPassword) throws PasswordStorageException;
     void addMasterPassword(char[] masterPassword) throws PasswordStorageException;
 
+    boolean isUnlockedPasswordStorage();
+
 }

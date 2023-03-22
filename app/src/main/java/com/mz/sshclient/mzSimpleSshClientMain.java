@@ -7,10 +7,9 @@ import com.mz.sshclient.services.exceptions.ServiceRegistrationException;
 import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.config.ConfigFile;
-import com.mz.sshclient.ui.laf.CustomUIDefaults;
+import com.mz.sshclient.ui.laf.LAF;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import com.mz.sshclient.ui.utils.UIUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -75,11 +74,9 @@ public class mzSimpleSshClientMain {
     }
 
     public static void main(String[] args) {
-        //UIUtils.setNimbusLookAndFeel();
-        //UIUtils.setSystemLookAndFeel();
-        UIUtils.setMetalLookAndFeel();
-
-        CustomUIDefaults.init();
+        //LAF.setNimbusLookAndFeel();
+        //LAF.setSystemLookAndFeel();
+        LAF.setMetalLookAndFeel();
 
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();

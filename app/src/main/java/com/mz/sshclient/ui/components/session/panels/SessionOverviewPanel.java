@@ -1,9 +1,18 @@
 package com.mz.sshclient.ui.components.session.panels;
 
+import com.mz.sshclient.mzSimpleSshClientMain;
+import com.mz.sshclient.services.ServiceRegistry;
+import com.mz.sshclient.services.exceptions.SaveSessionDataException;
+import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
+import com.mz.sshclient.ui.events.listener.ITreeNodeListener;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
@@ -11,11 +20,16 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
-public class SessionOverviewPanel extends JPanel {
+public class SessionOverviewPanel extends JPanel implements ITreeNodeListener {
 
-    private SessionTreeComponent sessionTreeComponent;
+    private static final Logger LOG = LogManager.getLogger(SessionOverviewPanel.class);
+
+    private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
 
     private final JToggleButton popupButton = new JToggleButton("Actions");
+    private final JButton saveButton = new JButton("Save changes");
+
+    private SessionTreeComponent sessionTreeComponent;
 
     private SessionActionsPopupMenu popupMenu;
 
@@ -32,6 +46,8 @@ public class SessionOverviewPanel extends JPanel {
         // password dialog
         AWTInvokerUtils.invokeInSeparateThread(() -> {
             sessionTreeComponent = new SessionTreeComponent();
+            sessionTreeComponent.addTreeNodeListener(this);
+
             add(new JScrollPane(sessionTreeComponent));
 
             sessionTreeComponent.revalidate();
@@ -56,6 +72,20 @@ public class SessionOverviewPanel extends JPanel {
         });
         north.add(popupButton);
 
+        saveButton.setEnabled(false);
+        saveButton.addActionListener(l -> {
+            try {
+                sessionDataService.saveToFile();
+            } catch (SaveSessionDataException e) {
+                LOG.error(e);
+                MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+            }
+
+            saveButton.setEnabled(false);
+        });
+
+        north.add(saveButton);
+
         panel.add(north, BorderLayout.NORTH);
 
         return panel;
@@ -73,5 +103,9 @@ public class SessionOverviewPanel extends JPanel {
         return popupMenu;
     }
 
+    @Override
+    public void treeNodeAction() {
+        saveButton.setEnabled(sessionDataService.hasSessionModelChanged());
+    }
 }
 

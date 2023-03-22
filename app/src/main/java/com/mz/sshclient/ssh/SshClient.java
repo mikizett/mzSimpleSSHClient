@@ -32,14 +32,13 @@ public class SshClient implements Closeable {
 
     private static final int CONNECTION_TIMEOUT = 60000;
 
-    private DefaultConfig defaultConfig;
     private SSHClient sshj;
 
     private SshClient jumpHostSshClient;
 
     private boolean closed = false;
 
-    private SessionItemModel  sessionItemModel;
+    private final SessionItemModel  sessionItemModel;
     private final HostKeyVerifier hostKeyVerifier;
     private final IPasswordFinderCallback passwordFinderCallback;
     private final IInteractiveResponseProvider interactiveResponseProvider;
@@ -65,7 +64,7 @@ public class SshClient implements Closeable {
 
     private void connectJumpHost() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {
         final SessionItemModel jumpHostItem = new SessionItemModel();
-        jumpHostItem.setHost(sessionItemModel.getHost());
+        jumpHostItem.setHost(sessionItemModel.getJumpHost());
         jumpHostItem.setPort(sessionItemModel.getPort());
         jumpHostItem.setUser(sessionItemModel.getUser());
         jumpHostItem.setPassword(sessionItemModel.getPassword());
@@ -85,8 +84,10 @@ public class SshClient implements Closeable {
 
     private void connectJumpHostViaTcpForwarding() throws SshConnectionException {
         try {
-            final DirectConnection directConnection = newDirectConnection(sessionItemModel.getHost(), sessionItemModel.getPort());
-            this.sshj.connectVia(directConnection, sessionItemModel.getHost(), Integer.parseInt(sessionItemModel.getPort()));
+            if (jumpHostSshClient != null) {
+                final DirectConnection directConnection = jumpHostSshClient.newDirectConnection(sessionItemModel.getHost(), sessionItemModel.getPort());
+                this.sshj.connectVia(directConnection, sessionItemModel.getHost(), Integer.parseInt(sessionItemModel.getPort()));
+            }
         } catch (SshConnectionException | IOException e) {
             String errorMsg;
 
@@ -175,7 +176,7 @@ public class SshClient implements Closeable {
     }
 
     public void connect() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {
-        defaultConfig = new DefaultConfig();
+        DefaultConfig defaultConfig = new DefaultConfig();
         //defaultConfig.setKeepAliveProvider(KeepAliveProvider.KEEP_ALIVE);
 
         sshj = new SSHClient(defaultConfig);

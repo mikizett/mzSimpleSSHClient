@@ -41,18 +41,10 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
 
     private CustomTabbedPaneClosable tabbedPane;
 
-    private SshClient sshClient;
-
     //private final List<SshTerminalHolder> sshTerminalList = new ArrayList<>(0);
-
-    private HostKeyVerifier hostKeyVerifier;
-    private final PasswordFinderCallback passwordFinderCallback = new PasswordFinderCallback();
-    private final InteractiveResponseProvider interactiveResponseProvider = new InteractiveResponseProvider();
-    private final PasswordRetryCallback passwordRetryCallback = new PasswordRetryCallback();
 
     public TabContainerPanel() {
         init();
-        initHostKeyVerifier();
 
         sshConnectionService.addConnectSshListener(this);
     }
@@ -70,27 +62,37 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         add(tabbedPane);
     }
 
-    private void initHostKeyVerifier() {
+    private HostKeyVerifier createHostKeyVerifier() {
+        HostKeyVerifier hostKeyVerifier = null;
         try {
             final File hostKeyFile = new File(AppConfig.getKnownHostsLocation());
             hostKeyVerifier  = new HostKeyVerifier(hostKeyFile, new HostKeyVerificationCallback());
         } catch (IOException e) {
             LOG.error("Could not load host key verifier <" + Constants.KNOWN_HOSTS_FILE_NAME + ">" , e);
         }
+        return hostKeyVerifier;
     }
 
-    private void createSshClient(final SessionItemModel item) {
-        sshClient = new SshClient(
+    private SshClient createSshClient(final SessionItemModel item) {
+        final HostKeyVerifier hostKeyVerifier = createHostKeyVerifier();
+        final PasswordFinderCallback passwordFinderCallback = new PasswordFinderCallback();
+        final InteractiveResponseProvider interactiveResponseProvider = new InteractiveResponseProvider();
+        final PasswordRetryCallback passwordRetryCallback = new PasswordRetryCallback();
+
+        final SshClient sshClient = new SshClient(
                 item,
                 hostKeyVerifier,
                 passwordFinderCallback,
                 interactiveResponseProvider,
                 passwordRetryCallback
         );
+
+        return sshClient;
     }
 
     private void connectSshClient(final SessionItemModel item) {
         try {
+            final SshClient sshClient = createSshClient(item);
             sshClient.connect();
 
             final SshTtyConnector sshTtyConnector = new SshTtyConnector(sshClient);

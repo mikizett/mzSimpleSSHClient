@@ -12,6 +12,7 @@ import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
+import com.mz.sshclient.ui.events.listener.ITreeNodeListener;
 import com.mz.sshclient.ui.utils.MasterPasswordUtil;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.utils.Utils;
@@ -44,6 +45,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
     private final IPasswordStorageService passwordStorageService = ServiceRegistry.get(IPasswordStorageService.class);
     private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
+    private ITreeNodeListener treeNodeListener;
+
     private DefaultTreeModel defaultTreeModel;
     private DefaultMutableTreeNode rootNode;
 
@@ -66,6 +69,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                         final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
                         passwordStorageService.unlockPasswordStorage(passwordEncoded);
                         passwordStorageService.setPasswordsToModel(sessionFolderModel);
+                        // used to have a comparison
+                        passwordStorageService.setPasswordsToModel(sessionDataService.getDefaultSessionModel().getFolder());
 
                         // reset passwd
                         password = new char[] {'0'};
@@ -111,6 +116,12 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
         getActionMap().put(getInputMap().get(KeyStroke.getKeyStroke("F2")), new ActionRenameSelectedTreeItem(this));
         addMouseListener(new TreeMouseListener());
+    }
+
+    private void fireTreeNodeAction() {
+        if (treeNodeListener != null) {
+            treeNodeListener.treeNodeAction();
+        }
     }
 
     private DefaultMutableTreeNode createTreeNodes(final SessionFolderModel sessionFolderModel) {
@@ -288,6 +299,10 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         }
     }
 
+    public void addTreeNodeListener(final ITreeNodeListener treeNodeListener) {
+        this.treeNodeListener = treeNodeListener;
+    }
+
     // -------------------------------------------------------------------------
     // TreeSelectionListener
 
@@ -304,6 +319,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     @Override
     public void treeNodesChanged(TreeModelEvent e) {
+        LOG.debug("treeNodesChanged in tree path: " + e.getTreePath());
+
         final DefaultMutableTreeNode parentTreeNode  = (DefaultMutableTreeNode) e.getTreePath().getLastPathComponent();
 
         final int indexOf = e.getChildIndices()[0];
@@ -315,11 +332,13 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
             LOG.debug("Renamed tree path: " + changedNodeName + " for: " + parentTreeNode);
         }
+
+        fireTreeNodeAction();
     }
 
     @Override
     public void treeNodesInserted(TreeModelEvent e) {
-        LOG.debug("Inserted tree path: " + e.getTreePath());
+        LOG.debug("treeNodesInserted in tree path: " + e.getTreePath());
 
         SessionFolderModel parentFolder = null;
 
@@ -345,13 +364,21 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                 LOG.debug("Inserted session item: " + item.getName() + " to session parentFolder: " + parentFolder.getName());
             }
         }
+
+        fireTreeNodeAction();
     }
 
     @Override
-    public void treeNodesRemoved(TreeModelEvent e) {}
+    public void treeNodesRemoved(TreeModelEvent e) {
+        LOG.debug("treeNodesRemoved in tree path: " + e.getTreePath());
+        fireTreeNodeAction();
+    }
 
     @Override
-    public void treeStructureChanged(TreeModelEvent e) {}
+    public void treeStructureChanged(TreeModelEvent e) {
+        LOG.debug("treeStructureChanged in tree path: " + e.getTreePath());
+        fireTreeNodeAction();
+    }
 
     /**
      * Handles mouse clicks on the tree component

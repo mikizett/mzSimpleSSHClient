@@ -114,6 +114,11 @@ public final class SessionDataService implements ISessionDataService {
     }
 
     @Override
+    public SessionModel getDefaultSessionModel() {
+        return defaultSessionModel;
+    }
+
+    @Override
     public SessionFolderModel createNewSessionFolderModel() {
         return createNewSessionFolderModel(UUID.randomUUID().toString(), "New Folder");
     }

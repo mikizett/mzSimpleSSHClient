@@ -8,13 +8,9 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPasswordField;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -28,32 +24,6 @@ public final class UIUtils {
     private static final Logger LOG = LogManager.getLogger(UIUtils.class);
 
     private UIUtils() {}
-
-    private static void setLookAndFeel(final String laf) {
-        try {
-            UIManager.setLookAndFeel(laf);
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
-            LOG.error("Could not set LAF: " + laf, ex);
-        }
-    }
-
-    /**
-     * Set the Nimbus look and feel
-     * If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-     */
-    public static void setNimbusLookAndFeel() {
-        setLookAndFeel(NimbusLookAndFeel.class.getName());
-    }
-
-    public static void setMetalLookAndFeel() {
-        setLookAndFeel(MetalLookAndFeel.class.getName());
-    }
-
-    public static void setSystemLookAndFeel() {
-        setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-
 
     public static void selectSessionStorageLocation() {
         final FileFilter fileFilter = new FileFilter() {

@@ -21,7 +21,9 @@ public class SessionFolderModel extends AbstractSessionEntryModel {
     @Override
     public boolean equals(Object obj) {
         final SessionFolderModel that = (SessionFolderModel) obj;
-        if (id.equals(that.id) && name.equals(that.name) && folders.equals(that.folders) && items.equals(that.items)) {
+        if (id.equals(that.id) && name.equals(that.name) &&
+                folders.size() == that.folders.size() && folders.equals(that.folders) &&
+                items.size() == that.items.size() & items.equals(that.items)) {
             return true;
         }
         return false;

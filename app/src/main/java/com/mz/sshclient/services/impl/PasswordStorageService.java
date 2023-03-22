@@ -175,4 +175,8 @@ public class PasswordStorageService implements IPasswordStorageService {
         saveKeyStore();
     }
 
+    @Override
+    public boolean isUnlockedPasswordStorage() {
+        return unlockedPasswordStorage;
+    }
 }

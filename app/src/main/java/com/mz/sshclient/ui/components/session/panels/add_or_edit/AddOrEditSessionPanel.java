@@ -176,33 +176,42 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
     private void saveSessionItem() {
         if (StringUtils.isNotBlank(sessionItemModel.getPassword())) {
             final boolean passwordStorageFileExist = passwordStorageService.existStorageFile();
-            final String message = passwordStorageFileExist
-                    ? MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword()
-                    : MasterPasswordUtil.getMessageToStoreSessionsWithMasterPassword();
-
-            final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(message);
-            if (answer.getAnswerType() != JOptionPane.YES_OPTION) {
-                MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, "The sessions won't be stored with passwords!");
-            } else {
-                if (!passwordStorageFileExist) {
-                    char[] password = answer.getPassword();
-                    final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
-                    try {
-                        passwordStorageService.addMasterPassword(passwordEncoded);
-
-                        // reset passwd
-                        password = new char[] {'0'};
-                    } catch (PasswordStorageException e) {
-                        LOG.error(e);
-                        MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-                    }
-                }
-
+            if (passwordStorageFileExist && passwordStorageService.isUnlockedPasswordStorage()) {
                 try {
                     passwordStorageService.storePassword(sessionItemModel);
                 } catch (PasswordStorageException e) {
                     LOG.error(e);
                     MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+                }
+            } else {
+                final String message = passwordStorageFileExist
+                        ? MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword()
+                        : MasterPasswordUtil.getMessageToStoreSessionsWithMasterPassword();
+
+                final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(message);
+                if (answer.getAnswerType() != JOptionPane.YES_OPTION) {
+                    MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, "The sessions won't be stored with passwords!");
+                } else {
+                    if (!passwordStorageFileExist) {
+                        char[] password = answer.getPassword();
+                        final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
+                        try {
+                            passwordStorageService.addMasterPassword(passwordEncoded);
+
+                            // reset passwd
+                            password = new char[]{'0'};
+                        } catch (PasswordStorageException e) {
+                            LOG.error(e);
+                            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+                        }
+                    }
+
+                    try {
+                        passwordStorageService.storePassword(sessionItemModel);
+                    } catch (PasswordStorageException e) {
+                        LOG.error(e);
+                        MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
+                    }
                 }
             }
 
