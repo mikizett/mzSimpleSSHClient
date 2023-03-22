@@ -19,8 +19,8 @@ public final class OpenedSshSessions {
         return openSshSessions.stream().filter(item -> item.getSessionItemModel().getName().equals(name)).count() > 0;
     }
 
-    public static void addSshSession(final TabContentPanel tabContentPanel, final SessionItemModel sessionItemModel, final SshTtyConnector sshTtyConnector) {
-        openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector));
+    public static void addSshSession(final TabContentPanel tabContentPanel, final SessionItemModel sessionItemModel, final SshTtyConnector sshTtyConnector, int index) {
+        openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector, index));
     }
 
     public static boolean removeSshSession(final SshSessionHolder sshSessionHolder) {
@@ -48,5 +48,6 @@ public final class OpenedSshSessions {
         private final SessionItemModel sessionItemModel;
         private final TabContentPanel tabContentPanel;
         private final SshTtyConnector sshTtyConnector;
+        private final int index;
     }
 }

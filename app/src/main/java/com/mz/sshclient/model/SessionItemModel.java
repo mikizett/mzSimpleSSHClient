@@ -22,10 +22,6 @@ public class SessionItemModel extends AbstractSessionEntryModel {
     private String remoteFolder = "";
     private String jumpHost = "";
 
-    @Getter(onMethod = @__(@JsonIgnore))
-    @Setter(onMethod = @__(@JsonIgnore))
-    private int index = -1;
-
     @Override
     public String toString() {
         return name;
@@ -42,6 +38,23 @@ public class SessionItemModel extends AbstractSessionEntryModel {
         }
 
         return false;
+    }
+
+    public SessionItemModel copy() {
+        final SessionItemModel copy = new SessionItemModel();
+
+        copy.id = new String(this.id);
+        copy.name = new String(this.name);
+        copy.host = new String(this.host);
+        copy.port = new String(this.port);
+        copy.user = new String(this.user);
+        copy.password = new String(this.password);
+        copy.privateKeyFile = new String(this.privateKeyFile);
+        copy.localFolder = new String(this.localFolder);
+        copy.remoteFolder = new String(this.remoteFolder);
+        copy.jumpHost = new String(this.jumpHost);
+
+        return copy;
     }
 
     public SessionItemModel deepCopy() {

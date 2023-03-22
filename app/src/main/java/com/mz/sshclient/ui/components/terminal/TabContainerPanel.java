@@ -93,8 +93,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
     private static int counter = 1;
 
     private void connectSshClient(SessionItemModel itemRef) {
-        final SessionItemModel item = itemRef.deepCopy();
-        item.setName(itemRef.getName());
+        final SessionItemModel item = itemRef.copy();
 
         try {
             final SshClient sshClient = createSshClient(item);
@@ -106,16 +105,15 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
             SwingUtilities.invokeLater(() -> {
                 final TabContentPanel tabContainerPanel = new TabContentPanel(sshTtyConnector);
 
-                String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counter++) : item.getName();
+                final String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counter++) : item.getName();
+
                 tabbedPane.addTabWithAction(/*item.getName()*/ tabName, tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
                 tabbedPane.toggleTabLayoutPolicy();
 
                 final int index = tabbedPane.getTabCount() - 1;
                 tabbedPane.setSelectedIndex(index);
 
-                item.setIndex(index);
-
-                OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector);
+                OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector, index);
             });
         } catch (SshConnectionException | SshDisconnectException | SshOperationCanceledException e) {
             LOG.error("Could not connect", e);
@@ -137,11 +135,11 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         Optional<OpenedSshSessions.SshSessionHolder> sshTerminalHolderOptional = OpenedSshSessions.getOpenSshSessions()
                 .stream()
                 .filter(ref -> ref.getSessionItemModel().getId() == ((SessionItemModel) reference).getId() &&
-                        ref.getSessionItemModel().getIndex() == ((SessionItemModel) reference).getIndex())
-                .findAny();
+                        ref.getSessionItemModel() == (SessionItemModel) reference)
+                .findFirst();
 
         sshTerminalHolderOptional.ifPresent(item -> {
-            tabbedPane.removeTabAt(item.getSessionItemModel().getIndex());
+            tabbedPane.removeTabAt(item.getIndex());
             OpenedSshSessions.removeSshSession(item);
         });
     }
