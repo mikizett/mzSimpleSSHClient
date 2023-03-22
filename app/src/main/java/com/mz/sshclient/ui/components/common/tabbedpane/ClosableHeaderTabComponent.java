@@ -204,9 +204,9 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         @Override
         protected void fireActionPerformed(ActionEvent event) {
             super.fireActionPerformed(event);
-            if (action == null) {
+            //if (action == null) {
                 DEFAULT_CLOSE_ACTION.actionPerformed(event);
-            }
+            //}
         }
 
         /**

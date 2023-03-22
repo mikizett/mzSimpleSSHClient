@@ -3,24 +3,18 @@ package com.mz.sshclient.ui.components.common.tree;
 import com.mz.sshclient.model.AbstractSessionEntryModel;
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;
-import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
-import com.mz.sshclient.services.exceptions.PasswordStorageException;
-import com.mz.sshclient.services.interfaces.IPasswordStorageService;
-import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
+import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.ui.actions.ActionRenameSelectedTreeItem;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
+import com.mz.sshclient.ui.components.terminal.PasswordStorageHandler;
 import com.mz.sshclient.ui.events.listener.ITreeNodeListener;
-import com.mz.sshclient.ui.utils.MasterPasswordUtil;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import com.mz.sshclient.utils.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.DropMode;
-import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -42,7 +36,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
     private static final Logger LOG = LogManager.getLogger(SessionTreeComponent.class);
 
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
-    private final IPasswordStorageService passwordStorageService = ServiceRegistry.get(IPasswordStorageService.class);
     private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
     private ITreeNodeListener treeNodeListener;
@@ -60,44 +53,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
     }
 
     private void init() {
-        if (passwordStorageService.existStorageFile()) {
-            while (true) {
-                try {
-                    final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword());
-                    if (answer.getAnswerType() == JOptionPane.YES_OPTION) {
-                        char[] password = answer.getPassword();
-                        final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
-                        passwordStorageService.unlockPasswordStorage(passwordEncoded);
-                        passwordStorageService.setPasswordsToModel(sessionFolderModel);
-                        // used to have a comparison
-                        passwordStorageService.setPasswordsToModel(sessionDataService.getDefaultSessionModel().getFolder());
+        PasswordStorageHandler.getHandler().unlockPasswordStorage(sessionFolderModel);
 
-                        // reset passwd
-                        password = new char[] {'0'};
-                        break;
-                    } else {
-                        final String message = new StringBuilder("If you don't add the master password, you can't use the stored passwords for the sessions.\n\n")
-                                .append("Do you want to try again?")
-                                .append("\n").append(" ")
-                                .toString();
-                        final int result = MessageDisplayUtil.showYesNoConfirmDialog(mzSimpleSshClientMain.MAIN_FRAME, message, "Question");
-                        if (result != JOptionPane.YES_OPTION) {
-                            break;
-                        }
-                    }
-                } catch (PasswordStorageException e) {
-                    final String message = new StringBuilder("Wrong master password!\n\n")
-                            .append("If you don't add the master password you won't be able\n")
-                            .append("to use the sessions with the stored passwords!\n\n")
-                            .append("Try again?\n").append(" ")
-                            .toString();
-                    final int result = MessageDisplayUtil.showYesNoConfirmDialog(mzSimpleSshClientMain.MAIN_FRAME, message, "Wrong password");
-                    if (result != JOptionPane.YES_OPTION) {
-                        break;
-                    }
-                }
-            }
-        }
         rootNode = createTreeNodes(sessionFolderModel);
         rootNode.setAllowsChildren(true);
         defaultTreeModel = new DefaultTreeModel(rootNode, true);

@@ -1,59 +1,45 @@
 package com.mz.sshclient.ui.components.terminal;
 
+import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
-import com.mz.sshclient.ssh.IPasswordFinderCallback;
+import com.mz.sshclient.ssh.IPrivateKeyPasswordFinderCallback;
 import com.mz.sshclient.ui.utils.UIUtils;
+import com.mz.sshclient.utils.Utils;
 import net.schmizz.sshj.userauth.password.Resource;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
-public class PasswordFinderCallback implements IPasswordFinderCallback {
+public class PrivateKeyPasswordFinderCallback implements IPrivateKeyPasswordFinderCallback {
 
     private boolean retry = true;
 
-    private char[] cachedPassword;
-    private char[] cachedPassPhrase;
+    private char[] cachedEncodedPassword;
 
-    @Override
-    public char[] getCachedPassword() {
-        return cachedPassword;
-    }
-
-    @Override
-    public void cachePassword(final char[] password) {
-        this.cachedPassword = password;
-    }
-
-    @Override
-    public char[] getCachedPassPhrase() {
-        return cachedPassPhrase;
-    }
-
-    @Override
-    public void setCachedPassPhrase(final char[] cachedPassPhrase) {
-        this.cachedPassPhrase = cachedPassPhrase;
+    public PrivateKeyPasswordFinderCallback(final SessionItemModel sessionItemModel) {
+        if (sessionItemModel != null) {
+            cachedEncodedPassword = sessionItemModel.getPassword().toCharArray();
+        }
     }
 
     @Override
     public char[] reqPassword(final Resource<?> resource) {
-        // if pass phrase was already cached
-        if (cachedPassPhrase != null) {
-            return cachedPassPhrase;
+        if (cachedEncodedPassword != null) {
+            return cachedEncodedPassword;
         }
 
         final JPasswordField passwordField = new JPasswordField();
         UIUtils.addAncestorAndFocusListenerToPasswordField(passwordField);
 
-        final JCheckBox chkUseCache = new JCheckBox("Remember for this session");
+        final JCheckBox cachePasswordCheckBox = new JCheckBox("Remember for this session");
 
         int answer = JOptionPane.showOptionDialog(
                 mzSimpleSshClientMain.MAIN_FRAME,
                 new Object[] {
                         resource != null ? resource.toString() : "Private key passphrase:",
                         passwordField,
-                        chkUseCache
+                        cachePasswordCheckBox
                 },
                 "Passphrase",
                 JOptionPane.OK_CANCEL_OPTION,
@@ -63,13 +49,11 @@ public class PasswordFinderCallback implements IPasswordFinderCallback {
                 null
         );
 
-        if (answer == JOptionPane.OK_OPTION) {
-            final char[] passPhrase = passwordField.getPassword();
-            if (chkUseCache.isSelected()) {
-                this.cachedPassPhrase = passPhrase;
-            }
-            return passPhrase;
+        if (answer == JOptionPane.OK_OPTION && cachePasswordCheckBox.isSelected()) {
+            cachedEncodedPassword = Utils.encodeCharArrayAsCharArray(passwordField.getPassword());
+            return cachedEncodedPassword;
         }
+
         retry = false;
 
         return null;
@@ -79,4 +63,10 @@ public class PasswordFinderCallback implements IPasswordFinderCallback {
     public boolean shouldRetry(final Resource<?> resource) {
         return retry;
     }
+
+    @Override
+    public char[] getEncodedCachedPassword() {
+        return cachedEncodedPassword;
+    }
+
 }

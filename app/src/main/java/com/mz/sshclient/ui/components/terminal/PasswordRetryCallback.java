@@ -1,10 +1,11 @@
 package com.mz.sshclient.ui.components.terminal;
 
+import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
-import com.mz.sshclient.ssh.IPasswordFinderCallback;
 import com.mz.sshclient.ssh.IPasswordRetryCallback;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
 import com.mz.sshclient.ui.utils.UIUtils;
+import com.mz.sshclient.utils.Utils;
 
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
@@ -13,9 +14,19 @@ import javax.swing.JTextField;
 
 public class PasswordRetryCallback implements IPasswordRetryCallback {
 
+    private char[] cachedEncodedPassword;
+
+    public PasswordRetryCallback(final SessionItemModel sessionItemModel) {
+        if (sessionItemModel != null) {
+            cachedEncodedPassword = sessionItemModel.getPassword().toCharArray();
+        }
+    }
+
     @Override
-    public char[] readPassword(String user, IPasswordFinderCallback passwordFinderCallback) throws SshOperationCanceledException {
-        char[] password;
+    public char[] getEncodedPassword(final String user) throws SshOperationCanceledException {
+        if (cachedEncodedPassword != null) {
+            return cachedEncodedPassword;
+        }
 
         final JTextField userTextField = new JTextField(30);
         userTextField.setText(user);
@@ -23,14 +34,14 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
         final JPasswordField passwordField = new JPasswordField(30);
         UIUtils.addAncestorAndFocusListenerToPasswordField(passwordField);
 
-        final JCheckBox useCacheCheckBox = new JCheckBox("Remember for this session");
+        final JCheckBox cachePasswordCheckBox = new JCheckBox("Remember for this session");
 
         int answer = JOptionPane.showOptionDialog(
                 mzSimpleSshClientMain.MAIN_FRAME,
                 new Object[] {
                         "User", userTextField,
                         "Password", passwordField,
-                        useCacheCheckBox
+                        cachePasswordCheckBox
                 },
                 "Authentication",
                 JOptionPane.OK_CANCEL_OPTION,
@@ -39,15 +50,11 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
                 null,
                 null
         );
-        if (answer == JOptionPane.OK_OPTION) {
-            password = passwordField.getPassword();
-            if (useCacheCheckBox.isSelected()) {
-                passwordFinderCallback.cachePassword(password);
-            }
+        if (answer == JOptionPane.OK_OPTION && cachePasswordCheckBox.isSelected()) {
+            cachedEncodedPassword = Utils.encodeCharArrayAsCharArray(passwordField.getPassword());
+            return cachedEncodedPassword;
         } else {
             throw new SshOperationCanceledException("Canceled by user");
         }
-
-        return password;
     }
 }

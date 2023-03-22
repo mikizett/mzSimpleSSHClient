@@ -1,9 +1,11 @@
 package com.mz.sshclient.ui.components.terminal;
 
+import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IInteractiveResponseProvider;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.ui.utils.UIUtils;
+import com.mz.sshclient.utils.Utils;
 import net.schmizz.sshj.userauth.password.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +21,14 @@ public class InteractiveResponseProvider implements IInteractiveResponseProvider
     private static final Logger LOG = LogManager.getLogger(InteractiveResponseProvider.class);
 
     private boolean retry = true;
+
+    private char[] cachedEncodedPassword;
+
+    public InteractiveResponseProvider(final SessionItemModel sessionItemModel) {
+        if (sessionItemModel != null) {
+            cachedEncodedPassword = sessionItemModel.getPassword().toCharArray();
+        }
+    }
 
     @Override
     public List<String> getSubmethods() {
@@ -38,10 +48,15 @@ public class InteractiveResponseProvider implements IInteractiveResponseProvider
     public char[] getResponse(String prompt, boolean echo) {
         LOG.debug("prompt: " + prompt + " echo: " + echo);
 
+        if (cachedEncodedPassword != null) {
+            return cachedEncodedPassword;
+        }
+
         if (echo) {
             final String answer = JOptionPane.showInputDialog(prompt);
             if (answer != null) {
-                return answer.toCharArray();
+                cachedEncodedPassword = Utils.encodeStringAsCharArray(answer);
+                return cachedEncodedPassword;
             }
         } else {
             final JPasswordField passwordField = new JPasswordField(30);
@@ -58,7 +73,8 @@ public class InteractiveResponseProvider implements IInteractiveResponseProvider
                     null, null, null
             );
             if (answer == JOptionPane.OK_OPTION) {
-                return passwordField.getPassword();
+                cachedEncodedPassword = Utils.encodeCharArrayAsCharArray(passwordField.getPassword());
+                return cachedEncodedPassword;
             }
         }
         retry = false;

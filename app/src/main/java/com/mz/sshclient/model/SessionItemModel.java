@@ -22,6 +22,10 @@ public class SessionItemModel extends AbstractSessionEntryModel {
     private String remoteFolder = "";
     private String jumpHost = "";
 
+    @Getter(onMethod = @__(@JsonIgnore))
+    @Setter(onMethod = @__(@JsonIgnore))
+    private int index = -1;
+
     @Override
     public String toString() {
         return name;

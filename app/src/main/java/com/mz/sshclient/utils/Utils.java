@@ -16,6 +16,21 @@ public final class Utils {
         return objectMapper;
     }
 
+    public static char[] encodeCharArrayAsCharArray(final char[] chars) {
+        return encodeString(new String(chars)).toCharArray();
+    }
+
+    public static char[] encodeStringAsCharArray(final String s) {
+        return encodeString(s).toCharArray();
+    }
+
+    public static char[] decodeCharArrayAsCharArray(final char[] chars) {
+        return decodeString(new String(chars)).toCharArray();
+    }
+    public static char[] decodeStringAsCharArray(final String s) {
+        return decodeString(s).toCharArray();
+    }
+
     public static String encodeString(final String s) {
         return Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.UTF_8));
     }

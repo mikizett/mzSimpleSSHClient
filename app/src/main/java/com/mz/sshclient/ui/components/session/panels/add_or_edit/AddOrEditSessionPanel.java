@@ -6,21 +6,18 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionItemModelHelper;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.exceptions.PasswordStorageException;
+import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
-import com.mz.sshclient.services.interfaces.IPasswordStorageService;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
+import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
+import com.mz.sshclient.ui.components.terminal.PasswordStorageHandler;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
-import com.mz.sshclient.ui.utils.MasterPasswordUtil;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import com.mz.sshclient.utils.Utils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -57,8 +54,8 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
     private JButton saveButton;
     private JButton cancelButton;
 
-    private final IPasswordStorageService passwordStorageService = ServiceRegistry.get(IPasswordStorageService.class);
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+    private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
     private final List<IAdjustableSessionItemDraftPanel> adjustablePanels = new ArrayList<>(0);
 
@@ -115,10 +112,14 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
         connectButton = new JButton("Connect");
         connectButton.setEnabled(false);
+        connectButton.addActionListener(l -> {
+            addOrEditSessionItem(true);
+            sshConnectionService.fireConnectSshEvent(new ConnectSshEvent(this, sessionItemModel));
+        });
 
         saveButton = new JButton("Save");
         saveButton.setEnabled(false);
-        saveButton.addActionListener(l -> addSessionItem());
+        saveButton.addActionListener(l -> addOrEditSessionItem(false));
 
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(l -> parentWindow.dispose());
@@ -146,7 +147,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
         connectButton.setEnabled(canEnableConnectButton);
     }
 
-    private void addSessionItem() {
+    private void addOrEditSessionItem(boolean shouldClose) {
         adjustablePanels.forEach(panel -> panel.adjustSessionItemDraft());
 
         if (addOrEditEnum == AddOrEditEnum.ADD) {
@@ -170,50 +171,14 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
         saveSessionItem();
 
-        parentWindow.dispose();
+        if (shouldClose) {
+            parentWindow.dispose();
+        }
     }
 
     private void saveSessionItem() {
-        if (StringUtils.isNotBlank(sessionItemModel.getPassword())) {
-            final boolean passwordStorageFileExist = passwordStorageService.existStorageFile();
-            if (passwordStorageFileExist && passwordStorageService.isUnlockedPasswordStorage()) {
-                try {
-                    passwordStorageService.storePassword(sessionItemModel);
-                } catch (PasswordStorageException e) {
-                    LOG.error(e);
-                    MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-                }
-            } else {
-                final String message = passwordStorageFileExist
-                        ? MasterPasswordUtil.getMessageToReadSessionsWithMasterPassword()
-                        : MasterPasswordUtil.getMessageToStoreSessionsWithMasterPassword();
-
-                final MasterPasswordUtil.MasterPasswordAnswer answer = MasterPasswordUtil.showMasterPasswordDialog(message);
-                if (answer.getAnswerType() != JOptionPane.YES_OPTION) {
-                    MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, "The sessions won't be stored with passwords!");
-                } else {
-                    if (!passwordStorageFileExist) {
-                        char[] password = answer.getPassword();
-                        final char[] passwordEncoded = Utils.encodeString(new String(password)).toCharArray();
-                        try {
-                            passwordStorageService.addMasterPassword(passwordEncoded);
-
-                            // reset passwd
-                            password = new char[]{'0'};
-                        } catch (PasswordStorageException e) {
-                            LOG.error(e);
-                            MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-                        }
-                    }
-
-                    try {
-                        passwordStorageService.storePassword(sessionItemModel);
-                    } catch (PasswordStorageException e) {
-                        LOG.error(e);
-                        MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-                    }
-                }
-            }
+        if (sessionDataService.hasSessionModelChanged()) {
+            PasswordStorageHandler.getHandler().storePassword(sessionItemModel);
 
             try {
                 sessionDataService.saveToFile();

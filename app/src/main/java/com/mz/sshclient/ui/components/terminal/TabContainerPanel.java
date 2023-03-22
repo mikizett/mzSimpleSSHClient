@@ -75,14 +75,14 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
 
     private SshClient createSshClient(final SessionItemModel item) {
         final HostKeyVerifier hostKeyVerifier = createHostKeyVerifier();
-        final PasswordFinderCallback passwordFinderCallback = new PasswordFinderCallback();
-        final InteractiveResponseProvider interactiveResponseProvider = new InteractiveResponseProvider();
-        final PasswordRetryCallback passwordRetryCallback = new PasswordRetryCallback();
+        final PrivateKeyPasswordFinderCallback privateKeyPasswordFinderCallback = new PrivateKeyPasswordFinderCallback(item);
+        final InteractiveResponseProvider interactiveResponseProvider = new InteractiveResponseProvider(item);
+        final PasswordRetryCallback passwordRetryCallback = new PasswordRetryCallback(item);
 
         final SshClient sshClient = new SshClient(
                 item,
                 hostKeyVerifier,
-                passwordFinderCallback,
+                privateKeyPasswordFinderCallback,
                 interactiveResponseProvider,
                 passwordRetryCallback
         );
@@ -90,7 +90,12 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         return sshClient;
     }
 
-    private void connectSshClient(final SessionItemModel item) {
+    private static int counter = 1;
+
+    private void connectSshClient(SessionItemModel itemRef) {
+        final SessionItemModel item = itemRef.deepCopy();
+        item.setName(itemRef.getName());
+
         try {
             final SshClient sshClient = createSshClient(item);
             sshClient.connect();
@@ -100,9 +105,15 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
 
             SwingUtilities.invokeLater(() -> {
                 final TabContentPanel tabContainerPanel = new TabContentPanel(sshTtyConnector);
-                tabbedPane.addTabWithAction(item.getName(), tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
+
+                String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counter++) : item.getName();
+                tabbedPane.addTabWithAction(/*item.getName()*/ tabName, tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
                 tabbedPane.toggleTabLayoutPolicy();
-                tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1);
+
+                final int index = tabbedPane.getTabCount() - 1;
+                tabbedPane.setSelectedIndex(index);
+
+                item.setIndex(index);
 
                 OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector);
             });
@@ -125,21 +136,13 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
     public void closedSshConnection(final Serializable reference) {
         Optional<OpenedSshSessions.SshSessionHolder> sshTerminalHolderOptional = OpenedSshSessions.getOpenSshSessions()
                 .stream()
-                .filter(ref -> ref.getSessionItemModel().getId() == ((SessionItemModel) reference).getId())
-                .findFirst();
+                .filter(ref -> ref.getSessionItemModel().getId() == ((SessionItemModel) reference).getId() &&
+                        ref.getSessionItemModel().getIndex() == ((SessionItemModel) reference).getIndex())
+                .findAny();
 
         sshTerminalHolderOptional.ifPresent(item -> {
-            final int index = tabbedPane.indexOfComponent(item.getTabContentPanel());
-            if (index > -1) {
-                try {
-                    SwingUtilities.invokeAndWait(() -> {
-                        tabbedPane.removeTabAt(index);
-                        OpenedSshSessions.removeSshSession(item);
-                    });
-                } catch (Exception e) {
-                    // do nothing !!!
-                }
-            }
+            tabbedPane.removeTabAt(item.getSessionItemModel().getIndex());
+            OpenedSshSessions.removeSshSession(item);
         });
     }
 

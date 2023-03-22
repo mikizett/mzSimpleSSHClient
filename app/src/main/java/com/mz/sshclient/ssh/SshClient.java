@@ -40,20 +40,20 @@ public class SshClient implements Closeable {
 
     private final SessionItemModel  sessionItemModel;
     private final HostKeyVerifier hostKeyVerifier;
-    private final IPasswordFinderCallback passwordFinderCallback;
+    private final IPrivateKeyPasswordFinderCallback privateKeyPasswordFinderCallback;
     private final IInteractiveResponseProvider interactiveResponseProvider;
     private final IPasswordRetryCallback passwordRetryCallback;
 
     public SshClient(
             final SessionItemModel sessionItemModel,
             final HostKeyVerifier hostKeyVerifier,
-            final IPasswordFinderCallback passwordFinderCallback,
+            final IPrivateKeyPasswordFinderCallback privateKeyPasswordFinderCallback,
             final IInteractiveResponseProvider interactiveResponseProvider,
             final IPasswordRetryCallback passwordRetryCallback
     ) {
         this.sessionItemModel = sessionItemModel;
         this.hostKeyVerifier = hostKeyVerifier;
-        this.passwordFinderCallback = passwordFinderCallback;
+        this.privateKeyPasswordFinderCallback = privateKeyPasswordFinderCallback;
         this.interactiveResponseProvider = interactiveResponseProvider;
         this.passwordRetryCallback = passwordRetryCallback;
     }
@@ -70,7 +70,7 @@ public class SshClient implements Closeable {
         jumpHostItem.setPassword(sessionItemModel.getPassword());
         jumpHostItem.setPrivateKeyFile(sessionItemModel.getPrivateKeyFile());
 
-        jumpHostSshClient = new SshClient(jumpHostItem, hostKeyVerifier, passwordFinderCallback, interactiveResponseProvider, passwordRetryCallback);
+        jumpHostSshClient = new SshClient(jumpHostItem, hostKeyVerifier, privateKeyPasswordFinderCallback, interactiveResponseProvider, passwordRetryCallback);
         jumpHostSshClient.connect();
     }
 
@@ -112,12 +112,13 @@ public class SshClient implements Closeable {
     }
 
     private void authPublicKey() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException, SshPrivateKeyMissingException {
-        KeyProvider provider = null;
         if (StringUtils.isNotBlank(sessionItemModel.getPrivateKeyFile())) {
+            KeyProvider provider = null;
+
             final File keyFile = new File(sessionItemModel.getPrivateKeyFile());
             if (keyFile.exists()) {
                 try {
-                    provider = sshj.loadKeys(sessionItemModel.getPrivateKeyFile(), passwordFinderCallback);
+                    provider = sshj.loadKeys(sessionItemModel.getPrivateKeyFile(), privateKeyPasswordFinderCallback);
 
                     LOG.debug("Key provider: " + provider);
                     LOG.debug("Key type: " + provider.getType());
@@ -125,37 +126,39 @@ public class SshClient implements Closeable {
                     throw new SshConnectionException("Could not load private/public key", e);
                 }
             }
-        }
 
-        if (closed) {
-            disconnect();
-            throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
-        }
+            if (closed) {
+                disconnect();
+                throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
+            }
 
-        if (provider == null) {
-            throw new SshPrivateKeyMissingException("No suitable key providers (no private key selected).");
-        }
+            if (provider == null) {
+                throw new SshPrivateKeyMissingException("No suitable key providers (no private key selected).");
+            }
 
-        try {
-            sshj.authPublickey(sessionItemModel.getUser(), provider);
-        } catch (UserAuthException | TransportException e) {
-            throw new SshConnectionException("Could not authenticate with private/public key", e);
+            try {
+                sshj.authPublickey(sessionItemModel.getUser(), provider);
+            } catch (UserAuthException | TransportException e) {
+                throw new SshConnectionException("Could not authenticate with private/public key", e);
+            }
         }
+        throw new SshPrivateKeyMissingException("private key missing (not set from user)");
     }
 
     private void authPassword() throws SshOperationCanceledException, SshConnectionException {
-        String user = sessionItemModel.getUser();
-        char[] password = getPassword();
+        final String user = sessionItemModel.getUser();
+        char[] decodedPassword = getDecodedPassword();
 
         while (!closed) {
-            if (password == null || password.length < 1) {
-                password = passwordRetryCallback.readPassword(user, passwordFinderCallback);
-                if (password == null) {
+            if (decodedPassword == null || decodedPassword.length < 1) {
+                final char[] cachedEncodedPassword = passwordRetryCallback.getEncodedPassword(user);
+                if (cachedEncodedPassword == null) {
                     throw new SshOperationCanceledException("Password not set");
                 }
+                decodedPassword = Utils.decodeCharArrayAsCharArray(cachedEncodedPassword);
             }
             try {
-                sshj.authPassword(user, password);
+                sshj.authPassword(user, decodedPassword);
                 break;
             } catch (UserAuthException | TransportException e) {
                 throw new SshConnectionException("Wrong password", e);
@@ -163,16 +166,12 @@ public class SshClient implements Closeable {
         }
     }
 
-    private char[] getPassword() {
-        char[] password = passwordFinderCallback.getCachedPassword();
+    private char[] getDecodedPassword() {
+        char[] password = privateKeyPasswordFinderCallback.getEncodedCachedPassword();
         if (password == null && StringUtils.isNotBlank(sessionItemModel.getPassword())) {
-            String decodedPassword = Utils.decodeString(sessionItemModel.getPassword());
-            password = decodedPassword.toCharArray();
-
-            // reset passwd
-            decodedPassword = "0";
+            password = sessionItemModel.getPassword().toCharArray();
         }
-        return password;
+        return Utils.decodeCharArrayAsCharArray(password);
     }
 
     public void connect() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException {

@@ -15,6 +15,10 @@ public final class OpenedSshSessions {
 
     private static final List<SshSessionHolder> openSshSessions = new ArrayList<>(0);
 
+    public static boolean hasSameTabName(final String name) {
+        return openSshSessions.stream().filter(item -> item.getSessionItemModel().getName().equals(name)).count() > 0;
+    }
+
     public static void addSshSession(final TabContentPanel tabContentPanel, final SessionItemModel sessionItemModel, final SshTtyConnector sshTtyConnector) {
         openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector));
     }
