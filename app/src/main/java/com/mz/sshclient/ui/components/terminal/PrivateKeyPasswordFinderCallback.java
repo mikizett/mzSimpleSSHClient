@@ -26,7 +26,8 @@ public class PrivateKeyPasswordFinderCallback implements IPrivateKeyPasswordFind
     @Override
     public char[] reqPassword(final Resource<?> resource) {
         if (cachedEncodedPassword != null) {
-            return cachedEncodedPassword;
+            retry = false;
+            return Utils.decodeCharArrayAsCharArray(cachedEncodedPassword);
         }
 
         final JPasswordField passwordField = new JPasswordField();

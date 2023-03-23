@@ -119,7 +119,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
         saveButton = new JButton("Save");
         saveButton.setEnabled(false);
-        saveButton.addActionListener(l -> addOrEditSessionItem(false));
+        saveButton.addActionListener(l -> addOrEditSessionItem(true));
 
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(l -> parentWindow.dispose());

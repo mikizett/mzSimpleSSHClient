@@ -25,7 +25,7 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
     @Override
     public char[] getEncodedPassword(final String user) throws SshOperationCanceledException {
         if (cachedEncodedPassword != null) {
-            return cachedEncodedPassword;
+            return Utils.decodeCharArrayAsCharArray(cachedEncodedPassword);
         }
 
         final JTextField userTextField = new JTextField(30);
@@ -52,7 +52,7 @@ public class PasswordRetryCallback implements IPasswordRetryCallback {
         );
         if (answer == JOptionPane.OK_OPTION && cachePasswordCheckBox.isSelected()) {
             cachedEncodedPassword = Utils.encodeCharArrayAsCharArray(passwordField.getPassword());
-            return cachedEncodedPassword;
+            return Utils.decodeCharArrayAsCharArray(cachedEncodedPassword);
         } else {
             throw new SshOperationCanceledException("Canceled by user");
         }

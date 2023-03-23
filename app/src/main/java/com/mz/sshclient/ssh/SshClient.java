@@ -139,7 +139,7 @@ public class SshClient implements Closeable {
             try {
                 sshj.authPublickey(sessionItemModel.getUser(), provider);
             } catch (UserAuthException | TransportException e) {
-                throw new SshConnectionException("Could not authenticate with private/public key", e);
+                throw new SshConnectionException("Access Denied: Could not authenticate with private/public key", e);
             }
         }
         throw new SshPrivateKeyMissingException("private key missing (not set from user)");
