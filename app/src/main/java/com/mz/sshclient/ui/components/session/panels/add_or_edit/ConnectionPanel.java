@@ -203,6 +203,14 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         return userTextField.getText();
     }
 
+    public boolean hasValueChanged() {
+        return !hostTextField.getText().equals(sessionItemDraftModel.getHost()) ||
+                !portTextField.getText().equals(sessionItemDraftModel.getPort()) ||
+                !userTextField.getText().equals(sessionItemDraftModel.getUser()) ||
+                !Utils.encodeString(new String(passField.getPassword())).equals(sessionItemDraftModel.getPassword()) ||
+                !privateKeyFileTextField.getText().equals(sessionItemDraftModel.getPrivateKeyFile());
+    }
+
     @Override
     public void adjustSessionItemDraft() {
         sessionItemDraftModel.setHost(hostTextField.getText());

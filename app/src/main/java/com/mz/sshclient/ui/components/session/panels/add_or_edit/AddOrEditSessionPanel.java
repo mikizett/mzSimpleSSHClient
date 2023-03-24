@@ -10,6 +10,7 @@ import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
+import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
 import com.mz.sshclient.ui.components.terminal.PasswordStorageHandler;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
@@ -141,10 +142,12 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
     }
 
     private void initEnableComponents() {
-        final boolean canEnableConnectButton = !sessionItemDraftModel.getName().isEmpty() &&
-                !sessionItemDraftModel.getHost().isEmpty() && !sessionItemDraftModel.getPort().isEmpty();
+        connectButton.setEnabled(canEnableConnectButton());
+    }
 
-        connectButton.setEnabled(canEnableConnectButton);
+    private boolean canEnableConnectButton() {
+        return !sessionItemDraftModel.getName().isEmpty() &&
+                !sessionItemDraftModel.getHost().isEmpty() && !sessionItemDraftModel.getPort().isEmpty();
     }
 
     private void addOrEditSessionItem(boolean shouldClose) {
@@ -182,6 +185,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
             try {
                 sessionDataService.saveToFile();
+                ((SessionTreeComponent) tree).fireTreeNodeAction();
             } catch (SaveSessionDataException e) {
                 LOG.error(e);
                 MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
@@ -191,13 +195,24 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
     @Override
     public void valueChanged() {
-        final boolean canEnableButton = sessionNamePanel != null &&
-                !sessionNamePanel.getSessionName().isEmpty() &&
-                sessionInfoPanel != null && !sessionInfoPanel.getConnectionPanel().getHost().isEmpty() &&
-                !sessionInfoPanel.getConnectionPanel().getPort().isEmpty() &&
-                !sessionInfoPanel.getConnectionPanel().getUser().isEmpty();
+        boolean enable;
 
-        connectButton.setEnabled(canEnableButton);
-        saveButton.setEnabled(canEnableButton);
+        if (addOrEditEnum == AddOrEditEnum.ADD) {
+            enable = !sessionNamePanel.getSessionName().isEmpty() &&
+                    !sessionInfoPanel.getConnectionPanel().getHost().isEmpty() &&
+                    !sessionInfoPanel.getConnectionPanel().getPort().isEmpty() &&
+                    !sessionInfoPanel.getConnectionPanel().getUser().isEmpty();
+
+            connectButton.setEnabled(enable);
+        } else {
+            enable = sessionNamePanel.hasValueChanged() ||
+                    sessionInfoPanel.getConnectionPanel().hasValueChanged() ||
+                    sessionInfoPanel.getSecureFtpPanel().hasValueChanged() ||
+                    sessionInfoPanel.getJumpHostPanel().hasValueChanged();
+
+            connectButton.setEnabled(canEnableConnectButton());
+        }
+
+        saveButton.setEnabled(enable);
     }
 }

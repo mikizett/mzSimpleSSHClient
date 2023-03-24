@@ -2,6 +2,8 @@ package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
 
 import com.mz.sshclient.model.SessionItemDraftModel;
+import com.mz.sshclient.ui.events.listener.IValueChangeListener;
+import com.mz.sshclient.ui.events.listener.InputFieldDocumentListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,13 +20,20 @@ public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraft
     private final JLabel jumpHostLabel = new JLabel("Jump Host");
     private final JTextField jumpHostTextField = new JTextField(30);
     private final SessionItemDraftModel sessionItemDraftModel;
+    private final IValueChangeListener changeValueListener;
 
-    public JumpHostPanel(final SessionItemDraftModel sessionItemDraftModel, final AddOrEditEnum addOrEditEnum) {
+    public JumpHostPanel(
+            final SessionItemDraftModel sessionItemDraftModel,
+            final AddOrEditEnum addOrEditEnum,
+            final IValueChangeListener changeValueListener
+    ) {
         this.sessionItemDraftModel = sessionItemDraftModel;
+        this.changeValueListener = changeValueListener;
         init();
         if (addOrEditEnum == AddOrEditEnum.EDIT) {
             initData();
         }
+        addListeners();
     }
 
     private void init() {
@@ -65,6 +74,18 @@ public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraft
 
     private void initData() {
         jumpHostTextField.setText(sessionItemDraftModel.getJumpHost());
+    }
+
+    private void addListeners() {
+        jumpHostTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+    }
+
+    public String getJumpHost() {
+        return jumpHostTextField.getText();
+    }
+
+    public boolean hasValueChanged() {
+        return !jumpHostTextField.getText().equals(sessionItemDraftModel.getJumpHost());
     }
 
     @Override

@@ -112,37 +112,38 @@ public class SshClient implements Closeable {
     }
 
     private void authPublicKey() throws SshConnectionException, SshDisconnectException, SshOperationCanceledException, SshPrivateKeyMissingException {
-        if (StringUtils.isNotBlank(sessionItemModel.getPrivateKeyFile())) {
-            KeyProvider provider = null;
+        if (StringUtils.isBlank(sessionItemModel.getPrivateKeyFile())) {
+            throw new SshPrivateKeyMissingException("private key missing (not set from user)");
+        }
 
-            final File keyFile = new File(sessionItemModel.getPrivateKeyFile());
-            if (keyFile.exists()) {
-                try {
-                    provider = sshj.loadKeys(sessionItemModel.getPrivateKeyFile(), privateKeyPasswordFinderCallback);
+        KeyProvider provider = null;
 
-                    LOG.debug("Key provider: " + provider);
-                    LOG.debug("Key type: " + provider.getType());
-                } catch (IOException e) {
-                    throw new SshConnectionException("Could not load private/public key", e);
-                }
-            }
-
-            if (closed) {
-                disconnect();
-                throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
-            }
-
-            if (provider == null) {
-                throw new SshPrivateKeyMissingException("No suitable key providers (no private key selected).");
-            }
-
+        final File keyFile = new File(sessionItemModel.getPrivateKeyFile());
+        if (keyFile.exists()) {
             try {
-                sshj.authPublickey(sessionItemModel.getUser(), provider);
-            } catch (UserAuthException | TransportException e) {
-                throw new SshConnectionException("Access Denied: Could not authenticate with private/public key", e);
+                provider = sshj.loadKeys(sessionItemModel.getPrivateKeyFile(), privateKeyPasswordFinderCallback);
+
+                LOG.debug("Key provider: " + provider);
+                LOG.debug("Key type: " + provider.getType());
+            } catch (IOException e) {
+                throw new SshConnectionException("Could not load private/public key", e);
             }
         }
-        throw new SshPrivateKeyMissingException("private key missing (not set from user)");
+
+        if (closed) {
+            disconnect();
+            throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
+        }
+
+        if (provider == null) {
+            throw new SshPrivateKeyMissingException("No suitable key providers (no private key selected).");
+        }
+
+        try {
+            sshj.authPublickey(sessionItemModel.getUser(), provider);
+        } catch (UserAuthException | TransportException e) {
+            throw new SshConnectionException("Access Denied: Could not authenticate with private/public key", e);
+        }
     }
 
     private void authPassword() throws SshOperationCanceledException, SshConnectionException {

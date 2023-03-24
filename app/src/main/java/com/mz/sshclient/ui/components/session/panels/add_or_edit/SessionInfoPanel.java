@@ -36,8 +36,8 @@ public class SessionInfoPanel extends JPanel {
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
         connectionPanel = new ConnectionPanel(sessionItemDraftModel, addOrEditEnum, changeValueListener);
-        secureFtpPanel = new SecureFtpPanel(sessionItemDraftModel, addOrEditEnum);
-        jumpHostPanel = new JumpHostPanel(sessionItemDraftModel, addOrEditEnum);
+        secureFtpPanel = new SecureFtpPanel(sessionItemDraftModel, addOrEditEnum, changeValueListener);
+        jumpHostPanel = new JumpHostPanel(sessionItemDraftModel, addOrEditEnum, changeValueListener);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Connection", connectionPanel);

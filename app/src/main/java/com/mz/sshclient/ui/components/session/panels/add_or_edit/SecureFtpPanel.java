@@ -1,6 +1,8 @@
 package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
 import com.mz.sshclient.model.SessionItemDraftModel;
+import com.mz.sshclient.ui.events.listener.IValueChangeListener;
+import com.mz.sshclient.ui.events.listener.InputFieldDocumentListener;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -24,13 +26,20 @@ public class SecureFtpPanel extends JPanel implements IAdjustableSessionItemDraf
     private final JTextField remoteFolderTextField = new JTextField(10);
 
     private final SessionItemDraftModel sessionItemDraftModel;
+    private final IValueChangeListener changeValueListener;
 
-    public SecureFtpPanel(final SessionItemDraftModel sessionItemDraftModel, final AddOrEditEnum addOrEditEnum) {
+    public SecureFtpPanel(
+            final SessionItemDraftModel sessionItemDraftModel,
+            final AddOrEditEnum addOrEditEnum,
+            final IValueChangeListener changeValueListener
+    ) {
         this.sessionItemDraftModel = sessionItemDraftModel;
+        this.changeValueListener = changeValueListener;
         init();
         if (addOrEditEnum == AddOrEditEnum.EDIT) {
             initData();
         }
+        addListeners();
     }
 
     private void init() {
@@ -102,6 +111,24 @@ public class SecureFtpPanel extends JPanel implements IAdjustableSessionItemDraf
     private void initData() {
         localFolderTextField.setText(sessionItemDraftModel.getLocalFolder());
         remoteFolderTextField.setText(sessionItemDraftModel.getRemoteFolder());
+    }
+
+    private void addListeners() {
+        localFolderTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+        remoteFolderTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+    }
+
+    public String getLocalFolder() {
+        return localFolderTextField.getText();
+    }
+
+    public String getRemoteFolder() {
+        return remoteFolderTextField.getText();
+    }
+
+    public boolean hasValueChanged() {
+        return !localFolderTextField.getText().equals(sessionItemDraftModel.getLocalFolder()) ||
+                !remoteFolderTextField.getText().equals(sessionItemDraftModel.getRemoteFolder());
     }
 
     @Override

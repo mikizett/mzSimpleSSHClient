@@ -62,6 +62,10 @@ public class SessionNamePanel extends JPanel implements IAdjustableSessionItemDr
         return sessionNameTextField.getText();
     }
 
+    public boolean hasValueChanged() {
+        return !sessionNameTextField.getText().equals(sessionItemDraftModel.getName());
+    }
+
     @Override
     public void adjustSessionItemDraft() {
         sessionItemDraftModel.setName(sessionNameTextField.getText());

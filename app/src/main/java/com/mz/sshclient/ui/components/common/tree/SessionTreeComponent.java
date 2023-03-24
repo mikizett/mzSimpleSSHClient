@@ -75,12 +75,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         addMouseListener(new TreeMouseListener());
     }
 
-    private void fireTreeNodeAction() {
-        if (treeNodeListener != null) {
-            treeNodeListener.treeNodeAction();
-        }
-    }
-
     private DefaultMutableTreeNode createTreeNodes(final SessionFolderModel sessionFolderModel) {
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(sessionFolderModel);
 
@@ -258,6 +252,12 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     public void addTreeNodeListener(final ITreeNodeListener treeNodeListener) {
         this.treeNodeListener = treeNodeListener;
+    }
+
+    public void fireTreeNodeAction() {
+        if (treeNodeListener != null) {
+            treeNodeListener.treeNodeAction();
+        }
     }
 
     // -------------------------------------------------------------------------
