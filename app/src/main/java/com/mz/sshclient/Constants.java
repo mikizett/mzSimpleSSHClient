@@ -6,7 +6,7 @@ public interface Constants {
 
     String USER_HOME = System.getProperty("user.home");
 
-    String APP_VERSION = "v0.0.1";
+    String APP_VERSION = "v0.0.1-ALPHA";
     String APP_NAME = "mzSimpleSSHClient";
     String APP_NAME_AND_VERSION = APP_NAME + " | " + APP_VERSION;
 
