@@ -2,7 +2,8 @@ package com.mz.sshclient.ui;
 
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.ssh.SshTtyConnector;
-import com.mz.sshclient.ui.components.terminal.TabContentPanel;
+import com.mz.sshclient.ssh.sftp.SFtpConnector;
+import com.mz.sshclient.ui.components.tabs.TabContentPanel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,11 +20,20 @@ public final class OpenedSshSessions {
         return openSshSessions.stream().filter(item -> item.getSessionItemModel().getName().equals(name)).count() > 0;
     }
 
-    public static void addSshSession(final TabContentPanel tabContentPanel, final SessionItemModel sessionItemModel, final SshTtyConnector sshTtyConnector, int index) {
-        openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector, index));
+    public static void addSshSession(
+            final TabContentPanel tabContentPanel,
+            final SessionItemModel sessionItemModel,
+            final SshTtyConnector sshTtyConnector,
+            final SFtpConnector sFtpConnector,
+            int index
+    ) {
+        openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector, sFtpConnector, index));
     }
 
     public static boolean removeSshSession(final SshSessionHolder sshSessionHolder) {
+        // make sure the connections are closed
+        sshSessionHolder.getSshTtyConnector().close();
+        sshSessionHolder.getSFtpConnector().close();
         return openSshSessions.remove(sshSessionHolder);
     }
 
@@ -32,7 +42,8 @@ public final class OpenedSshSessions {
         while (it.hasNext()) {
             final SshSessionHolder holder = it.next();
             holder.getSshTtyConnector().close();
-        };
+            holder.getSFtpConnector().close();
+        }
     }
 
     public static List<SshSessionHolder> getOpenSshSessions() {
@@ -48,6 +59,7 @@ public final class OpenedSshSessions {
         private final SessionItemModel sessionItemModel;
         private final TabContentPanel tabContentPanel;
         private final SshTtyConnector sshTtyConnector;
+        private final SFtpConnector sFtpConnector;
         private final int index;
     }
 }

@@ -48,6 +48,9 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3:3.0'
 
+    implementation 'net.java.dev.jna:jna:5.13.0'
+    implementation 'net.java.dev.jna:jna-platform:5.13.0'
+
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.1'

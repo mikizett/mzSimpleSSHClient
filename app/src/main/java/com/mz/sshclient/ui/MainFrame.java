@@ -4,6 +4,7 @@ import com.mz.sshclient.Constants;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
+import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +54,7 @@ public class MainFrame extends JFrame {
                 }
 
                 // close all opened ssh sessions
-                OpenedSshSessions.closeAllSshSessions();
+                AWTInvokerUtils.invokeLater(() -> OpenedSshSessions.closeAllSshSessions());
 
                 dispose();
                 setVisible(false);

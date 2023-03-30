@@ -83,16 +83,18 @@ public class SshTtyConnector implements TtyConnector {
 
     @Override
     public void close() {
-        try {
-            sshClient.disconnect();
+        if (isConnected()) {
+            try {
+                sshClient.disconnect();
 
-            if (closedSshConnectionCallback != null) {
-                closedSshConnectionCallback.closedSshConnection(sshClient.getSessionItemModel());
+                if (closedSshConnectionCallback != null) {
+                    closedSshConnectionCallback.closedSshConnection(sshClient.getSessionItemModel());
+                }
+
+                LOG.info("Terminal wrapper disconnected");
+            } catch (SshDisconnectException e) {
+                LOG.error(e);
             }
-
-            LOG.info("Terminal wrapper disconnected");
-        } catch (SshDisconnectException e) {
-            LOG.error(e);
         }
     }
 
