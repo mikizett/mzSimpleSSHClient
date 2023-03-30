@@ -1,0 +1,8 @@
+Package: mzSimpleSshClient
+Version: [[version]]
+Section: base
+Priority: optional
+Architecture: all
+Depends: openjdk-11-jre
+Maintainer: mikizett <mikizett@github.com>
+Description: mzSimpleSshClient is a simple ssh graphical client written in java swing and used Metal LAF
