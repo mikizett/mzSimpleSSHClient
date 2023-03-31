@@ -3,8 +3,8 @@ package com.mz.sshclient.ui.components.tabs.sftp;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ui.components.tabs.sftp.view.AddressBar;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FolderView;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FolderViewEventListener;
+import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserEventListener;
+import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
 import com.mz.sshclient.ui.components.tabs.sftp.view.NavigationHistory;
 import com.mz.sshclient.ui.components.tabs.sftp.view.OverflowMenuHandler;
 import com.mz.sshclient.utils.LayoutUtil;
@@ -23,7 +23,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-public abstract class AbstractFileBrowserView extends JPanel implements FolderViewEventListener {
+public abstract class AbstractFileBrowserView extends JPanel implements FileBrowserEventListener {
 
     public enum PanelOrientation {
         LEFT, RIGHT
@@ -34,7 +34,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     private final OverflowMenuHandler overflowMenuHandler;
 
     protected AddressBar addressBar;
-    protected FolderView folderView;
+    protected FileBrowserPanel fileBrowserPanel;
     protected String path;
     protected PanelOrientation orientation;
 
@@ -49,13 +49,14 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         overflowMenuHandler = new OverflowMenuHandler(this, fileBrowser);
 
         createAddressBar();
+
         addressBar.addActionListener(e -> {
             String text = e.getActionCommand();
-            if (PathUtils.isSamePath(this.path, text)) {
+            if (PathUtils.isSamePath(path, text)) {
                 return;
             }
             if (text != null && text.length() > 0) {
-                addBack(this.path);
+                addBack(path);
                 render(text, true);
             }
         });
@@ -130,16 +131,16 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
         add(toolBar, BorderLayout.NORTH);
 
-        folderView = new FolderView(this, text -> this.fileBrowser.updateRemoteStatus(text));
+        fileBrowserPanel = new FileBrowserPanel(this);
 
-        overflowMenuHandler.setFolderView(folderView);
+        overflowMenuHandler.setFolderView(fileBrowserPanel);
 
-        add(folderView);
+        add(fileBrowserPanel);
 
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "up");
         getActionMap().put("up", upAction);
 
-        this.fileBrowser.registerForViewNotification(this);
+        fileBrowser.registerForViewNotification(this);
     }
 
     protected abstract void createAddressBar();

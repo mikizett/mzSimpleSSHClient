@@ -1,4 +1,4 @@
-package com.mz.sshclient.ui.components.tabs.sftp.view;
+package com.mz.sshclient.ui.components.tabs.sftp.view.table;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 
@@ -10,7 +10,7 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FolderViewTableModel extends AbstractTableModel implements ListModel<FileInfo> {
+public class FileBrowserTableModel extends AbstractTableModel implements ListModel<FileInfo> {
 
     private final List<FileInfo> files = new ArrayList<>();
     private final String[] columns = {
@@ -22,11 +22,6 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
             "Owner"
     };
     protected EventListenerList listenerList = new EventListenerList();
-    private boolean local;
-
-    public FolderViewTableModel(boolean local) {
-        this.local = local;
-    }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
@@ -43,7 +38,7 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
     }
 
     public int getColumnCount() {
-        return local ? 4 : columns.length;
+        return columns.length;
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
@@ -84,7 +79,6 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
             fireTableDataChanged();
             fireContentsChanged(this, 0, sz - 1);
         }
-
     }
 
     public FileInfo getItemAt(int index) {

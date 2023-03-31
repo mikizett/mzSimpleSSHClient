@@ -22,45 +22,53 @@ public class ExtendedRemoteDirectory extends RemoteDirectory {
     }
 
     public List<RemoteResourceInfoWrapper> scanExtended(RemoteResourceFilter filter) throws IOException {
-        List<RemoteResourceInfoWrapper> rri = new ArrayList<>();
-        // TODO: Remove GOTO!
-        loop:
-        for (; ; ) {
+        List<RemoteResourceInfoWrapper> remoteResourceInfoWrappers = new ArrayList<>(0);
+        boolean finished;
+
+        while (true) {
             final Response res = requester
                     .request(newRequest(PacketType.READDIR))
                     .retrieve(requester.getTimeoutMs(), TimeUnit.MILLISECONDS);
-            switch (res.getType()) {
 
-                case NAME:
-                    final int count = res.readUInt32AsInt();
-                    for (int i = 0; i < count; i++) {
-                        final String name = res.readString(
-                                requester.getSubsystem().getRemoteCharset());
-                        final String longName = res.readString();
+            finished = readRemoteFileAttributes(res, filter, remoteResourceInfoWrappers);
 
-                        final FileAttributes attrs = res.readFileAttributes();
-                        final PathComponents comps = requester.getPathHelper()
-                                .getComponents(path, name);
-                        final RemoteResourceInfo inf = new RemoteResourceInfo(comps,
-                                attrs);
-                        final RemoteResourceInfoWrapper wri = new RemoteResourceInfoWrapper(
-                                inf, longName);
-                        if (!(".".equals(name) || "..".equals(name))
-                                && (filter == null || filter.accept(inf))) {
-                            rri.add(wri);
-                        }
-                    }
-                    break;
-
-                case STATUS:
-                    res.ensureStatusIs(Response.StatusCode.EOF);
-                    break loop;
-
-                default:
-                    throw new SFTPException("Unexpected packet: " + res.getType());
+            if (finished) {
+                break;
             }
         }
-        return rri;
+        return remoteResourceInfoWrappers;
+    }
+
+    private boolean readRemoteFileAttributes(
+            final Response res,
+            final RemoteResourceFilter filter,
+            final List<RemoteResourceInfoWrapper> remoteResourceInfoWrappers
+    ) throws IOException {
+
+        switch (res.getType()) {
+            case NAME:
+                final int count = res.readUInt32AsInt();
+                for (int i = 0; i < count; i++) {
+                    final String name = res.readString(requester.getSubsystem().getRemoteCharset());
+                    final String longName = res.readString();
+
+                    final FileAttributes attrs = res.readFileAttributes();
+                    final PathComponents comps = requester.getPathHelper().getComponents(path, name);
+                    final RemoteResourceInfo inf = new RemoteResourceInfo(comps, attrs);
+                    final RemoteResourceInfoWrapper wri = new RemoteResourceInfoWrapper(inf, longName);
+                    if (!(".".equals(name) || "..".equals(name)) && (filter == null || filter.accept(inf))) {
+                        remoteResourceInfoWrappers.add(wri);
+                    }
+                }
+                break;
+            case STATUS:
+                res.ensureStatusIs(Response.StatusCode.EOF);
+                return true;
+            default:
+                throw new SFTPException("Unexpected packet: " + res.getType());
+        }
+
+        return false;
     }
 
 }

@@ -13,8 +13,7 @@ public interface IFileSystem extends AutoCloseable {
 
     boolean isLocal();
 
-    void rename(String oldName, String newName)
-            throws Exception;
+    void rename(String oldName, String newName) throws Exception;
 
     void delete(FileInfo f) throws Exception;
 
@@ -30,9 +29,7 @@ public interface IFileSystem extends AutoCloseable {
 
     boolean mkdirs(String absPath) throws Exception;
 
-    long getAllFiles(String dir, String baseDir,
-                     Map<String, String> fileMap, Map<String, String> folderMap)
-            throws Exception;
+    long getAllFiles(String dir, String baseDir, Map<String, String> fileMap, Map<String, String> folderMap) throws Exception;
 
     String getProtocol();
 
@@ -40,8 +37,7 @@ public interface IFileSystem extends AutoCloseable {
 
     String[] getRoots() throws Exception;
 
-    void createLink(String src, String dst, boolean hardLink)
-            throws Exception;
+    void createLink(String src, String dst, boolean hardLink) throws Exception;
 
     String getName();
 

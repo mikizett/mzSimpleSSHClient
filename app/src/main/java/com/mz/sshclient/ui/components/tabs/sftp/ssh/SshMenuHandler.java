@@ -8,7 +8,7 @@ import com.mz.sshclient.ui.components.common.animation.ConnectAnimationComponent
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferHandler;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FolderView;
+import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
 import com.mz.sshclient.utils.PathUtils;
 import com.mz.sshclient.utils.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +54,7 @@ public class SshMenuHandler {
     private final SshFileOperations fileOperations;
     private final SshFileBrowserView fileBrowserView;
     private final ArchiveOperation archiveOperation;
-    private FolderView folderView;
+    private FileBrowserPanel fileBrowserPanel;
 
     public SshMenuHandler(FileBrowser fileBrowser, SshFileBrowserView fileBrowserView) {
         this.fileBrowser = fileBrowser;
@@ -63,10 +63,10 @@ public class SshMenuHandler {
         this.archiveOperation = new ArchiveOperation();
     }
 
-    public void initMenuHandler(FolderView folderView) {
-        this.folderView = folderView;
-        InputMap map = folderView.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        ActionMap act = folderView.getActionMap();
+    public void initMenuHandler(FileBrowserPanel fileBrowserPanel) {
+        this.fileBrowserPanel = fileBrowserPanel;
+        InputMap map = fileBrowserPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap act = fileBrowserPanel.getActionMap();
         this.initMenuItems(map, act);
     }
 
@@ -74,7 +74,7 @@ public class SshMenuHandler {
         AbstractAction aRename = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                rename(folderView.getSelectedFiles()[0], fileBrowserView.getCurrentDirectory());
+                rename(fileBrowserPanel.getFileBrowserTable().getSelectedFiles()[0], fileBrowserView.getCurrentDirectory());
             }
         };
         KeyStroke ksRename = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
@@ -88,7 +88,7 @@ public class SshMenuHandler {
         AbstractAction aDelete = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                delete(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
+                delete(fileBrowserPanel.getFileBrowserTable().getSelectedFiles(), fileBrowserView.getCurrentDirectory());
             }
         };
         mDelete = new JMenuItem("delete");
@@ -101,7 +101,7 @@ public class SshMenuHandler {
         AbstractAction aNewFile = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                newFile(fileBrowserView.getCurrentDirectory(), folderView.getFiles());
+                newFile(fileBrowserView.getCurrentDirectory(), fileBrowserPanel.getFiles());
             }
         };
         mNewFile = new JMenuItem("New file");
@@ -114,7 +114,7 @@ public class SshMenuHandler {
         AbstractAction aNewFolder = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                newFolder(fileBrowserView.getCurrentDirectory(), folderView.getFiles());
+                newFolder(fileBrowserView.getCurrentDirectory(), fileBrowserPanel.getFiles());
             }
         };
         mNewFolder = new JMenuItem("New folder");
@@ -177,7 +177,7 @@ public class SshMenuHandler {
 
         mDownload = new JMenuItem("Download selected files");
         mDownload.addActionListener(e -> {
-            downloadFiles(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
+            downloadFiles(fileBrowserPanel.getFileBrowserTable().getSelectedFiles(), fileBrowserView.getCurrentDirectory());
         });
 
         mUpload = new JMenuItem("Upload here");
@@ -191,7 +191,7 @@ public class SshMenuHandler {
     }
 
     private void copyToClipboard(boolean cut) {
-        FileInfo[] selectedFiles = folderView.getSelectedFiles();
+        FileInfo[] selectedFiles = fileBrowserPanel.getFileBrowserTable().getSelectedFiles();
         DndTransferData transferData = new DndTransferData(fileBrowser.getSFtpConnector().getSessionItemModel().hashCode(), selectedFiles,
                 fileBrowserView.getCurrentDirectory(), fileBrowserView.hashCode(), DndTransferData.DndSourceType.SSH);
         transferData.setTransferAction(cut ? DndTransferData.TransferAction.Cut : DndTransferData.TransferAction.Copy);
@@ -218,7 +218,7 @@ public class SshMenuHandler {
     private void copyPathToClipboard() {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
-        for (FileInfo f : folderView.getSelectedFiles()) {
+        for (FileInfo f : fileBrowserPanel.getFileBrowserTable().getSelectedFiles()) {
             if (!first) {
                 sb.append("\n");
             }
@@ -380,7 +380,6 @@ public class SshMenuHandler {
         jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         jfc.setMultiSelectionEnabled(true);
         if (jfc.showOpenDialog(SwingUtilities.getWindowAncestor(fileBrowser)) == JFileChooser.APPROVE_OPTION) {
-            System.out.println("After file selection");
             File[] files = jfc.getSelectedFiles();
             if (files.length > 0) {
                 List<FileInfo> list = new ArrayList<>();

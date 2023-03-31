@@ -11,7 +11,6 @@ import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseEvent;
@@ -34,26 +33,29 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
         super(orientation, fileBrowser);
-        this.menuHandler = new LocalMenuHandler(fileBrowser, this);
-        this.menuHandler.initMenuHandler(this.folderView);
-        DndTransferHandler transferHandler = new DndTransferHandler(this.folderView, null, this, DndTransferData.DndSourceType.LOCAL, this.fileBrowser);
-        this.folderView.setTransferHandler(transferHandler);
-        this.folderView.setFolderViewTransferHandler(transferHandler);
-        this.addressPopup = menuHandler.createAddressPopup();
 
-        if (this.fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder() != null &&
-                this.fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder().trim().length() > 1) {
-            this.path = fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder();
+        menuHandler = new LocalMenuHandler(fileBrowser, this);
+        menuHandler.initMenuHandler(fileBrowserPanel);
+
+        DndTransferHandler transferHandler = new DndTransferHandler(fileBrowserPanel, null, this, DndTransferData.DndSourceType.LOCAL, this.fileBrowser);
+        fileBrowserPanel.setTransferHandler(transferHandler);
+        fileBrowserPanel.setFolderViewTransferHandler(transferHandler);
+
+        addressPopup = menuHandler.createAddressPopup();
+
+        if (fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder() != null &&
+                fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder().trim().length() > 1) {
+            path = fileBrowser.getSFtpConnector().getSessionItemModel().getLocalFolder();
         } else if (initialPath != null) {
-            this.path = initialPath;
+            path = initialPath;
         }
 
         executor.submit(() -> {
             try {
-                this.fs = new LocalFileSystem();
-                //Validate if local path exists, if not set the home path
-                if (this.path == null || Files.notExists(Paths.get(this.path)) || !Files.isDirectory(Paths.get(this.path))) {
-                    LOG.debug("The file path doesn't exists " + this.path);
+                fs = new LocalFileSystem();
+                // validate if local path exists, if not set the home path
+                if (path == null || Files.notExists(Paths.get(path)) || !Files.isDirectory(Paths.get(path))) {
+                    LOG.debug("The file path doesn't exists " + path);
                     LOG.debug("Setting to " + fs.getHome());
 
                     path = fs.getHome();
@@ -61,7 +63,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
                 List<FileInfo> list = fs.list(path);
                 SwingUtilities.invokeLater(() -> {
                     addressBar.setText(path);
-                    folderView.setItems(list);
+                    fileBrowserPanel.setItems(list);
                 });
             } catch (Exception e) {
                 LOG.error(e);
@@ -81,20 +83,22 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public String toString() {
-        return "Local files [" + this.path + "]";
+        return "Local files [" + path + "]";
     }
 
+    @Override
     public String getHostText() {
         return "Local files";
     }
 
+    @Override
     public String getPathText() {
-        return (this.path == null || this.path.length() < 1 ? "" : this.path);
+        return (path == null || path.length() < 1 ? "" : path);
     }
 
     @Override
     public void render(String path, boolean useCache) {
-        this.render(path);
+        render(path);
     }
 
     @Override
@@ -109,19 +113,12 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
                 List<FileInfo> list = fs.list(this.path);
                 SwingUtilities.invokeLater(() -> {
                     addressBar.setText(this.path);
-                    folderView.setItems(list);
-                    int tc = list.size();
-                    String text = String.format("Total %d remote file(s)", tc);
-                    fileBrowser.updateRemoteStatus(text);
+                    fileBrowserPanel.setItems(list);
                 });
             } catch (Exception e) {
                 LOG.error(e);
             }
         });
-    }
-
-    @Override
-    public void openApp(FileInfo file) {
     }
 
     @Override
@@ -141,10 +138,6 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     protected void home() {
         addBack(path);
         render(null);
-    }
-
-    @Override
-    public void install(JComponent c) {
     }
 
     public boolean handleDrop(DndTransferData transferData) {

@@ -4,14 +4,11 @@ import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ssh.sftp.filesystem.local.LocalFileSystem;
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FolderView;
+import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
 import com.mz.sshclient.utils.PathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -30,7 +27,7 @@ public class LocalMenuHandler {
     private final LocalFileOperations fileOperations;
     private final LocalFileBrowserView fileBrowserView;
     private JMenuItem mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mOpen;
-    private FolderView folderView;
+    private FileBrowserPanel fileBrowserPanel;
 
     public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView) {
         this.fileBrowser = fileBrowser;
@@ -38,11 +35,10 @@ public class LocalMenuHandler {
         this.fileBrowserView = fileBrowserView;
     }
 
-    public void initMenuHandler(FolderView folderView) {
-        this.folderView = folderView;
-        InputMap map = folderView.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        ActionMap act = folderView.getActionMap();
-        this.initMenuItems();
+    public void initMenuHandler(FileBrowserPanel fileBrowserPanel) {
+        this.fileBrowserPanel = fileBrowserPanel;
+
+        initMenuItems();
     }
 
     private void initMenuItems() {
@@ -50,11 +46,11 @@ public class LocalMenuHandler {
         mOpen.addActionListener(e -> open());
 
         mRename = new JMenuItem("Rename");
-        mRename.addActionListener(e -> rename(folderView.getSelectedFiles()[0], fileBrowserView.getCurrentDirectory()));
+        mRename.addActionListener(e -> rename(fileBrowserPanel.getFileBrowserTable().getSelectedFiles()[0], fileBrowserView.getCurrentDirectory()));
 
         mDelete = new JMenuItem("Delete");
         mDelete.addActionListener(e -> {
-            delete(folderView.getSelectedFiles());
+            delete(fileBrowserPanel.getFileBrowserTable().getSelectedFiles());
             fileBrowserView.reload();
         });
 
@@ -104,7 +100,7 @@ public class LocalMenuHandler {
     }
 
     private void open() {
-        FileInfo[] files = folderView.getSelectedFiles();
+        FileInfo[] files = fileBrowserPanel.getFileBrowserTable().getSelectedFiles();
         if (files.length == 1) {
             FileInfo file = files[0];
             if (file.getType() == FileType.FileLink || file.getType() == FileType.File) {

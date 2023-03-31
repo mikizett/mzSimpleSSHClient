@@ -17,24 +17,8 @@ public enum ConflictAction {
         this.value = pValue;
     }
 
-    public static void update() {
-        OVERWRITE.setValue("Overwrite");
-        AUTORENAME.setValue("Autorename");
-        SKIP.setValue("Skip");
-        PROMPT.setValue("Prompt");
-        CANCEL.setValue("Cancel");
-    }
-
     public int getKey() {
         return key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String pValue) {
-        this.value = pValue;
     }
 
     @Override

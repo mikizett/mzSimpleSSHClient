@@ -27,14 +27,13 @@ public class OverflowMenuHandler {
     private final JRadioButtonMenuItem mSortAsc;
     private final JRadioButtonMenuItem mSortDesc;
     private final JCheckBoxMenuItem mShowHiddenFiles;
-    private final AtomicBoolean sortingChanging = new AtomicBoolean(false);
     private final KeyStroke ksHideShow;
     private final AbstractAction aHideShow;
     private final JPopupMenu popup;
     private final AbstractFileBrowserView fileBrowserView;
     private final JMenu mSortMenu;
     private final FileBrowser fileBrowser;
-    private FolderView folderView;
+    private FileBrowserPanel fileBrowserPanel;
 
     public OverflowMenuHandler(AbstractFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
         this.fileBrowserView = fileBrowserView;
@@ -43,7 +42,7 @@ public class OverflowMenuHandler {
 
         mShowHiddenFiles = new JCheckBoxMenuItem("Show hidden files");
         // TODO: add a setting to enable/disable showing hidden files
-        mShowHiddenFiles.setSelected(true);
+        mShowHiddenFiles.setSelected(false);
 
         aHideShow = new AbstractAction() {
             @Override
@@ -86,7 +85,7 @@ public class OverflowMenuHandler {
     }
 
     private void hideOptAction() {
-        folderView.setShowHiddenFiles(mShowHiddenFiles.isSelected());
+        fileBrowserPanel.setShowHiddenFiles(mShowHiddenFiles.isSelected());
     }
 
     private JRadioButtonMenuItem createSortMenuItem(String text, Integer index, ButtonGroup bg) {
@@ -101,12 +100,21 @@ public class OverflowMenuHandler {
 
     private void sortMenuClicked(JRadioButtonMenuItem mSortItem) {
         if (mSortItem == mSortAsc) {
-            folderView.sort(folderView.getSortIndex(), SortOrder.ASCENDING);
+            fileBrowserPanel.getFileBrowserTable().getTableSorter().sort(
+                    fileBrowserPanel.getFileBrowserTable().getTableSorter().getSortIndex(),
+                    SortOrder.ASCENDING
+            );
         } else if (mSortItem == mSortDesc) {
-            folderView.sort(folderView.getSortIndex(), SortOrder.DESCENDING);
+            fileBrowserPanel.getFileBrowserTable().getTableSorter().sort(
+                    fileBrowserPanel.getFileBrowserTable().getTableSorter().getSortIndex(),
+                    SortOrder.DESCENDING
+            );
         } else {
             int index = (int) mSortItem.getClientProperty("sort.index");
-            folderView.sort(index, folderView.isSortAsc() ? SortOrder.ASCENDING : SortOrder.DESCENDING);
+            fileBrowserPanel.getFileBrowserTable().getTableSorter().sort(
+                    index,
+                    fileBrowserPanel.getFileBrowserTable().getTableSorter().isSortAsc() ? SortOrder.ASCENDING : SortOrder.DESCENDING
+            );
         }
     }
 
@@ -114,10 +122,10 @@ public class OverflowMenuHandler {
         return popup;
     }
 
-    public void setFolderView(FolderView folderView) {
-        InputMap map = folderView.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-        ActionMap act = folderView.getActionMap();
-        this.folderView = folderView;
+    public void setFolderView(FileBrowserPanel fileBrowserPanel) {
+        InputMap map = fileBrowserPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        ActionMap act = fileBrowserPanel.getActionMap();
+        this.fileBrowserPanel = fileBrowserPanel;
         map.put(ksHideShow, "ksHideShow");
         act.put("ksHideShow", aHideShow);
     }

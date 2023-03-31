@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class FileBrowser extends JPanel {
@@ -60,9 +59,6 @@ public class FileBrowser extends JPanel {
     private final List<AbstractFileBrowserView> viewList = new ArrayList<>(0);
     private final Map<String, List<FileInfo>> sshDirCache = new HashMap<>();
 
-    private final int activeSessionId;
-    private final AtomicBoolean init = new AtomicBoolean(false);
-
     private SFtpConnector sFtpConnector;
 
     private final JSplitPane horizontalSplitter;
@@ -74,8 +70,6 @@ public class FileBrowser extends JPanel {
     public FileBrowser(final SFtpConnector sFtpConnector, int activeSessionId) {
         super(new BorderLayout());
         this.sFtpConnector = sFtpConnector;
-
-        this.activeSessionId = activeSessionId;
 
         horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         horizontalSplitter.setResizeWeight(0.5);
@@ -200,7 +194,7 @@ public class FileBrowser extends JPanel {
             ConflictAction defaultConflictAction,
             SFtpConnector instance
     ) {
-        this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
+        ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
                 new FileTransferProgress() {
                     @Override
                     public void progress(
@@ -241,8 +235,8 @@ public class FileBrowser extends JPanel {
                         });
                     }
                 }, defaultConflictAction, instance);
-        startFileTransferModal(e -> this.ongoingFileTransfer.close());
-        executor.submit(this.ongoingFileTransfer);
+        startFileTransferModal(e -> ongoingFileTransfer.close());
+        executor.submit(ongoingFileTransfer);
     }
 
     public void registerForViewNotification(AbstractFileBrowserView view) {
@@ -251,9 +245,6 @@ public class FileBrowser extends JPanel {
 
     public void unRegisterForViewNotification(AbstractFileBrowserView view) {
         this.viewList.remove(view);
-    }
-
-    public void updateRemoteStatus(String text) {
     }
 
     private void reloadView() {
@@ -271,8 +262,8 @@ public class FileBrowser extends JPanel {
         progressPanel.setStopCallback(stopCallback);
         progressPanel.clear();
         progressPanel.setVisible(true);
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     private void setTransferProgress(int progress) {
@@ -281,8 +272,8 @@ public class FileBrowser extends JPanel {
 
     private void endFileTransfer() {
         progressPanel.setVisible(false);
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
 
     private HostKeyVerifier createHostKeyVerifier() {

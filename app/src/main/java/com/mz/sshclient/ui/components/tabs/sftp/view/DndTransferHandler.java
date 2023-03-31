@@ -29,7 +29,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
 
     public static final DataFlavor DATA_FLAVOR_DATA_FILE = new DataFlavor(DndTransferData.class, "data-file");
     public static final DataFlavor DATA_FLAVOR_FILE_LIST = DataFlavor.javaFileListFlavor;
-    private final FolderView folderView;
+    private final FileBrowserPanel fileBrowserPanel;
     private final SessionItemModel info;
     private final AbstractFileBrowserView fileBrowserView;
     private DndTransferData transferData;
@@ -39,13 +39,13 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
     private final FileBrowser fileBrowser;
 
     public DndTransferHandler(
-            FolderView folderView,
+            FileBrowserPanel fileBrowserPanel,
             SessionItemModel info,
             AbstractFileBrowserView fileBrowserView,
             DndTransferData.DndSourceType sourceType,
             FileBrowser fileBrowser
     ) {
-        this.folderView = folderView;
+        this.fileBrowserPanel = fileBrowserPanel;
         this.fileBrowser = fileBrowser;
         this.info = info;
         this.fileBrowserView = fileBrowserView;
@@ -68,7 +68,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
             }
         }
 
-        DndTransferData data = new DndTransferData(info == null ? 0 : info.hashCode(), folderView.getSelectedFiles(),
+        DndTransferData data = new DndTransferData(info == null ? 0 : info.hashCode(), fileBrowserPanel.getFileBrowserTable().getSelectedFiles(),
                 this.fileBrowserView.getCurrentDirectory(), this.fileBrowserView.hashCode(), sourceType);
         this.transferData = data;
         super.exportAsDrag(comp, e, action);

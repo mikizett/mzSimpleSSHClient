@@ -6,6 +6,8 @@ import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.InputTransferChannel;
 import com.mz.sshclient.ssh.sftp.filesystem.OutputTransferChannel;
 import com.mz.sshclient.utils.PathUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +26,8 @@ import java.util.Map;
 
 public class LocalFileSystem implements IFileSystem {
 
+    private static final Logger LOG = LogManager.getLogger(LocalFileSystem.class);
+
     public static final String PROTOCOL_LOCAL_FILE = "local";
 
     @Override
@@ -38,9 +42,19 @@ public class LocalFileSystem implements IFileSystem {
         }
         Path p = f.toPath();
         BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
-        return new FileInfo(f.getName(), path, f.length(),
-                f.isDirectory() ? FileType.Directory : FileType.File, f.lastModified(), -1, PROTOCOL_LOCAL_FILE, "",
-                attrs.creationTime().toMillis(), "", f.isHidden());
+        return new FileInfo(
+                f.getName(),
+                path,
+                f.length(),
+                f.isDirectory() ? FileType.Directory : FileType.File,
+                f.lastModified(),
+                -1,
+                PROTOCOL_LOCAL_FILE,
+                "",
+                attrs.creationTime().toMillis(),
+                "",
+                f.isHidden()
+        );
     }
 
     @Override
@@ -68,12 +82,22 @@ public class LocalFileSystem implements IFileSystem {
             try {
                 Path p = f.toPath();
                 BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
-                FileInfo info = new FileInfo(f.getName(), f.getAbsolutePath(), f.length(),
-                        f.isDirectory() ? FileType.Directory : FileType.File, f.lastModified(), -1, PROTOCOL_LOCAL_FILE,
-                        "", attrs.creationTime().toMillis(), "", f.isHidden());
+                FileInfo info = new FileInfo(
+                        f.getName(),
+                        f.getAbsolutePath(),
+                        f.length(),
+                        f.isDirectory() ? FileType.Directory : FileType.File,
+                        f.lastModified(),
+                        -1,
+                        PROTOCOL_LOCAL_FILE,
+                        "",
+                        attrs.creationTime().toMillis(),
+                        "",
+                        f.isHidden()
+                );
                 list.add(info);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error(e);
             }
         }
         return list;

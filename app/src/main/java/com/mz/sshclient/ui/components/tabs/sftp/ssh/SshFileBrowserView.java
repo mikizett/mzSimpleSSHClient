@@ -16,7 +16,6 @@ import com.mz.sshclient.utils.PathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -40,11 +39,11 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
     public SshFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
         super(orientation, fileBrowser);
         this.menuHandler = new SshMenuHandler(fileBrowser, this);
-        this.menuHandler.initMenuHandler(this.folderView);
-        this.transferHandler = new DndTransferHandler(this.folderView, this.fileBrowser.getSFtpConnector().getSessionItemModel(), this,
+        this.menuHandler.initMenuHandler(this.fileBrowserPanel);
+        this.transferHandler = new DndTransferHandler(this.fileBrowserPanel, this.fileBrowser.getSFtpConnector().getSessionItemModel(), this,
                 DndTransferData.DndSourceType.SSH, this.fileBrowser);
-        this.folderView.setTransferHandler(transferHandler);
-        this.folderView.setFolderViewTransferHandler(transferHandler);
+        this.fileBrowserPanel.setTransferHandler(transferHandler);
+        this.fileBrowserPanel.setFolderViewTransferHandler(transferHandler);
         this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath == null) {
             this.path = this.fileBrowser.getSFtpConnector().getSessionItemModel().getRemoteFolder();
@@ -79,7 +78,6 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             return path;
         if (path.endsWith("/")) {
             String trim = path.substring(0, path.length() - 1);
-            System.out.println("Trimmed path: " + trim);
             return trim;
         }
         return path;
@@ -100,10 +98,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             final List<FileInfo> list2 = list;
             SwingUtilities.invokeLater(() -> {
                 addressBar.setText(path);
-                folderView.setItems(list2);
-                int tc = list2.size();
-                String text = String.format("Total %d remote file(s)", tc);
-                fileBrowser.updateRemoteStatus(text);
+                fileBrowserPanel.setItems(list2);
             });
         }
     }
@@ -151,10 +146,6 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         this.render(path, false);
     }
 
-    @Override
-    public void openApp(FileInfo file) {
-    }
-
     protected void up() {
         if (path != null) {
             String parent = PathUtils.getParent(path);
@@ -166,11 +157,6 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
     protected void home() {
         addBack(path);
         render(null, true);
-    }
-
-    @Override
-    public void install(JComponent c) {
-
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.mz.sshclient.ui.components.tabs.sftp.view;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
+import com.mz.sshclient.ui.components.tabs.sftp.view.table.FileBrowserTableModel;
 import com.mz.sshclient.utils.FileIconUtil;
 import com.mz.sshclient.utils.FormatUtils;
 
@@ -65,7 +66,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        FolderViewTableModel folderViewModel = (FolderViewTableModel) table.getModel();
+        FileBrowserTableModel folderViewModel = (FileBrowserTableModel) table.getModel();
 
         int r = table.convertRowIndexToModel(row);
         int c = table.convertColumnIndexToModel(column);

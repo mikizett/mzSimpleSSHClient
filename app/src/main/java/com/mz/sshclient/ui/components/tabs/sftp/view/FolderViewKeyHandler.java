@@ -1,6 +1,7 @@
 package com.mz.sshclient.ui.components.tabs.sftp.view;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
+import com.mz.sshclient.ui.components.tabs.sftp.view.table.FileBrowserTableModel;
 
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -15,7 +16,7 @@ import java.awt.event.KeyEvent;
 public class FolderViewKeyHandler extends KeyAdapter {
 
     private JTable table;
-    private FolderViewTableModel model;
+    private FileBrowserTableModel model;
 
     private String prefix = "";
     private String typedString = "";
@@ -23,7 +24,7 @@ public class FolderViewKeyHandler extends KeyAdapter {
 
     private final static long TIME_FACTOR = 1000L;
 
-    public FolderViewKeyHandler(JTable table, FolderViewTableModel model) {
+    public FolderViewKeyHandler(JTable table, FileBrowserTableModel model) {
         this.table = table;
         this.model = model;
     }
@@ -103,19 +104,11 @@ public class FolderViewKeyHandler extends KeyAdapter {
         return inputMap != null && inputMap.get(key) != null;
     }
 
-    public JTable getTable() {
-        return table;
-    }
-
-    public void setTable(JTable table) {
-        this.table = table;
-    }
-
-    public FolderViewTableModel getModel() {
+    public FileBrowserTableModel getModel() {
         return model;
     }
 
-    public void setModel(FolderViewTableModel model) {
+    public void setModel(FileBrowserTableModel model) {
         this.model = model;
     }
 

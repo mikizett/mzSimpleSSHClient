@@ -1,11 +1,16 @@
 package com.mz.sshclient.ui.components.tabs.sftp.transfer;
 
+import com.mz.sshclient.mzSimpleSshClientMain;
+import com.mz.sshclient.ui.utils.AWTInvokerUtils;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -31,7 +36,11 @@ public class TransferProgressPanel extends JPanel {
     private final Box b12 = Box.createVerticalBox();
     private Consumer<Boolean> stopCallback;
 
+    private final JWindow window;
+
     public TransferProgressPanel() {
+        window = new JWindow(mzSimpleSshClientMain.MAIN_FRAME);
+
         BoxLayout layout = new BoxLayout(this, BoxLayout.PAGE_AXIS);
         setLayout(layout);
         setOpaque(false);
@@ -70,6 +79,10 @@ public class TransferProgressPanel extends JPanel {
             }
         });
         setFocusTraversalKeysEnabled(false);
+
+        window.getContentPane().add(this);
+        window.setLocationRelativeTo(mzSimpleSshClientMain.MAIN_FRAME);
+        window.pack();
     }
 
     public void clear() {
@@ -120,4 +133,26 @@ public class TransferProgressPanel extends JPanel {
         this.stopCallback = stopCallback;
     }
 
+    @Override
+    public void setVisible(boolean aFlag) {
+        /*SwingUtilities.invokeLater(() -> {
+            if (!window.isVisible() && aFlag) {
+                window.setVisible(true);
+            } else {
+                window.setVisible(false);
+            }
+        });*/
+        AWTInvokerUtils.invokeInSeparateThread(() -> {
+            if (!window.isVisible() && aFlag) {
+                window.setVisible(true);
+            } else {
+                window.setVisible(false);
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        TransferProgressPanel bla = new TransferProgressPanel();
+        bla.setVisible(true);
+    }
 }
