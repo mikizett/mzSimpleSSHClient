@@ -9,7 +9,7 @@
         <artifactId>sshclient</artifactId>
         <version>0.0.1-ALPHA</version>
     </parent>
-    <groupId>com.mz</groupId>
+    <groupId>com.mz.sshclient</groupId>
     <artifactId>mzSimpleSshClient</artifactId>
     <name>mzSimpleSshClient</name>
     <properties>
