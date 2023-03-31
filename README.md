@@ -1,5 +1,5 @@
 # mzSimpleSSHClient
-Simple SSH Client written in java swing inspired and using the following projects:
+Simple SSH Client written in java swing inspired by following projects:
 - https://github.com/devlinx9/muon-ssh
 - https://github.com/jbw-software/JTabbedPaneExtended
 - https://github.com/JetBrains/jediterm

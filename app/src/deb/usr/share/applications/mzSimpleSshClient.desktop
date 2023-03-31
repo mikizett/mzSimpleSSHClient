@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=mzSimpleSshClient
+Exec=/usr/bin/mzSimpleSshClient
+Icon=/opt/mzSimpleSshClient/logo.png
+Type=Application
