@@ -237,6 +237,7 @@ public class FileBrowser extends JPanel {
                 }, defaultConflictAction, instance);
         startFileTransferModal(e -> ongoingFileTransfer.close());
         executor.submit(ongoingFileTransfer);
+        //new Thread(ongoingFileTransfer).start();
     }
 
     public void registerForViewNotification(AbstractFileBrowserView view) {

@@ -135,20 +135,13 @@ public class TransferProgressPanel extends JPanel {
 
     @Override
     public void setVisible(boolean aFlag) {
-        /*SwingUtilities.invokeLater(() -> {
+        //SwingUtilities.invokeLater(() -> {
             if (!window.isVisible() && aFlag) {
                 window.setVisible(true);
             } else {
                 window.setVisible(false);
             }
-        });*/
-        AWTInvokerUtils.invokeInSeparateThread(() -> {
-            if (!window.isVisible() && aFlag) {
-                window.setVisible(true);
-            } else {
-                window.setVisible(false);
-            }
-        });
+        //});
     }
 
     public static void main(String[] args) {
