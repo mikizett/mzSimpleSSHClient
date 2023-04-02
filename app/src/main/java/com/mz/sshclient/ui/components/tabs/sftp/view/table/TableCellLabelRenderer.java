@@ -2,7 +2,6 @@ package com.mz.sshclient.ui.components.tabs.sftp.view.table;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
-import com.mz.sshclient.ui.components.tabs.sftp.view.table.FileBrowserTableModel;
 import com.mz.sshclient.utils.FileIconUtil;
 import com.mz.sshclient.utils.FormatUtils;
 
@@ -29,6 +28,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
     public TableCellLabelRenderer() {
         panel = new JPanel(new BorderLayout(10, 5));
         panel.setBorder(new EmptyBorder(5, 10, 5, 5));
+
         textLabel = new JLabel();
         textLabel.setForeground(foreground);
         textLabel.setText("AAA");
@@ -114,13 +114,12 @@ public class TableCellLabelRenderer implements TableCellRenderer {
                 break;
         }
 
+        boolean darkerColor = isStripedRow(row, table);
+        setColors(c == 0 ? panel : label, isSelected, darkerColor);
+
         if (c == 0) {
-            //boolean darkerColor = isStripedRow(row, table);
-            //setColors(panel, isSelected, darkerColor);
             return panel;
         } else {
-            //boolean darkerColor = isStripedRow(row, table);
-            //setColors(label, isSelected, darkerColor);
             return label;
         }
 
@@ -131,20 +130,18 @@ public class TableCellLabelRenderer implements TableCellRenderer {
     }
 
     private boolean isStripedRow(int row, JTable table) {
-        boolean i = (table.getRowCount() & 1) == (row & 1);
-        System.out.println("WAT IS STRIPE -> " + i);
         return (table.getRowCount() & 1) == (row & 1);
     }
 
     private void setColors(Component component, boolean isSelected, boolean darkerColor){
         int backgroundMix = 50;
-        int foregroundMix = 90;
+        int foregroundMix = 10;
 
         Color background;
         Color foreground;
         if (isSelected) {
             background = Color.BLACK;
-            foreground = Color.RED;
+            foreground = Color.WHITE;
 
             Color color = component.getBackground();
             if (color != null && !color.equals(background)) {
@@ -153,13 +150,13 @@ public class TableCellLabelRenderer implements TableCellRenderer {
             background = mixColors(component.getBackground(), background, backgroundMix);
             foreground = mixColors(component.getForeground(), foreground, foregroundMix);
             component.setForeground(foreground);
+            if (component instanceof JPanel) {
+                textLabel.setForeground(foreground);
+            }
 
         } else {
             background = component.getBackground();
-            Color color = Color.BLACK;
-            if (!color.equals(background)) {
-                darkerColor = false;
-            }
+
         }
         if (darkerColor) {
             background = mixColors(background, getContrastColor(background), 95);
