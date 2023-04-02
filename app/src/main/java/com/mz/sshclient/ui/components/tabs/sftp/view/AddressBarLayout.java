@@ -30,8 +30,7 @@ public class AddressBarLayout implements LayoutManager {
             h = Math.max(h, pref.height);
         }
         Insets border = c.getInsets();
-        return new Dimension(w + border.left + border.right,
-                h + border.top + border.bottom);
+        return new Dimension(w + border.left + border.right, h + border.top + border.bottom);
     }
 
     @Override
@@ -57,7 +56,7 @@ public class AddressBarLayout implements LayoutManager {
         int h = c.getHeight() - border.top - border.bottom;
         int availableWidth = w;
 
-        List<Component> componentList = new ArrayList<>();
+        List<Component> componentList = new ArrayList<>(0);
 
         for (int i = c.getComponentCount() - 1; i >= 0; i--) {
             Component comp = c.getComponent(i);

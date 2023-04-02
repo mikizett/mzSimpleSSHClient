@@ -28,7 +28,7 @@ public class TabContentPanel extends JPanel {
     private final FileBrowser fileBrowser;
 
     public TabContentPanel(final SshTtyConnector sshTtyConnector, final SFtpConnector sFtpConnector) {
-        fileBrowser = new FileBrowser(sFtpConnector, this.hashCode());
+        fileBrowser = new FileBrowser(sFtpConnector);
 
         init();
 

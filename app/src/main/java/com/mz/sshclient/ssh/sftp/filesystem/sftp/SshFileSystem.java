@@ -172,7 +172,7 @@ public class SshFileSystem implements IFileSystem {
 
     private List<FileInfo> listFiles(String path) throws Exception {
         synchronized (sshClient) {
-            List<FileInfo> childs = new ArrayList<>(0);
+            List<FileInfo> childrenFileInfoList = new ArrayList<>(0);
             try {
                 if (path == null || path.length() < 1) {
                     path = getHome();
@@ -187,7 +187,7 @@ public class SshFileSystem implements IFileSystem {
 
                         if (attrs.getType() == FileMode.Type.SYMLINK) {
                             try {
-                                childs.add(resolveSymlink(ent.getName(), ent.getPath(), attrs, longName));
+                                childrenFileInfoList.add(resolveSymlink(ent.getName(), ent.getPath(), attrs, longName));
                             } catch (Exception e) {
                                 LOG.error(e);
                             }
@@ -205,7 +205,7 @@ public class SshFileSystem implements IFileSystem {
                                     longName,
                                     ent.getName().startsWith(".")
                             );
-                            childs.add(e);
+                            childrenFileInfoList.add(e);
                         }
                     }
                 }
@@ -223,7 +223,7 @@ public class SshFileSystem implements IFileSystem {
                 LOG.error(e);
                 throw new IOException(e);
             }
-            return childs;
+            return childrenFileInfoList;
         }
     }
 
@@ -249,7 +249,7 @@ public class SshFileSystem implements IFileSystem {
     }
 
     @Override
-    public String[] getRoots() throws Exception {
+    public String[] getRoots() {
         return new String[] { "/" };
     }
 

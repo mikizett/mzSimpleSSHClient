@@ -56,8 +56,4 @@ public class SshRemoteFileOutputStream extends OutputStream {
         return bufferCapacity;
     }
 
-    public void setBufferCapacity(int bufferCapacity) {
-        this.bufferCapacity = bufferCapacity;
-    }
-
 }

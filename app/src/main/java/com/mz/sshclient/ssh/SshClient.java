@@ -203,7 +203,7 @@ public class SshClient implements Closeable {
             throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
         }
 
-        final List<String> allowedAuthMethods = new ArrayList<>();
+        final List<String> allowedAuthMethods = new ArrayList<>(0);
 
         getAuthMethods(allowedAuthMethods);
 

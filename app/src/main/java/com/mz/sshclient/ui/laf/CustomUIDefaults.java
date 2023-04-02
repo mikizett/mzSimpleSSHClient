@@ -20,7 +20,7 @@ public class CustomUIDefaults {
             "Tree.focusInputMap"
     };
 
-    private static final Map<String, Object> map = new HashMap<>();
+    private static final Map<String, Object> map = new HashMap<>(0);
 
     public static void read() {
         if (SystemUtils.IS_OS_MAC) {

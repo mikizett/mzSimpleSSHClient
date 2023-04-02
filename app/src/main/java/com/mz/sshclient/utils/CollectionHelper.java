@@ -11,7 +11,7 @@ public class CollectionHelper {
 
     @SafeVarargs
     public static <E> List<E> arrayList(E... args) {
-        List<E> list = new ArrayList<>();
+        List<E> list = new ArrayList<>(0);
         list.addAll(Arrays.asList(args));
         return list;
     }

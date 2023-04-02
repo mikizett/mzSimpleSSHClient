@@ -1,4 +1,4 @@
-package com.mz.sshclient.ui.components.tabs.sftp.view;
+package com.mz.sshclient.ui.components.tabs.sftp.view.table;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
@@ -35,9 +35,6 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         textLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
 
         iconLabel = new JLabel();
-        // TODO: set a font here: it should be this one: java.awt.Font[family=FontAwesome,name=FontAwesome,style=plain,size=20]
-        //Font f = App.skin.getIconFont().deriveFont(Font.PLAIN, 20.f);
-        //iconLabel.setFont(App.skin.getIconFont().deriveFont(Font.PLAIN, 20.f));
         iconLabel.setText("\uf016");
         iconLabel.setForeground(foreground);
 
@@ -65,7 +62,14 @@ public class TableCellLabelRenderer implements TableCellRenderer {
     }
 
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column
+    ) {
         FileBrowserTableModel folderViewModel = (FileBrowserTableModel) table.getModel();
 
         int r = table.convertRowIndexToModel(row);
@@ -111,8 +115,12 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         }
 
         if (c == 0) {
+            //boolean darkerColor = isStripedRow(row, table);
+            //setColors(panel, isSelected, darkerColor);
             return panel;
         } else {
+            //boolean darkerColor = isStripedRow(row, table);
+            //setColors(label, isSelected, darkerColor);
             return label;
         }
 
@@ -120,6 +128,67 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 
     public String getIconForType(FileInfo ent) {
         return FileIconUtil.getIconForType(ent);
+    }
+
+    private boolean isStripedRow(int row, JTable table) {
+        boolean i = (table.getRowCount() & 1) == (row & 1);
+        System.out.println("WAT IS STRIPE -> " + i);
+        return (table.getRowCount() & 1) == (row & 1);
+    }
+
+    private void setColors(Component component, boolean isSelected, boolean darkerColor){
+        int backgroundMix = 50;
+        int foregroundMix = 90;
+
+        Color background;
+        Color foreground;
+        if (isSelected) {
+            background = Color.BLACK;
+            foreground = Color.RED;
+
+            Color color = component.getBackground();
+            if (color != null && !color.equals(background)) {
+                darkerColor = false;
+            }
+            background = mixColors(component.getBackground(), background, backgroundMix);
+            foreground = mixColors(component.getForeground(), foreground, foregroundMix);
+            component.setForeground(foreground);
+
+        } else {
+            background = component.getBackground();
+            Color color = Color.BLACK;
+            if (!color.equals(background)) {
+                darkerColor = false;
+            }
+        }
+        if (darkerColor) {
+            background = mixColors(background, getContrastColor(background), 95);
+        }
+
+        component.setBackground(background);
+    }
+
+    private Color mixColors(Color firstColor, Color secondColor, int firstPecentage) {
+        if (firstColor == null) {
+            firstColor = Color.white;
+        }
+        if (secondColor == null) {
+            secondColor = Color.white;
+        }
+        int secondPercentage = 100 - firstPecentage;
+        return new Color(
+                (firstColor.getRed() * firstPecentage + secondColor.getRed() * secondPercentage) / 100,
+                (firstColor.getGreen() * firstPecentage + secondColor.getGreen() * secondPercentage) / 100,
+                (firstColor.getBlue() * firstPecentage + secondColor.getBlue() * secondPercentage) / 100
+        );
+    }
+
+    private Color getContrastColor(Color color) {
+        return isDark(color) ? Color.white : Color.black;
+    }
+
+    private boolean isDark(Color color) {
+        return (color.getRed() + color.getGreen() + color.getBlue()) < 400;
     }
 
 }

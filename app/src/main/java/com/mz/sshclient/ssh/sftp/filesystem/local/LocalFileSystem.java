@@ -6,6 +6,7 @@ import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.InputTransferChannel;
 import com.mz.sshclient.ssh.sftp.filesystem.OutputTransferChannel;
 import com.mz.sshclient.utils.PathUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,23 +60,28 @@ public class LocalFileSystem implements IFileSystem {
 
     @Override
     public String getHome() throws IOException {
-        return System.getProperty("user.home");
+        return SystemUtils.USER_HOME;
     }
 
     @Override
     public List<FileInfo> list(String path) throws Exception {
         if (path == null || path.length() < 1) {
-            path = System.getProperty("user.home");
+            path = SystemUtils.USER_HOME;
         }
-        if (!path.endsWith(File.separator)) {
-            path = path + File.separator;
+
+        File[] children = new File(path).listFiles();
+        if (children == null) {
+            if (!path.endsWith(File.separator)) {
+                path = path + File.separator;
+            }
+            children = new File(path).listFiles();
         }
-        File[] childs = new File(path).listFiles();
-        List<FileInfo> list = new ArrayList<>();
-        if (childs == null || childs.length < 1) {
+        //File[] children = new File(path).listFiles();
+        List<FileInfo> list = new ArrayList<>(0);
+        if (children == null || children.length < 1) {
             return list;
         }
-        for (File f : childs) {
+        for (File f : children) {
             if (!f.exists() && !f.canRead()) {
                 continue;
             }
@@ -194,7 +200,7 @@ public class LocalFileSystem implements IFileSystem {
     }
 
     @Override
-    public String[] getRoots() throws Exception {
+    public String[] getRoots() {
         File[] roots = File.listRoots();
         String[] arr = new String[roots.length];
         int i = 0;

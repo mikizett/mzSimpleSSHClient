@@ -13,7 +13,7 @@ public class SshRemoteFileInputStream extends InputStream {
 
     private final RemoteFile remoteFile;
     private final InputStream in;
-    private int bufferCapacity;
+    private final int bufferCapacity;
 
     public SshRemoteFileInputStream(RemoteFile remoteFile, int localMaxPacketSize) {
         this.remoteFile = remoteFile;
@@ -47,10 +47,6 @@ public class SshRemoteFileInputStream extends InputStream {
 
     public int getBufferCapacity() {
         return bufferCapacity;
-    }
-
-    public void setBufferCapacity(int bufferCapacity) {
-        this.bufferCapacity = bufferCapacity;
     }
 
 }

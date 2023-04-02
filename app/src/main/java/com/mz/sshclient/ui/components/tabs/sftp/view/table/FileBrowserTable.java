@@ -4,7 +4,6 @@ import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserEventListener;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FolderViewKeyHandler;
-import com.mz.sshclient.ui.components.tabs.sftp.view.TableCellLabelRenderer;
 
 import javax.swing.AbstractAction;
 import javax.swing.DropMode;

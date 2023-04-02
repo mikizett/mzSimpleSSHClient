@@ -10,7 +10,7 @@ public enum ConflictAction {
     ;
 
     private final int key;
-    private String value;
+    private final String value;
 
     ConflictAction(int pKey, String pValue) {
         this.key = pKey;

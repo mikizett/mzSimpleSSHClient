@@ -35,13 +35,12 @@ public class FileTransfer implements Runnable, AutoCloseable {
     private final FileInfo[] files;
     private final String targetFolder;
     private final AtomicBoolean stopFlag = new AtomicBoolean(false);
-    private final SFtpConnector instance;
     private long totalSize;
-    private FileTransferProgress callback;
+    private final FileTransferProgress callback;
     private long processedBytes;
     private int processedFilesCount;
     private long totalFiles;
-    private ConflictAction conflictAction = ConflictAction.PROMPT; // 0 -> overwrite, 1 -> auto rename, 2
+    private ConflictAction conflictAction;
 
     public FileTransfer(
             IFileSystem sourceFs,
@@ -49,8 +48,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
             FileInfo[] files,
             String targetFolder,
             FileTransferProgress callback,
-            ConflictAction defaultConflictAction,
-            SFtpConnector instance
+            ConflictAction defaultConflictAction
     ) {
         this.sourceFs = sourceFs;
         this.targetFs = targetFs;
@@ -58,20 +56,19 @@ public class FileTransfer implements Runnable, AutoCloseable {
         this.targetFolder = targetFolder;
         this.callback = callback;
         this.conflictAction = defaultConflictAction;
-        this.instance = instance;
         if (defaultConflictAction == ConflictAction.CANCEL) {
             throw new IllegalArgumentException("defaultConflictAction can not be ConflictAction.Cancel");
         }
     }
 
     private void transfer(String targetFolder) throws Exception {
-        List<FileInfoHolder> fileList = new ArrayList<>();
+        List<FileInfoHolder> fileList = new ArrayList<>(0);
         List<FileInfo> list = targetFs.list(targetFolder);
-        List<FileInfo> dupList = new ArrayList<>();
+        List<FileInfo> dupList = new ArrayList<>(0);
 
-        if (this.conflictAction == ConflictAction.PROMPT) {
-            this.conflictAction = checkForConflict(dupList);
-            if (dupList.size() > 0 && this.conflictAction == ConflictAction.CANCEL) {
+        if (conflictAction == ConflictAction.PROMPT) {
+            conflictAction = checkForConflict(dupList);
+            if (dupList.size() > 0 && conflictAction == ConflictAction.CANCEL) {
                 LOG.debug("Operation cancelled by user");
                 return;
             }
@@ -85,9 +82,9 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
             String proposedName = null;
             if (isDuplicate(list, file.getName())) {
-                if (this.conflictAction == ConflictAction.AUTORENAME) {
+                if (conflictAction == ConflictAction.AUTORENAME) {
                     proposedName = generateNewName(list, file.getName());
-                } else if (this.conflictAction == ConflictAction.SKIP) {
+                } else if (conflictAction == ConflictAction.SKIP) {
                     continue;
                 }
             }
@@ -102,13 +99,13 @@ public class FileTransfer implements Runnable, AutoCloseable {
         totalFiles = fileList.size();
 
         callback.init(totalSize, totalFiles, this);
-        InputTransferChannel inc = sourceFs.inputTransferChannel();
-        OutputTransferChannel outc = targetFs.outputTransferChannel();
+        InputTransferChannel inputTransferChannel = sourceFs.inputTransferChannel();
+        OutputTransferChannel outputTransferChannel = targetFs.outputTransferChannel();
         for (FileInfoHolder file : fileList) {
             if (stopFlag.get()) {
                 return;
             }
-            copyFile(file.info, file.targetPath, file.proposedName, inc, outc);
+            copyFile(file.info, file.targetPath, file.proposedName, inputTransferChannel, outputTransferChannel);
             processedFilesCount++;
         }
     }
@@ -117,13 +114,10 @@ public class FileTransfer implements Runnable, AutoCloseable {
     public void run() {
         try {
             try {
-                transfer(this.targetFolder);
+                transfer(targetFolder);
                 callback.done(this);
             } catch (AccessDeniedException e) {
-                LOG.error(e);
-                if (targetFs instanceof SshFileSystem) {
-                    throw e;
-                }
+                throw new Exception("Access denied! Can't copy file:\n" + e.getMessage());
             }
         } catch (Exception e) {
             LOG.error(e);
@@ -131,7 +125,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
                 callback.done(this);
                 return;
             }
-            callback.error("Error", this);
+            callback.error(e.getMessage(), this);
         }
     }
 
@@ -141,7 +135,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
         }
         String folderTarget = PathUtils.combineUnix(target, proposedName == null ? folder.getName() : proposedName);
         targetFs.mkdir(folderTarget);
-        List<FileInfoHolder> fileInfoHolders = new ArrayList<>();
+        List<FileInfoHolder> fileInfoHolders = new ArrayList<>(0);
         List<FileInfo> list = sourceFs.list(folder.getPath());
         for (FileInfo file : list) {
             if (stopFlag.get()) {
@@ -161,15 +155,18 @@ public class FileTransfer implements Runnable, AutoCloseable {
             FileInfo file,
             String targetDirectory,
             String proposedName,
-            InputTransferChannel inc,
-            OutputTransferChannel outc
+            InputTransferChannel inputTransferChannel,
+            OutputTransferChannel outputTransferChannel
     ) throws Exception {
 
-        String outPath = PathUtils.combine(targetDirectory, proposedName == null ? file.getName() : proposedName,
-                outc.getSeparator());
-        String inPath = file.getPath();
-        try (InputStream in = inc.getInputStream(inPath); OutputStream out = outc.getOutputStream(outPath)) {
-            long len = inc.getSize(inPath);
+        final String path2 = proposedName == null ? file.getName() : proposedName;
+        final String outPath = PathUtils.combine(targetDirectory, path2, outputTransferChannel.getSeparator());
+        final String inPath = file.getPath();
+        try (
+                InputStream in = inputTransferChannel.getInputStream(inPath);
+                OutputStream out = outputTransferChannel.getOutputStream(outPath)
+        ) {
+            long len = inputTransferChannel.getSize(inPath);
 
             int bufferCapacity = BUF_SIZE;
             if (in instanceof SshRemoteFileInputStream && out instanceof SshRemoteFileOutputStream) {
@@ -196,10 +193,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
         }
     }
 
-    public void stop() {
-        stopFlag.set(true);
-    }
-
     @Override
     public void close() {
         stopFlag.set(true);
@@ -207,10 +200,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
     public FileInfo[] getFiles() {
         return files;
-    }
-
-    public String getTargetFolder() {
-        return this.targetFolder;
     }
 
     private ConflictAction checkForConflict(List<FileInfo> dupList) throws Exception {
@@ -242,7 +231,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
                 action = (ConflictAction) cmbs.getSelectedItem();
             }
         }
-
         return action;
     }
 
@@ -260,26 +248,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
             name = "Copy-of-" + name;
         }
         return name;
-    }
-
-    public String getSourceName() {
-        return this.sourceFs.getName();
-    }
-
-    public String getTargetName() {
-        return this.targetFs.getName();
-    }
-
-    public void setCallback(FileTransferProgress callback) {
-        this.callback = callback;
-    }
-
-    public IFileSystem getSourceFs() {
-        return sourceFs;
-    }
-
-    public IFileSystem getTargetFs() {
-        return targetFs;
     }
 
     static class FileInfoHolder {

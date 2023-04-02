@@ -12,7 +12,7 @@ import java.util.List;
 
 public class FileBrowserTableModel extends AbstractTableModel implements ListModel<FileInfo> {
 
-    private final List<FileInfo> files = new ArrayList<>();
+    private final List<FileInfo> files = new ArrayList<>(0);
     private final String[] columns = {
             "Name",
             "Modified",

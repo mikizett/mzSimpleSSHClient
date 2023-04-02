@@ -5,6 +5,7 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.HostKeyVerifier;
 import com.mz.sshclient.ssh.SshClient;
+import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.exceptions.SshConnectionException;
 import com.mz.sshclient.ssh.exceptions.SshDisconnectException;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
@@ -14,6 +15,7 @@ import com.mz.sshclient.ssh.sftp.TransferMode;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.sftp.SshFileSystem;
+import com.mz.sshclient.ui.OpenedSshSessions;
 import com.mz.sshclient.ui.components.common.animation.ConnectAnimationComponent;
 import com.mz.sshclient.ui.components.tabs.sftp.local.LocalFileBrowserView;
 import com.mz.sshclient.ui.components.tabs.sftp.ssh.SshFileBrowserView;
@@ -27,15 +29,14 @@ import com.mz.sshclient.ui.components.tabs.terminal.PasswordRetryCallback;
 import com.mz.sshclient.ui.components.tabs.terminal.PrivateKeyPasswordFinderCallback;
 import com.mz.sshclient.ui.config.AppConfig;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,17 +58,20 @@ public class FileBrowser extends JPanel {
     private final TransferProgressPanel progressPanel = new TransferProgressPanel();
 
     private final List<AbstractFileBrowserView> viewList = new ArrayList<>(0);
-    private final Map<String, List<FileInfo>> sshDirCache = new HashMap<>();
+    private final Map<String, List<FileInfo>> sshDirCache = new HashMap<>(0);
 
     private SFtpConnector sFtpConnector;
 
     private final JSplitPane horizontalSplitter;
     private FileBrowserContentComponent leftComponent;
+    private LocalFileBrowserView localFileBrowserView;
+
     private FileBrowserContentComponent rightComponent;
+    private SshFileBrowserView sshFileBrowserView;
 
     private FileTransfer ongoingFileTransfer;
 
-    public FileBrowser(final SFtpConnector sFtpConnector, int activeSessionId) {
+    public FileBrowser(final SFtpConnector sFtpConnector) {
         super(new BorderLayout());
         this.sFtpConnector = sFtpConnector;
 
@@ -79,12 +83,11 @@ public class FileBrowser extends JPanel {
     }
 
     private void initFileBrowserComponents() {
-        LocalFileBrowserView left = new LocalFileBrowserView(this, System.getProperty("user.home"),
-                AbstractFileBrowserView.PanelOrientation.LEFT);
-        leftComponent = new FileBrowserContentComponent("Local Filesystem", left);
+        localFileBrowserView = new LocalFileBrowserView(this, SystemUtils.USER_HOME, AbstractFileBrowserView.PanelOrientation.LEFT);
+        leftComponent = new FileBrowserContentComponent("Local Filesystem", localFileBrowserView);
 
-        SshFileBrowserView right = new SshFileBrowserView(this, null, AbstractFileBrowserView.PanelOrientation.RIGHT);
-        rightComponent = new FileBrowserContentComponent("Remote Filesystem", right);
+        sshFileBrowserView = new SshFileBrowserView(this, null, AbstractFileBrowserView.PanelOrientation.RIGHT);
+        rightComponent = new FileBrowserContentComponent("Remote Filesystem", sshFileBrowserView);
 
         horizontalSplitter.setLeftComponent(leftComponent);
         horizontalSplitter.setRightComponent(rightComponent);
@@ -116,10 +119,11 @@ public class FileBrowser extends JPanel {
             final SshClient sshClient = createSshClient(sessionItemModel);
             sshClient.connect();
 
+            final SshTtyConnector sshTtyConnector = new SshTtyConnector(sshClient);
+
             sFtpConnector = new SFtpConnector(sessionItemModel, sshClient);
 
-            // TODO: add created session !!!!
-            //OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector, sFtpConnector, index);
+            OpenedSshSessions.addSshSession(sessionItemModel, sshTtyConnector, sFtpConnector);
 
             anime.stop();
         } catch (SshConnectionException | SshDisconnectException | SshOperationCanceledException e) {
@@ -175,8 +179,13 @@ public class FileBrowser extends JPanel {
                     return false;
                 }
                 IFileSystem targetFs = currentFileSystem;
-                newFileTransfer(sourceFs, targetFs, transferData.getFiles(), currentPath, this.hashCode(),
-                        holder.conflictAction, sFtpConnector);
+                newFileTransfer(
+                        sourceFs,
+                        targetFs,
+                        transferData.getFiles(),
+                        currentPath,
+                        holder.conflictAction
+                );
             }
             return true;
         } catch (Exception e) {
@@ -190,9 +199,7 @@ public class FileBrowser extends JPanel {
             IFileSystem targetFs,
             FileInfo[] files,
             String targetFolder,
-            int dragsource,
-            ConflictAction defaultConflictAction,
-            SFtpConnector instance
+            ConflictAction defaultConflictAction
     ) {
         ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
                 new FileTransferProgress() {
@@ -218,12 +225,13 @@ public class FileBrowser extends JPanel {
                     }
 
                     @Override
-                    public void error(String cause, FileTransfer fileTransfer) {
+                    public void error(final String cause, final FileTransfer fileTransfer) {
                         SwingUtilities.invokeLater(() -> {
                             endFileTransfer();
                             if (!sFtpConnector.isSessionClosed()) {
-                                JOptionPane.showMessageDialog(null, "Operation failed");
+                                MessageDisplayUtil.showErrorMessage("Operation failed!\n\n" + cause);
                             }
+                            reloadView();
                         });
                     }
 
@@ -234,10 +242,9 @@ public class FileBrowser extends JPanel {
                             reloadView();
                         });
                     }
-                }, defaultConflictAction, instance);
+                }, defaultConflictAction);
         startFileTransferModal(e -> ongoingFileTransfer.close());
         executor.submit(ongoingFileTransfer);
-        //new Thread(ongoingFileTransfer).start();
     }
 
     public void registerForViewNotification(AbstractFileBrowserView view) {
@@ -249,14 +256,8 @@ public class FileBrowser extends JPanel {
     }
 
     private void reloadView() {
-        Component c = leftComponent;
-        if (c instanceof AbstractFileBrowserView) {
-            ((AbstractFileBrowserView) c).reload();
-        }
-        c = rightComponent;
-        if (c instanceof AbstractFileBrowserView) {
-            ((AbstractFileBrowserView) c).reload();
-        }
+        localFileBrowserView.reload();
+        sshFileBrowserView.reload();
     }
 
     private void startFileTransferModal(Consumer<Boolean> stopCallback) {

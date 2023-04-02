@@ -34,7 +34,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
         super(orientation, fileBrowser);
 
-        menuHandler = new LocalMenuHandler(fileBrowser, this);
+        menuHandler = new LocalMenuHandler(this);
         menuHandler.initMenuHandler(fileBrowserPanel);
 
         DndTransferHandler transferHandler = new DndTransferHandler(fileBrowserPanel, null, this, DndTransferData.DndSourceType.LOCAL, this.fileBrowser);

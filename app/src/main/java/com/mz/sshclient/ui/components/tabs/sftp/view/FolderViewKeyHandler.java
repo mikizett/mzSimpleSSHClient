@@ -15,7 +15,7 @@ import java.awt.event.KeyEvent;
 
 public class FolderViewKeyHandler extends KeyAdapter {
 
-    private JTable table;
+    private final JTable table;
     private FileBrowserTableModel model;
 
     private String prefix = "";
@@ -91,15 +91,13 @@ public class FolderViewKeyHandler extends KeyAdapter {
             index = getNextMatch(prefix, 0);
             if (index >= 0) {
                 table.setRowSelectionInterval(index, index);
-                table.scrollRectToVisible(
-                        new Rectangle(table.getCellRect(index, 0, true)));
+                table.scrollRectToVisible(new Rectangle(table.getCellRect(index, 0, true)));
             }
         }
     }
 
     private boolean isNavigationKey(KeyEvent event) {
-        InputMap inputMap = table
-                .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        InputMap inputMap = table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         KeyStroke key = KeyStroke.getKeyStrokeForEvent(event);
         return inputMap != null && inputMap.get(key) != null;
     }

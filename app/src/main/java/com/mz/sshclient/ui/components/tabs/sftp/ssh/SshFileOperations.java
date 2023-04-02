@@ -5,6 +5,7 @@ import com.mz.sshclient.ssh.sftp.SFtpConnector;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
+import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.utils.PathUtils;
 import com.mz.sshclient.utils.SudoUtils;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +44,7 @@ public class SshFileOperations {
             String password
     ) throws Exception {
         List<FileInfo> fileList = fs.list(targetFolder);
-        List<FileInfo> dupList = new ArrayList<>();
+        List<FileInfo> dupList = new ArrayList<>(0);
         for (FileInfo file : files) {
             for (FileInfo file1 : fileList) {
                 if (file.getName().equals(file1.getName())) {
@@ -59,13 +60,21 @@ public class SshFileOperations {
                             "Auto rename",
                             "Overwrite"
                     });
-            if (JOptionPane.showOptionDialog(null,
+
+            int answer = JOptionPane.showOptionDialog(
+                    mzSimpleSshClientMain.MAIN_FRAME,
                     new Object[] {
                             "Some file with the same name already exists. Please choose an action",
                             cmbs
-                    }, "Action required", JOptionPane.YES_NO_OPTION,
-                    JOptionPane.PLAIN_MESSAGE, null, null,
-                    null) == JOptionPane.YES_OPTION) {
+                    },
+                    "Action required",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    null
+            );
+            if (answer == JOptionPane.YES_OPTION) {
                 action = cmbs.getSelectedIndex();
             } else {
                 return false;
@@ -99,7 +108,7 @@ public class SshFileOperations {
             }
 
             if (!instance.isSessionClosed()) {
-                JOptionPane.showMessageDialog(mzSimpleSshClientMain.MAIN_FRAME, "Operation failed");
+                MessageDisplayUtil.showMessage(mzSimpleSshClientMain.MAIN_FRAME, "Operation failed!");
             }
         } else {
             return true;
@@ -115,7 +124,7 @@ public class SshFileOperations {
             String password
     ) throws Exception {
         List<FileInfo> fileList = fs.list(targetFolder);
-        List<FileInfo> dupList = new ArrayList<>();
+        List<FileInfo> dupList = new ArrayList<>(0);
         for (FileInfo file : files) {
             for (FileInfo file1 : fileList) {
                 if (file.getName().equals(file1.getName())) {
@@ -131,12 +140,21 @@ public class SshFileOperations {
                             "Auto rename",
                             "Overwrite"
                     });
-            if (JOptionPane.showOptionDialog(null, new Object[] {
+
+            int answer = JOptionPane.showOptionDialog(
+                    mzSimpleSshClientMain.MAIN_FRAME,
+                    new Object[] {
                             "Some file with the same name already exists. Please choose an action",
                             cmbs
-                    }, "Action required", JOptionPane.YES_NO_OPTION,
-                    JOptionPane.PLAIN_MESSAGE, null, null,
-                    null) == JOptionPane.YES_OPTION) {
+                    },
+                    "Action required",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    null
+            );
+            if (answer == JOptionPane.YES_OPTION) {
                 action = cmbs.getSelectedIndex();
             } else {
                 return false;

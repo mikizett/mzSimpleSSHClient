@@ -21,8 +21,8 @@ public class DndTransferData implements Serializable {
     private int source;
     private TransferAction transferAction = TransferAction.DragDrop;
     private final DndSourceType sourceType;
-    public DndTransferData(int sessionHashcode, FileInfo[] files,
-                           String currentDirectory, int source, DndSourceType sourceType) {
+
+    public DndTransferData(int sessionHashcode, FileInfo[] files, String currentDirectory, int source, DndSourceType sourceType) {
         this.sessionHashcode = sessionHashcode;
         this.files = files;
         this.currentDirectory = currentDirectory;

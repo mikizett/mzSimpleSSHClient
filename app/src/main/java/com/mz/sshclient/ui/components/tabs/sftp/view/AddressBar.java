@@ -12,7 +12,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -27,10 +26,10 @@ public class AddressBar extends JPanel {
 
     private final AddressBarBreadCrumbs addressBar;
     private final JComboBox<String> txtAddressBar;
-    private final JButton btnEdit;
+    private final JButton buttonEdit;
     private final JPanel addrPanel;
     private boolean updating = false;
-    private ActionListener a;
+    private ActionListener actionListener;
     private JPopupMenu popup;
     private final char separator;
     private final JPanel panBtn2;
@@ -41,14 +40,9 @@ public class AddressBar extends JPanel {
         addrPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
         this.separator = separator;
 
-        JButton btnRoot = new JButton();
-        // TODO: check this
-        //UIDefaults toolbarSkin = App.skin.createToolbarSkin();
-        //btnRoot.putClientProperty("Nimbus.Overrides", toolbarSkin);
-        // TODO: check font here:
-        //btnRoot.setFont(App.skin.getIconFont());
-        btnRoot.setText("\uf0a0");
-        btnRoot.addActionListener(e -> createAndShowPopup());
+        JButton buttonRoot = new JButton();
+        buttonRoot.setText("/");
+        buttonRoot.addActionListener(e -> createAndShowPopup());
 
         DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>();
         txtAddressBar = new JComboBox<>(model1);
@@ -72,8 +66,8 @@ public class AddressBar extends JPanel {
                 if (!found) {
                     txtAddressBar.addItem(item);
                 }
-                if (a != null) {
-                    a.actionPerformed(new ActionEvent(this, 0, item));
+                if (actionListener != null) {
+                    actionListener.actionPerformed(new ActionEvent(this, 0, item));
                 }
             }
         });
@@ -88,22 +82,20 @@ public class AddressBar extends JPanel {
             }
         };
         txtAddressBar.setEditor(cmdEdit);
+
         addressBar = new AddressBarBreadCrumbs(separator == '/', popupTriggeredListener);
         addressBar.addActionListener(e -> {
-            if (a != null) {
-                a.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
+            if (actionListener != null) {
+                actionListener.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
             }
         });
 
         panBtn2 = new JPanel(new BorderLayout());
         panBtn2.setBorder(new EmptyBorder(3, 3, 3, 3));
 
-        btnEdit = new JButton();
-        //btnEdit.putClientProperty("Nimbus.Overrides", toolbarSkin);
-        // TODO: check font here
-        //btnEdit.setFont(App.skin.getIconFont());
-        btnEdit.setText("\uf023");
-        btnEdit.addActionListener(e -> {
+        buttonEdit = new JButton();
+        buttonEdit.setText("\uf023");
+        buttonEdit.addActionListener(e -> {
             if (!isSelected()) {
                 switchToText();
             } else {
@@ -112,37 +104,37 @@ public class AddressBar extends JPanel {
             revalidate();
             repaint();
         });
-        LayoutUtil.equalizeSize(btnRoot, btnEdit);
+        LayoutUtil.equalizeSize(buttonRoot, buttonEdit);
 
-        panBtn2.add(btnRoot);
+        panBtn2.add(buttonRoot);
 
         addrPanel.add(addressBar);
         add(addrPanel);
         JPanel panBtn = new JPanel(new BorderLayout());
         panBtn.setBorder(new EmptyBorder(3, 3, 3, 3));
-        panBtn.add(btnEdit);
+        panBtn.add(buttonEdit);
         add(panBtn, BorderLayout.EAST);
         add(panBtn2, BorderLayout.WEST);
-        btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
+        buttonEdit.putClientProperty("toggle.selected", Boolean.FALSE);
     }
 
     public void switchToPathBar() {
         add(panBtn2, BorderLayout.WEST);
         addrPanel.remove(txtAddressBar);
         addrPanel.add(addressBar);
-        btnEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
-        btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
-        btnEdit.setText("\uf023");
+        buttonEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
+        buttonEdit.putClientProperty("toggle.selected", Boolean.FALSE);
+        buttonEdit.setText("\uf023");
     }
 
     public void switchToText() {
         addrPanel.remove(addressBar);
         addrPanel.add(txtAddressBar);
         remove(panBtn2);
-        btnEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
-        btnEdit.putClientProperty("toggle.selected", Boolean.TRUE);
+        buttonEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
+        buttonEdit.putClientProperty("toggle.selected", Boolean.TRUE);
         txtAddressBar.getEditor().selectAll();
-        btnEdit.setText("\uf13e");
+        buttonEdit.setText("\uf13e");
     }
 
     public String getText() {
@@ -157,11 +149,11 @@ public class AddressBar extends JPanel {
     }
 
     public void addActionListener(ActionListener e) {
-        this.a = e;
+        this.actionListener = e;
     }
 
     private boolean isSelected() {
-        return btnEdit.getClientProperty("toggle.selected") == Boolean.TRUE;
+        return buttonEdit.getClientProperty("toggle.selected") == Boolean.TRUE;
     }
 
     private void createAndShowPopup() {
@@ -173,7 +165,9 @@ public class AddressBar extends JPanel {
 
         String itemPath = "item.path";
         if (separator == '/') {
-            JMenuItem item = new JMenuItem("ROOT");
+            addFileRoots();
+
+            /*JMenuItem item = new JMenuItem("ROOT");
             item.putClientProperty(itemPath, "/");
             item.addActionListener(e -> {
                 String selectedText = (String) item.getClientProperty(itemPath);
@@ -181,7 +175,7 @@ public class AddressBar extends JPanel {
                     a.actionPerformed(new ActionEvent(this, 0, selectedText));
                 }
             });
-            popup.add(item);
+            popup.add(item);*/
         } else {
             File[] roots = File.listRoots();
             for (File f : roots) {
@@ -189,8 +183,8 @@ public class AddressBar extends JPanel {
                 item.putClientProperty(itemPath, f.getAbsolutePath());
                 item.addActionListener(e -> {
                     String selectedText = (String) item.getClientProperty(itemPath);
-                    if (a != null) {
-                        a.actionPerformed(new ActionEvent(this, 0, selectedText));
+                    if (actionListener != null) {
+                        actionListener.actionPerformed(new ActionEvent(this, 0, selectedText));
                     }
                 });
                 popup.add(item);
@@ -198,6 +192,43 @@ public class AddressBar extends JPanel {
         }
 
         popup.show(this, 0, getHeight());
+    }
+
+    private void addFileRoots() {
+        final File[] roots = File.listRoots();
+        for (File root : roots) {
+            popup.add(createMenuItem(root));
+
+            final File[] subFolders = root.listFiles();
+            for (File subFolder : subFolders) {
+                popup.add(createMenuItem(subFolder));
+            }
+        }
+    }
+
+    private JMenuItem createMenuItem(File f) {
+        final String itemPath = "item.path";
+        final String path = f.getAbsolutePath();
+        final JMenuItem item = new JMenuItem(path);
+        item.putClientProperty(itemPath, path);
+        item.addActionListener(e -> {
+            String selectedText = (String) item.getClientProperty(itemPath);
+            if (actionListener != null) {
+                actionListener.actionPerformed(new ActionEvent(this, 0, selectedText));
+            }
+        });
+        return item;
+    }
+
+    public static void main(String[] args) {
+        File[] roots = File.listRoots();
+        for (File f : roots) {
+            System.out.println("BLA -> " + f.getAbsolutePath());
+            File[] subFolders = f.listFiles();
+            for (File f1 : subFolders) {
+                System.out.println("SUB -> " + f1.getAbsolutePath());
+            }
+        }
     }
 
 }

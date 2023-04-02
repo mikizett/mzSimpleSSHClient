@@ -3,7 +3,6 @@ package com.mz.sshclient.ui.components.tabs.sftp.local;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ssh.sftp.filesystem.local.LocalFileSystem;
-import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
 import com.mz.sshclient.utils.PathUtils;
 import org.apache.logging.log4j.LogManager;
@@ -23,14 +22,12 @@ public class LocalMenuHandler {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final FileBrowser fileBrowser;
     private final LocalFileOperations fileOperations;
     private final LocalFileBrowserView fileBrowserView;
     private JMenuItem mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mOpen;
     private FileBrowserPanel fileBrowserPanel;
 
-    public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView) {
-        this.fileBrowser = fileBrowser;
+    public LocalMenuHandler(LocalFileBrowserView fileBrowserView) {
         this.fileOperations = new LocalFileOperations();
         this.fileBrowserView = fileBrowserView;
     }

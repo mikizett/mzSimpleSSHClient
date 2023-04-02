@@ -48,7 +48,7 @@ public class FileBrowserPanel extends JPanel {
     }
 
     public void setItems(List<FileInfo> list) {
-        this.files = list;
+        files = list;
         applyFilter();
     }
 
@@ -63,7 +63,7 @@ public class FileBrowserPanel extends JPanel {
 
     private void applyFilter() {
         table.getFileBrowserTableModel().clear();
-        if (!this.showHiddenFiles) {
+        if (!showHiddenFiles) {
             List<FileInfo> fileInfoList = new ArrayList<>(0);
             for (FileInfo info : files) {
                 if (!info.getName().startsWith(".")) {

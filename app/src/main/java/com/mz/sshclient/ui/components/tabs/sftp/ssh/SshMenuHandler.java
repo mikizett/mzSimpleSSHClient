@@ -53,14 +53,12 @@ public class SshMenuHandler {
     private final FileBrowser fileBrowser;
     private final SshFileOperations fileOperations;
     private final SshFileBrowserView fileBrowserView;
-    private final ArchiveOperation archiveOperation;
     private FileBrowserPanel fileBrowserPanel;
 
     public SshMenuHandler(FileBrowser fileBrowser, SshFileBrowserView fileBrowserView) {
         this.fileBrowser = fileBrowser;
         this.fileOperations = new SshFileOperations();
         this.fileBrowserView = fileBrowserView;
-        this.archiveOperation = new ArchiveOperation();
     }
 
     public void initMenuHandler(FileBrowserPanel fileBrowserPanel) {
@@ -382,7 +380,7 @@ public class SshMenuHandler {
         if (jfc.showOpenDialog(SwingUtilities.getWindowAncestor(fileBrowser)) == JFileChooser.APPROVE_OPTION) {
             File[] files = jfc.getSelectedFiles();
             if (files.length > 0) {
-                List<FileInfo> list = new ArrayList<>();
+                List<FileInfo> list = new ArrayList<>(0);
 
                 try (LocalFileSystem localFileSystem = new LocalFileSystem()) {
                     for (File file : files) {
@@ -455,15 +453,6 @@ public class SshMenuHandler {
                 && (selectedFiles[0].getType() == FileType.File || selectedFiles[0].getType() == FileType.FileLink))) {
             popup.add(mUpload);
             count += 1;
-        }
-
-        // check only if folder is selected
-        boolean allFolder = true;
-        for (FileInfo f : selectedFiles) {
-            if (f.getType() != FileType.Directory && f.getType() != FileType.DirLink) {
-                allFolder = false;
-                break;
-            }
         }
 
         count++;

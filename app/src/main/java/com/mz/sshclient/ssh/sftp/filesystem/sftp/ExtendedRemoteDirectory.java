@@ -67,7 +67,6 @@ public class ExtendedRemoteDirectory extends RemoteDirectory {
             default:
                 throw new SFTPException("Unexpected packet: " + res.getType());
         }
-
         return false;
     }
 

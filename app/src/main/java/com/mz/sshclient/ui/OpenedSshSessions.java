@@ -3,31 +3,37 @@ package com.mz.sshclient.ui;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.sftp.SFtpConnector;
-import com.mz.sshclient.ui.components.tabs.TabContentPanel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class OpenedSshSessions {
     private OpenedSshSessions() {}
 
-    private static final List<SshSessionHolder> openSshSessions = new ArrayList<>(0);
+    private static final Queue<SshSessionHolder> openSshSessions = new ConcurrentLinkedQueue<>();
 
     public static boolean hasSameTabName(final String name) {
         return openSshSessions.stream().filter(item -> item.getSessionItemModel().getName().equals(name)).count() > 0;
     }
 
     public static void addSshSession(
-            final TabContentPanel tabContentPanel,
+            final SessionItemModel sessionItemModel,
+            final SshTtyConnector sshTtyConnector,
+            final SFtpConnector sFtpConnector
+    ) {
+        addSshSession(sessionItemModel, sshTtyConnector, sFtpConnector, Integer.MIN_VALUE);
+    }
+
+    public static void addSshSession(
             final SessionItemModel sessionItemModel,
             final SshTtyConnector sshTtyConnector,
             final SFtpConnector sFtpConnector,
             int index
     ) {
-        openSshSessions.add(new SshSessionHolder(sessionItemModel, tabContentPanel, sshTtyConnector, sFtpConnector, index));
+        openSshSessions.add(new SshSessionHolder(sessionItemModel, sshTtyConnector, sFtpConnector, index));
     }
 
     public static boolean removeSshSession(final SshSessionHolder sshSessionHolder) {
@@ -46,8 +52,12 @@ public final class OpenedSshSessions {
         }
     }
 
-    public static List<SshSessionHolder> getOpenSshSessions() {
+    public static Queue<SshSessionHolder> getOpenSshSessions() {
         return openSshSessions;
+    }
+
+    public static boolean hasOpenedSessions() {
+        return !openSshSessions.isEmpty();
     }
 
     /**
@@ -57,7 +67,6 @@ public final class OpenedSshSessions {
     @Getter
     public static final class SshSessionHolder {
         private final SessionItemModel sessionItemModel;
-        private final TabContentPanel tabContentPanel;
         private final SshTtyConnector sshTtyConnector;
         private final SFtpConnector sFtpConnector;
         private final int index;

@@ -75,53 +75,45 @@ public abstract class AbstractFileBrowserView extends JPanel implements FileBrow
             }
         };
 
-        JButton btnUp = new JButton();
-        btnUp.addActionListener(upAction);
-        // TODO: check font here
-        //btnUp.setFont(App.skin.getIconFont());
-        btnUp.setText("\uf062");
+        JButton buttonUp = new JButton();
+        buttonUp.addActionListener(upAction);
+        buttonUp.setText("\uf062");
 
-        JButton btnHome = new JButton();
-        // TODO: check font here
-        //btnHome.setFont(App.skin.getIconFont());
-        btnHome.setText("\uf015");
-        btnHome.addActionListener(e -> {
-            addBack(this.path);
+        JButton buttonHome = new JButton();
+        buttonHome.setText("\uf015");
+        buttonHome.addActionListener(e -> {
+            addBack(path);
             home();
         });
 
-        JButton btnReload = new JButton();
-        btnReload.addActionListener(reloadAction);
-        // TODO: check font here
-        //btnReload.setFont(App.skin.getIconFont());
-        btnReload.setText("\uf021");
+        JButton buttonReload = new JButton();
+        buttonReload.addActionListener(reloadAction);
+        buttonReload.setText("\uf021");
 
-        JButton btnMore = new JButton();
-        // TODO: check font here
-        //btnMore.setFont(App.skin.getIconFont());
-        btnMore.setText("\uf142");
-        btnMore.addActionListener(e -> {
+        JButton buttonMore = new JButton();
+        buttonMore.setText("\uf142");
+        buttonMore.addActionListener(e -> {
             JPopupMenu popupMenu = overflowMenuHandler.getOverflowMenu();
             popupMenu.pack();
             Dimension d = popupMenu.getPreferredSize();
-            int x = btnMore.getWidth() - d.width;
-            int y = btnMore.getHeight();
-            popupMenu.show(btnMore, x, y);
+            int x = buttonMore.getWidth() - d.width;
+            int y = buttonMore.getHeight();
+            popupMenu.show(buttonMore, x, y);
         });
 
-        LayoutUtil.equalizeSize(btnMore, btnReload, btnUp, btnHome);
+        LayoutUtil.equalizeSize(buttonMore, buttonReload, buttonUp, buttonHome);
 
         Box smallToolbar = Box.createHorizontalBox();
         smallToolbar.add(Box.createHorizontalStrut(5));
         smallToolbar.setBorder(new EmptyBorder(3, 0, 3, 0));
-        smallToolbar.add(btnUp);
-        smallToolbar.add(btnHome);
+        smallToolbar.add(buttonUp);
+        smallToolbar.add(buttonHome);
 
         Box b2 = Box.createHorizontalBox();
-        b2.add(btnReload);
+        b2.add(buttonReload);
         b2.setBorder(new EmptyBorder(3, 0, 3, 0));
-        b2.add(btnReload);
-        b2.add(btnMore);
+        b2.add(buttonReload);
+        b2.add(buttonMore);
 
         JPanel toolBar = new JPanel(new BorderLayout());
         toolBar.add(smallToolbar, BorderLayout.WEST);
@@ -171,7 +163,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FileBrow
 
     @Override
     public void reload() {
-        this.render(this.path, true /*false*/);
+        render(path, true);
     }
 
     @Override

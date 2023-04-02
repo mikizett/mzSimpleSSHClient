@@ -18,13 +18,13 @@ public class AddressBarComboBoxEditor extends SkinnedTextField implements ComboB
 
     @Override
     public Object getItem() {
-        return this.getText();
+        return getText();
     }
 
     @Override
     public void setItem(Object anObject) {
         if (anObject != null) {
-            this.setText(anObject.toString());
+            setText(anObject.toString());
         }
     }
 

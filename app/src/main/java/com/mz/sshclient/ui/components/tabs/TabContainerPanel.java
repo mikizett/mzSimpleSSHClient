@@ -43,11 +43,11 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
 
     private static final Logger LOG = LogManager.getLogger(TabContainerPanel.class);
 
+    private static int counterSameTabName = 1;
+
     private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
     private CustomTabbedPaneClosable tabbedPane;
-
-    //private final List<SshTerminalHolder> sshTerminalList = new ArrayList<>(0);
 
     public TabContainerPanel() {
         init();
@@ -96,8 +96,6 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         return sshClient;
     }
 
-    private static int counter = 1;
-
     private void connectSshClient(final SessionItemModel itemRef) {
         final ConnectAnimationComponent anime = new ConnectAnimationComponent(mzSimpleSshClientMain.MAIN_FRAME, "Connecting SSH ");
         anime.start();
@@ -117,7 +115,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
             SwingUtilities.invokeLater(() -> {
                 final TabContentPanel tabContainerPanel = new TabContentPanel(sshTtyConnector, sFtpConnector);
 
-                final String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counter++) : item.getName();
+                final String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counterSameTabName++) : item.getName();
 
                 tabbedPane.addTabWithAction(tabName, tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
                 tabbedPane.toggleTabLayoutPolicy();
@@ -125,7 +123,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
                 final int index = tabbedPane.getTabCount() - 1;
                 tabbedPane.setSelectedIndex(index);
 
-                OpenedSshSessions.addSshSession(tabContainerPanel, item, sshTtyConnector, sFtpConnector, index);
+                OpenedSshSessions.addSshSession(item, sshTtyConnector, sFtpConnector, index);
 
                 anime.stop();
             });

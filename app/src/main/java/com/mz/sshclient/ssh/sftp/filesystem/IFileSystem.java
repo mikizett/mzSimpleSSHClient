@@ -35,7 +35,7 @@ public interface IFileSystem extends AutoCloseable {
 
     void createFile(String path) throws Exception;
 
-    String[] getRoots() throws Exception;
+    String[] getRoots();
 
     void createLink(String src, String dst, boolean hardLink) throws Exception;
 
