@@ -40,7 +40,7 @@ public class PasswordStorageService implements IPasswordStorageService {
     private static KeyStore keyStore;
 
     private final File passwordStorageFile = new File(AppConfig.getPasswordStorageFileLocation());
-    private Map<String, char[]> passwordMap = new HashMap<>();
+    private Map<String, char[]> passwordMap = new HashMap<>(0);
 
     private KeyStore.PasswordProtection passwordProtection;
 

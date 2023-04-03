@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 
 public final class Utils {
@@ -37,6 +40,11 @@ public final class Utils {
 
     public static String decodeString(final String s) {
         return new String(Base64.getDecoder().decode(s));
+    }
+
+    public static LocalDateTime toDateTime(long epochMilli) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli),
+                ZoneId.systemDefault());
     }
 
 }

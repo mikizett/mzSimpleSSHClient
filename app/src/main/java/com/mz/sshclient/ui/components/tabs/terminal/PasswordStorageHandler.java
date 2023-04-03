@@ -1,4 +1,4 @@
-package com.mz.sshclient.ui.components.terminal;
+package com.mz.sshclient.ui.components.tabs.terminal;
 
 import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemModel;

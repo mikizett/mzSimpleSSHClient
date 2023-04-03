@@ -11,7 +11,7 @@ import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
 import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
-import com.mz.sshclient.ui.components.terminal.PasswordStorageHandler;
+import com.mz.sshclient.ui.components.tabs.terminal.PasswordStorageHandler;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;

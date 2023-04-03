@@ -79,6 +79,16 @@
             <version>3.0</version>
         </dependency>
         <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.13.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.13.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.9.1</version>
@@ -131,8 +141,8 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <id>make-assembly</id>
+                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -155,11 +165,11 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
-                            <controlDir>${basedir}/src/deb/control</controlDir>
+                            <controlDir>${basedir}/packaging/deb/control</controlDir>
                             <deb>${project.build.directory}/mzSimpleSshClient-${project.version}.deb</deb>
                             <dataSet>
                                 <data>
-                                    <src>${basedir}/src/deb/opt/mzSimpleSshClient/logo.png</src>
+                                    <src>${basedir}/packaging/deb/opt/mzSimpleSshClient/logo.png</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
@@ -170,7 +180,7 @@
                                     </mapper>
                                 </data>
                                 <data>
-                                    <src>${basedir}/src/deb/usr/share/applications/mzSimpleSshClient.desktop</src>
+                                    <src>${basedir}/packaging/deb/usr/share/applications/mzSimpleSshClient.desktop</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
@@ -181,7 +191,7 @@
                                     </mapper>
                                 </data>
                                 <data>
-                                    <src>${basedir}/src/deb/usr/bin/mzSimpleSshClient</src>
+                                    <src>${basedir}/packaging/deb/usr/bin/mzSimpleSshClient</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>

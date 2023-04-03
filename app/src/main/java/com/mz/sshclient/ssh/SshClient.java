@@ -11,6 +11,7 @@ import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.DirectConnection;
 import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.userauth.UserAuthException;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
@@ -36,7 +37,7 @@ public class SshClient implements Closeable {
 
     private SshClient jumpHostSshClient;
 
-    private boolean closed = false;
+    private volatile boolean closed = false;
 
     private final SessionItemModel  sessionItemModel;
     private final HostKeyVerifier hostKeyVerifier;
@@ -202,7 +203,7 @@ public class SshClient implements Closeable {
             throw new SshOperationCanceledException("ssh connection closed by user: " + sessionItemModel);
         }
 
-        final List<String> allowedAuthMethods = new ArrayList<>();
+        final List<String> allowedAuthMethods = new ArrayList<>(0);
 
         getAuthMethods(allowedAuthMethods);
 
@@ -328,6 +329,10 @@ public class SshClient implements Closeable {
 
     public SessionItemModel getSessionItemModel() {
         return sessionItemModel;
+    }
+
+    public SFTPClient createSftpClient() throws IOException {
+        return sshj.newSFTPClient();
     }
 
     @Override

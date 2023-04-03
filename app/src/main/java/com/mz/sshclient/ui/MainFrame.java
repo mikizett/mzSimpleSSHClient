@@ -4,6 +4,7 @@ import com.mz.sshclient.Constants;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
+import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,7 @@ public class MainFrame extends JFrame {
     }
 
     private void init() {
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         try {
             this.setIconImage(ImageIO.read(MainFrame.class.getResource("/img/logo.png")));
         } catch (IOException e) {
@@ -41,7 +43,11 @@ public class MainFrame extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (sessionDataService.hasSessionModelChanged()) {
-                    int result = MessageDisplayUtil.showYesNoConfirmDialog(MainFrame.this, "Do you want to save the created session folders?", "Save...");
+                    int result = MessageDisplayUtil.showYesNoConfirmDialog(
+                            MainFrame.this,
+                            "Do you want to save the created session folders?",
+                            "Save..."
+                    );
                     if (result == JOptionPane.YES_OPTION) {
                         try {
                             sessionDataService.saveToFile();
@@ -53,11 +59,21 @@ public class MainFrame extends JFrame {
                 }
 
                 // close all opened ssh sessions
-                OpenedSshSessions.closeAllSshSessions();
+                AWTInvokerUtils.invokeLater(() -> {
+                    if (OpenedSshSessions.hasOpenedSessions()) {
+                        int answer = MessageDisplayUtil.showYesNoConfirmDialog(
+                                "Do you want to close all opened sessions?",
+                                "Close opened sessions..."
+                        );
+                        if (answer == JOptionPane.YES_OPTION) {
+                            OpenedSshSessions.closeAllSshSessions();
 
-                dispose();
-                setVisible(false);
-                System.exit(0);
+                            dispose();
+                            setVisible(false);
+                            System.exit(0);
+                        }
+                    }
+                });
             }
         });
         setPreferredSize();

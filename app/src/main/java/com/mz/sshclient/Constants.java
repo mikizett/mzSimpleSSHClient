@@ -1,10 +1,12 @@
 package com.mz.sshclient;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import java.io.File;
 
 public interface Constants {
 
-    String USER_HOME = System.getProperty("user.home");
+    String USER_HOME = SystemUtils.USER_HOME;
 
     String APP_VERSION = "v0.0.1-ALPHA";
     String APP_NAME = "mzSimpleSSHClient";

@@ -1,10 +1,11 @@
-package com.mz.sshclient.ui.components.terminal;
+package com.mz.sshclient.ui.components.tabs;
 
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.mz.sshclient.ssh.SshTtyConnector;
+import com.mz.sshclient.ssh.sftp.SFtpConnector;
+import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.border.MatteBorder;
@@ -24,7 +25,11 @@ public class TabContentPanel extends JPanel {
 
     private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
 
-    public TabContentPanel(final SshTtyConnector sshTtyConnector) {
+    private final FileBrowser fileBrowser;
+
+    public TabContentPanel(final SshTtyConnector sshTtyConnector, final SFtpConnector sFtpConnector) {
+        fileBrowser = new FileBrowser(sFtpConnector);
+
         init();
 
         jediTermWidget.setTtyConnector(sshTtyConnector);
@@ -48,11 +53,8 @@ public class TabContentPanel extends JPanel {
         jediTermWidget.requestFocusInWindow();
         shellPanel.add(jediTermWidget);
 
-        JPanel browserPanel = new JPanel(new BorderLayout());
-        browserPanel.add(new JLabel("BROWSER_PANEL"));
-
         shellOrBrowserPanel.add(shellPanel);
-        shellOrBrowserPanel.add(browserPanel);
+        shellOrBrowserPanel.add(fileBrowser);
 
         add(shellOrBrowserPanel, BorderLayout.CENTER);
 
@@ -86,8 +88,12 @@ public class TabContentPanel extends JPanel {
 
             if (b == shellToggleButton) {
                 browserToggleButton.setSelected(false);
+                jediTermWidget.requestFocusInWindow();
             }
             if (b == browserToggleButton) {
+                if (!fileBrowser.isSFtpConnected()) {
+                    fileBrowser.connectSFtp();
+                }
                 shellToggleButton.setSelected(false);
             }
             cardLayout.next(parent);

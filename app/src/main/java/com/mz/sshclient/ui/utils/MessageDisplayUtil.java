@@ -1,5 +1,7 @@
 package com.mz.sshclient.ui.utils;
 
+import com.mz.sshclient.mzSimpleSshClientMain;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import java.awt.Window;
@@ -9,7 +11,7 @@ public final class MessageDisplayUtil {
     private MessageDisplayUtil() {}
 
     public static void showErrorMessage(final String errorMessage) {
-        JOptionPane.showMessageDialog(null, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(mzSimpleSshClientMain.MAIN_FRAME, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public static void showErrorMessage(final Window parent, final String errorMessage) {
@@ -21,7 +23,7 @@ public final class MessageDisplayUtil {
     }
 
     public static int showYesNoConfirmDialog(final String message, final String title) {
-        return JOptionPane.showConfirmDialog(null, message, title, JOptionPane.YES_NO_OPTION);
+        return JOptionPane.showConfirmDialog(mzSimpleSshClientMain.MAIN_FRAME, message, title, JOptionPane.YES_NO_OPTION);
     }
 
     public static int showYesNoConfirmDialog(final Window parent, final String message, final String title) {

@@ -34,9 +34,9 @@ public class SessionFolderModel extends AbstractSessionEntryModel {
 
         folder.setId(UUID.randomUUID().toString());
         folder.setName(this.name + " (Copy)");
-        folder.setFolders(new ArrayList<>(this.folders));
+        folder.setFolders(new ArrayList<>(folders));
 
-        final List<SessionItemModel> copySessionItemModelList = new ArrayList<>(this.items.size());
+        final List<SessionItemModel> copySessionItemModelList = new ArrayList<>(items.size());
         this.items.forEach(item -> copySessionItemModelList.add(item.deepCopy()));
         folder.setItems(copySessionItemModelList);
         //folder.setItems(new ArrayList<>(this.items));
