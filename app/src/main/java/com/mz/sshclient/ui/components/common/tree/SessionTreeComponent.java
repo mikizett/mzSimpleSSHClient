@@ -47,6 +47,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
     private AbstractSessionEntryModel selectedNodeModel;
 
+    private boolean removeEventType = false;
+
     public SessionTreeComponent() {
         this.sessionFolderModel = sessionDataService.getSessionModel().getFolder();
         init();
@@ -75,7 +77,8 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         addMouseListener(new TreeMouseListener());
     }
 
-    private DefaultMutableTreeNode createTreeNodes(final SessionFolderModel sessionFolderModel) {
+    // session items first then session folders
+    /*private DefaultMutableTreeNode createTreeNodes(final SessionFolderModel sessionFolderModel) {
         DefaultMutableTreeNode node = new DefaultMutableTreeNode(sessionFolderModel);
 
         sessionFolderModel.getItems().forEach(item -> {
@@ -85,6 +88,21 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         });
 
         sessionFolderModel.getFolders().forEach(folder -> node.add(createTreeNodes(folder)));
+
+        return node;
+    }*/
+
+    // session folders fist then session items
+    private DefaultMutableTreeNode createTreeNodes(final SessionFolderModel sessionFolderModel) {
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(sessionFolderModel);
+
+        sessionFolderModel.getFolders().forEach(folder -> node.add(createTreeNodes(folder)));
+
+        sessionFolderModel.getItems().forEach(item -> {
+            DefaultMutableTreeNode nodeItem = new DefaultMutableTreeNode(item);
+            nodeItem.setAllowsChildren(false);
+            node.add(nodeItem);
+        });
 
         return node;
     }
@@ -129,7 +147,6 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
             parentNode = (DefaultMutableTreeNode) parentNode.getParent();
         }
 
-        //final SessionFolderModel newSessionFolderModel = sessionDataService.createNewSessionFolder((SessionFolderModel) parentNode.getUserObject());
         final SessionFolderModel newSessionFolderModel = sessionDataService.createNewSessionFolderModel();
 
         DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(newSessionFolderModel);
@@ -282,7 +299,7 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
         final int indexOf = e.getChildIndices()[0];
         final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) parentTreeNode.getChildAt(indexOf);
-        if (childNode != null) {
+        if (childNode != null && !selectedNodeModel.getName().equals(childNode.getUserObject())) {
             final String changedNodeName = (String) childNode.getUserObject();
             selectedNodeModel.setName(changedNodeName);
             childNode.setUserObject(selectedNodeModel);
@@ -307,28 +324,61 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         int[] index = e.getChildIndices();
         Object lastInsertedNode = lastSessionFolderNode.getChildAt(index[0]);
         if (lastInsertedNode != null && lastInsertedNode instanceof DefaultMutableTreeNode) {
+            int childIndex = lastSessionFolderNode.getIndex((TreeNode) lastInsertedNode);
             DefaultMutableTreeNode insertedChild = (DefaultMutableTreeNode) lastInsertedNode;
             Object userObject = insertedChild.getUserObject();
 
             if (userObject instanceof SessionFolderModel) {
                 final SessionFolderModel folder = (SessionFolderModel) userObject;
-                sessionDataService.addSessionFolder(parentFolder, folder);
+                if (removeEventType) {
+                    sessionDataService.addSessionFolder(parentFolder, folder, childIndex);
+                } else {
+                    sessionDataService.addSessionFolder(parentFolder, folder);
+                }
                 LOG.debug("Inserted session folder: " + folder.getName() + " to session parentFolder: " + parentFolder.getName());
 
             } else if (userObject instanceof SessionItemModel) {
                 final SessionItemModel item = (SessionItemModel) userObject;
-                sessionDataService.addSessionItem(parentFolder, item);
+                if (removeEventType) {
+                    sessionDataService.addSessionItem(parentFolder, item, childIndex);
+                } else {
+                    sessionDataService.addSessionItem(parentFolder, item);
+                }
                 LOG.debug("Inserted session item: " + item.getName() + " to session parentFolder: " + parentFolder.getName());
             }
         }
 
+        removeEventType = false;
         fireTreeNodeAction();
     }
 
     @Override
     public void treeNodesRemoved(TreeModelEvent e) {
         LOG.debug("treeNodesRemoved in tree path: " + e.getTreePath());
-        fireTreeNodeAction();
+
+        if (e.getChildren() != null && e.getChildren().length > 0) {
+            SessionFolderModel parentFolder;
+
+            DefaultMutableTreeNode lastSessionFolderNode = (DefaultMutableTreeNode) e.getTreePath().getLastPathComponent();
+            if (lastSessionFolderNode != null && lastSessionFolderNode.getUserObject() instanceof SessionFolderModel) {
+                parentFolder = (SessionFolderModel) lastSessionFolderNode.getUserObject();
+
+                final DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getChildren()[0];
+                Object userObject = node.getUserObject();
+                if (userObject instanceof SessionFolderModel) {
+                    final SessionFolderModel folder = (SessionFolderModel) userObject;
+                    sessionDataService.removeSessionFolderFrom(parentFolder, folder);
+                    LOG.debug("Removed session folder: " + folder.getName() + " from session parentFolder: " + parentFolder.getName());
+                } else if (userObject instanceof SessionItemModel) {
+                    final SessionItemModel item = (SessionItemModel) userObject;
+                    sessionDataService.removeSessionItemFrom(parentFolder, item);
+                    LOG.debug("Removed session item: " + item.getName() + " from session parentFolder: " + parentFolder.getName());
+                }
+
+                removeEventType = true;
+                fireTreeNodeAction();
+            }
+        }
     }
 
     @Override
@@ -346,16 +396,18 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
             if (e.getClickCount() == 2) {
                 final SessionTreeComponent tree = (SessionTreeComponent) e.getSource();
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-                if (node == null || node.getAllowsChildren()) {
-                    final TreePath treePath = new TreePath(node.getPath());
-                    boolean isExpanded = !tree.isExpanded(treePath);
-                    if (isExpanded) {
-                        tree.collapsePath(treePath);
+                if (node != null) {
+                    if (node.getAllowsChildren()) {
+                        final TreePath treePath = new TreePath(node.getPath());
+                        boolean isExpanded = !tree.isExpanded(treePath);
+                        if (isExpanded) {
+                            tree.collapsePath(treePath);
+                        } else {
+                            tree.expandPath(new TreePath(node.getPath()));
+                        }
                     } else {
-                        tree.expandPath(new TreePath(node.getPath()));
+                        tree.connectSsh();
                     }
-                } else {
-                    tree.connectSsh();
                 }
             }
         }

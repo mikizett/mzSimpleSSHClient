@@ -126,7 +126,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.mz.sshclient.mzSimpleSSHClientMain</mainClass>
+                            <mainClass>com.mz.sshclient.mzSimpleSshClientMain</mainClass>
                         </manifest>
                         <compress>false</compress>
                     </archive>
@@ -227,7 +227,7 @@
                         <CFBundleIconFile>src/main/resources/img/logo.icns</CFBundleIconFile>
                         <CFBundleDisplayName>mzSimpleSshClient</CFBundleDisplayName>
                         <CFBundleDevelopmentRegion>English</CFBundleDevelopmentRegion>
-                        <JVMMainClassName>com.mz.sshclient.mzSimpleSSHClientMain</JVMMainClassName>
+                        <JVMMainClassName>com.mz.sshclient.mzSimpleSshClientMain</JVMMainClassName>
                         <JVMVersion>11+</JVMVersion>
                     </plist>
                     <!--

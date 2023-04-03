@@ -17,7 +17,9 @@ public interface ISessionDataService extends IService {
     SessionFolderModel createAndAddNewSessionFolder(SessionFolderModel parentSessionFolder);
 
     SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder);
+    SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder, int index);
     SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem);
+    SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem, int index);
 
     void removeSessionItemFrom(SessionFolderModel parentSessionFolderModel, SessionItemModel sessionItemModel);
     void removeSessionFolderFrom(SessionFolderModel parentSessionFolderModel, SessionFolderModel sessionFolderModel);

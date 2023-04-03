@@ -135,7 +135,16 @@ public final class SessionDataService implements ISessionDataService {
 
     @Override
     public SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder) {
-        parentSessionFolder.getFolders().add(newSessionFolder);
+        return addSessionFolder(parentSessionFolder, newSessionFolder, -1);
+    }
+
+    @Override
+    public SessionFolderModel addSessionFolder(SessionFolderModel parentSessionFolder, SessionFolderModel newSessionFolder, int index) {
+        if (index > -1) {
+            parentSessionFolder.getFolders().add(index, newSessionFolder);
+        } else {
+            parentSessionFolder.getFolders().add(newSessionFolder);
+        }
 
         LOG.debug("Created new session folder: " + newSessionFolder.getName() + " in parent: " + parentSessionFolder.getName());
 
@@ -144,7 +153,16 @@ public final class SessionDataService implements ISessionDataService {
 
     @Override
     public SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem) {
-        parentSessionFolder.getItems().add(newSessionItem);
+        return addSessionItem(parentSessionFolder, newSessionItem, -1);
+    }
+
+    @Override
+    public SessionItemModel addSessionItem(SessionFolderModel parentSessionFolder, SessionItemModel newSessionItem, int index) {
+        if (index > -1) {
+            parentSessionFolder.getItems().add(index, newSessionItem);
+        } else {
+            parentSessionFolder.getItems().add(newSessionItem);
+        }
 
         LOG.debug("Created new session item: " + newSessionItem.getName() + " in parent folder: " + parentSessionFolder.getName());
 

@@ -67,11 +67,10 @@ public class MainFrame extends JFrame {
                         );
                         if (answer == JOptionPane.YES_OPTION) {
                             OpenedSshSessions.closeAllSshSessions();
-
-                            dispose();
-                            setVisible(false);
-                            System.exit(0);
+                            close();
                         }
+                    } else {
+                        close();
                     }
                 });
             }
@@ -102,4 +101,11 @@ public class MainFrame extends JFrame {
     private void buildForm() {
         add(new MainSplitPane());
     }
+
+    private void close() {
+        dispose();
+        setVisible(false);
+        System.exit(0);
+    }
+
 }
