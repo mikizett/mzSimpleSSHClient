@@ -25,9 +25,9 @@ import java.io.File;
 public class AddressBar extends JPanel {
 
     private final AddressBarBreadCrumbs addressBar;
-    private final JComboBox<String> txtAddressBar;
+    private final JComboBox<String> comboBoxAddressBar;
     private final JButton buttonEdit;
-    private final JPanel addrPanel;
+    private final JPanel addressPanel;
     private boolean updating = false;
     private ActionListener actionListener;
     private JPopupMenu popup;
@@ -36,8 +36,8 @@ public class AddressBar extends JPanel {
 
     public AddressBar(char separator, ActionListener popupTriggeredListener) {
         setLayout(new BorderLayout());
-        addrPanel = new JPanel(new BorderLayout());
-        addrPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
+        addressPanel = new JPanel(new BorderLayout());
+        addressPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
         this.separator = separator;
 
         JButton buttonRoot = new JButton();
@@ -45,17 +45,17 @@ public class AddressBar extends JPanel {
         buttonRoot.addActionListener(e -> createAndShowPopup());
 
         DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>();
-        txtAddressBar = new JComboBox<>(model1);
-        txtAddressBar.setEditor(new AddressBarComboBoxEditor());
-        txtAddressBar.putClientProperty("paintNoBorder", "True");
+        comboBoxAddressBar = new JComboBox<>(model1);
+        comboBoxAddressBar.setEditor(new AddressBarComboBoxEditor());
+        comboBoxAddressBar.putClientProperty("paintNoBorder", "True");
 
-        txtAddressBar.addActionListener(e -> {
+        comboBoxAddressBar.addActionListener(e -> {
             if (updating) {
                 return;
             }
-            String item = (String) txtAddressBar.getSelectedItem();
+            String item = (String) comboBoxAddressBar.getSelectedItem();
             if (e.getActionCommand().equals("comboBoxEdited")) {
-                ComboBoxModel<String> model = txtAddressBar.getModel();
+                ComboBoxModel<String> model = comboBoxAddressBar.getModel();
                 boolean found = false;
                 for (int i = 0; i < model.getSize(); i++) {
                     if (model.getElementAt(i).equals(item)) {
@@ -64,14 +64,15 @@ public class AddressBar extends JPanel {
                     }
                 }
                 if (!found) {
-                    txtAddressBar.addItem(item);
+                    comboBoxAddressBar.addItem(item);
                 }
                 if (actionListener != null) {
                     actionListener.actionPerformed(new ActionEvent(this, 0, item));
                 }
             }
         });
-        txtAddressBar.setEditable(true);
+
+        comboBoxAddressBar.setEditable(true);
         ComboBoxEditor cmdEdit = new BasicComboBoxEditor() {
             @Override
             protected JTextField createEditorComponent() {
@@ -81,7 +82,7 @@ public class AddressBar extends JPanel {
                 return textField;
             }
         };
-        txtAddressBar.setEditor(cmdEdit);
+        comboBoxAddressBar.setEditor(cmdEdit);
 
         addressBar = new AddressBarBreadCrumbs(separator == '/', popupTriggeredListener);
         addressBar.addActionListener(e -> {
@@ -108,8 +109,8 @@ public class AddressBar extends JPanel {
 
         panBtn2.add(buttonRoot);
 
-        addrPanel.add(addressBar);
-        add(addrPanel);
+        addressPanel.add(addressBar);
+        add(addressPanel);
         JPanel panBtn = new JPanel(new BorderLayout());
         panBtn.setBorder(new EmptyBorder(3, 3, 3, 3));
         panBtn.add(buttonEdit);
@@ -120,30 +121,30 @@ public class AddressBar extends JPanel {
 
     public void switchToPathBar() {
         add(panBtn2, BorderLayout.WEST);
-        addrPanel.remove(txtAddressBar);
-        addrPanel.add(addressBar);
+        addressPanel.remove(comboBoxAddressBar);
+        addressPanel.add(addressBar);
         buttonEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
         buttonEdit.putClientProperty("toggle.selected", Boolean.FALSE);
         buttonEdit.setText("\uf023");
     }
 
     public void switchToText() {
-        addrPanel.remove(addressBar);
-        addrPanel.add(txtAddressBar);
+        addressPanel.remove(addressBar);
+        addressPanel.add(comboBoxAddressBar);
         remove(panBtn2);
         buttonEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
         buttonEdit.putClientProperty("toggle.selected", Boolean.TRUE);
-        txtAddressBar.getEditor().selectAll();
+        comboBoxAddressBar.getEditor().selectAll();
         buttonEdit.setText("\uf13e");
     }
 
     public String getText() {
-        return isSelected() ? (String) txtAddressBar.getSelectedItem() : addressBar.getSelectedText();
+        return isSelected() ? (String) comboBoxAddressBar.getSelectedItem() : addressBar.getSelectedText();
     }
 
     public void setText(String text) {
         updating = true;
-        txtAddressBar.setSelectedItem(text);
+        comboBoxAddressBar.setSelectedItem(text);
         addressBar.setPath(text);
         updating = false;
     }
