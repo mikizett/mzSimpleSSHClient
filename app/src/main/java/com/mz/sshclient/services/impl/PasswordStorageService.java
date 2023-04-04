@@ -39,7 +39,7 @@ public class PasswordStorageService implements IPasswordStorageService {
 
     private static KeyStore keyStore;
 
-    private final File passwordStorageFile = new File(AppConfig.getPasswordStorageFileLocation());
+    private final File passwordStorageFile = new File(AppConfig.getPasswordStorageFilePath());
     private Map<String, char[]> passwordMap = new HashMap<>(0);
 
     private KeyStore.PasswordProtection passwordProtection;
@@ -83,6 +83,15 @@ public class PasswordStorageService implements IPasswordStorageService {
             keyStore.setEntry("passwords", new KeyStore.SecretKeyEntry(generatedSecret), passwordProtection);
 
             LOG.debug("Password protection: " + passwordProtection.getProtectionAlgorithm());
+
+            // check if file does not exist
+            // in this case we have to create the folders
+            if (!passwordStorageFile.exists() || !passwordStorageFile.isFile()) {
+                boolean result = new File(AppConfig.getPasswordStorageLocation()).mkdirs();
+                if (!result) {
+                    throw new PasswordStorageException("Could not create folder for the password storage file: <" + passwordStorageFile.getName() + ">");
+                }
+            }
 
             try (OutputStream out = new FileOutputStream(passwordStorageFile)) {
                 keyStore.store(out, passwordProtection.getPassword());

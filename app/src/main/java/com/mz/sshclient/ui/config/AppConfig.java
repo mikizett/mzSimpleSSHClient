@@ -24,7 +24,12 @@ public final class AppConfig {
         return getStorageLocation() + File.separatorChar + Constants.KNOWN_HOSTS_FILE_LOCATION;
     }
 
-    public static String getPasswordStorageFileLocation() {
+    public static String getPasswordStorageFilePath() {
         return getStorageLocation() + File.separatorChar + Constants.PASSWORD_STORAGE_FILE_LOCATION;
     }
+
+    public static String getPasswordStorageLocation() {
+        return getStorageLocation() + File.separatorChar + Constants.PASSWORD_STORAGE_PATH;
+    }
+
 }

@@ -84,6 +84,10 @@ public final class ConfigFile {
     }
 
     private static void writeConfigFile(final String location) throws ReadWriteConfigfileException {
+        if (storageLocation == null) {
+            storageLocation = location;
+        }
+
         try (final FileWriter fileWriter = new FileWriter(CONFIG_FILE)) {
             fileWriter.write(location);
             fileWriter.flush();
