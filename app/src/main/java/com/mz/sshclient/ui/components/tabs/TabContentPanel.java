@@ -33,6 +33,10 @@ public class TabContentPanel extends JPanel {
         init();
 
         jediTermWidget.setTtyConnector(sshTtyConnector);
+
+        jediTermWidget.getTerminal().setAutoNewLine(false);
+        jediTermWidget.getTerminalPanel().setFocusable(true);
+
         jediTermWidget.start();
     }
 

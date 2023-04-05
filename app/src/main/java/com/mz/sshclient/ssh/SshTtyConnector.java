@@ -10,9 +10,11 @@ import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.SessionChannel;
+import net.schmizz.sshj.transport.TransportException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,6 +25,9 @@ import java.util.Collections;
 public class SshTtyConnector implements TtyConnector {
 
     private static final Logger LOG = LogManager.getLogger(SshTtyConnector.class);
+
+    private Dimension termSize;
+    private Dimension pixelSize;
 
     private InputStreamReader inputStreamReader;
     private OutputStream outputStream;
@@ -64,6 +69,8 @@ public class SshTtyConnector implements TtyConnector {
                 final InputStream inputStream = shell.getInputStream();
                 outputStream = shell.getOutputStream();
                 inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+
+                resizeImmediately();
 
                 initiated = true;
                 return true;
@@ -136,5 +143,36 @@ public class SshTtyConnector implements TtyConnector {
             LOG.error(e);
         }
         return shell.getExitStatus();
+    }
+
+    @Override
+    public void resize(Dimension termSize, Dimension pixelSize) {
+        this.termSize = termSize;
+        this.pixelSize = pixelSize;
+        if (channel != null) {
+            resizeImmediately();
+        }
+    }
+
+    private void resizeImmediately() {
+        if (termSize != null && pixelSize != null) {
+            setPtySize(
+                    shell,
+                    termSize.width, termSize.height,
+                    pixelSize.width, pixelSize.height
+            );
+            termSize = null;
+            pixelSize = null;
+        }
+    }
+
+    private void setPtySize(Session.Shell shell, int col, int row, int wp, int hp) {
+        if (shell != null) {
+            try {
+                shell.changeWindowDimensions(col, row, wp, hp);
+            } catch (TransportException e) {
+                LOG.error("Could not set pty size: ", e);
+            }
+        }
     }
 }
