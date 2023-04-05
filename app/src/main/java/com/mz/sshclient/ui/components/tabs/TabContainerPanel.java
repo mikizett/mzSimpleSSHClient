@@ -138,9 +138,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
     @Override
     public void connectSsh(final ConnectSshEvent event) {
         final SessionItemModel item = event.getSessionItemModel();
-        AWTInvokerUtils.invokeExclusivelyNotInEventDispatcher(() -> {
-            connectSshClient(item);
-        });
+        AWTInvokerUtils.invokeExclusivelyNotInEventDispatcher(() -> connectSshClient(item));
     }
 
     @Override
