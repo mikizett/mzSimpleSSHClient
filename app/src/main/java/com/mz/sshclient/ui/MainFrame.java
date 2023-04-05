@@ -1,17 +1,13 @@
 package com.mz.sshclient.ui;
 
 import com.mz.sshclient.Constants;
-import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.exceptions.SaveSessionDataException;
-import com.mz.sshclient.services.interfaces.ISessionDataService;
-import com.mz.sshclient.ui.utils.AWTInvokerUtils;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
+import com.mz.sshclient.ui.actions.ActionExitApp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
@@ -24,11 +20,12 @@ public class MainFrame extends JFrame {
 
     private static final Logger LOG = LogManager.getLogger(MainFrame.class);
 
-    private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+    private final ActionExitApp actionExitApp = new ActionExitApp(this);
 
     public MainFrame() {
         super(Constants.APP_NAME_AND_VERSION);
         init();
+        initMacOSConfig();
     }
 
     private void init() {
@@ -42,37 +39,7 @@ public class MainFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (sessionDataService.hasSessionModelChanged()) {
-                    int result = MessageDisplayUtil.showYesNoConfirmDialog(
-                            MainFrame.this,
-                            "Do you want to save the created session folders?",
-                            "Save..."
-                    );
-                    if (result == JOptionPane.YES_OPTION) {
-                        try {
-                            sessionDataService.saveToFile();
-                        } catch (SaveSessionDataException ex) {
-                            LOG.error(ex.getMessage(), ex);
-                            MessageDisplayUtil.showErrorMessage(ex.getMessage());
-                        }
-                    }
-                }
-
-                // close all opened ssh sessions
-                AWTInvokerUtils.invokeLater(() -> {
-                    if (OpenedSshSessions.hasOpenedSessions()) {
-                        int answer = MessageDisplayUtil.showYesNoConfirmDialog(
-                                "Do you want to close all opened sessions?",
-                                "Close opened sessions..."
-                        );
-                        if (answer == JOptionPane.YES_OPTION) {
-                            OpenedSshSessions.closeAllSshSessions();
-                            close();
-                        }
-                    } else {
-                        close();
-                    }
-                });
+                actionExitApp.actionPerformed(null);
             }
         });
         setPreferredSize();
@@ -80,10 +47,22 @@ public class MainFrame extends JFrame {
         buildForm();
     }
 
+    public void initMacOSConfig() {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.APP_QUIT_HANDLER)) {
+            final Desktop desktop = Desktop.getDesktop();
+            desktop.setQuitHandler(actionExitApp);
+        }
+    }
+
     private void setPreferredSize() {
         final Insets inset = Toolkit
                 .getDefaultToolkit()
-                .getScreenInsets(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration());
+                .getScreenInsets(
+                        GraphicsEnvironment
+                                .getLocalGraphicsEnvironment()
+                                .getDefaultScreenDevice()
+                                .getDefaultConfiguration()
+                );
 
         final Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -100,12 +79,6 @@ public class MainFrame extends JFrame {
 
     private void buildForm() {
         add(new MainSplitPane());
-    }
-
-    private void close() {
-        dispose();
-        setVisible(false);
-        System.exit(0);
     }
 
 }
