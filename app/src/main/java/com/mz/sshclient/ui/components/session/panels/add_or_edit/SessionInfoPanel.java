@@ -44,7 +44,9 @@ public class SessionInfoPanel extends JPanel {
         tabs.addTab("sFTP Directories", secureFtpPanel);
         tabs.addTab("Jump Host", jumpHostPanel);
 
-        this.add(tabs);
+        add(tabs);
+
+        setFocusable(false);
     }
 
     public ConnectionPanel getConnectionPanel() {

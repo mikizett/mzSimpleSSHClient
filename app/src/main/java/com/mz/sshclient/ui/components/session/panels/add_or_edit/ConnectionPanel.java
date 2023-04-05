@@ -1,6 +1,7 @@
 package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
 import com.mz.sshclient.model.SessionItemDraftModel;
+import com.mz.sshclient.ui.components.common.field.OnlyNumbersTextField;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 import com.mz.sshclient.ui.events.listener.InputFieldDocumentListener;
 import com.mz.sshclient.ui.utils.UIUtils;
@@ -29,7 +30,7 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
     private final JTextField hostTextField = new JTextField(10);
 
     private final JLabel portLabel = new JLabel("Port");
-    private final JTextField portTextField = new JTextField("22", 5);
+    private final OnlyNumbersTextField portTextField = new OnlyNumbersTextField("22", 5);
 
     private final JLabel userLabel = new JLabel("User");
     private final JTextField userTextField = new JTextField(10);
@@ -173,6 +174,8 @@ public class ConnectionPanel extends JPanel implements IAdjustableSessionItemDra
         c.fill = GridBagConstraints.BOTH;
 
         add(panel, c);
+
+        setFocusable(false);
     }
 
     private void initData() {

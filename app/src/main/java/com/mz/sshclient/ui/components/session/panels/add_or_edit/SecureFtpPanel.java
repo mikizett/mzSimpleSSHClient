@@ -106,6 +106,8 @@ public class SecureFtpPanel extends JPanel implements IAdjustableSessionItemDraf
         c.fill = GridBagConstraints.BOTH;
 
         add(panel, c);
+
+        setFocusable(false);
     }
 
     private void initData() {

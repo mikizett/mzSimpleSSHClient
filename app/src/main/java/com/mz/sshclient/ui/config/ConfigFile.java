@@ -72,6 +72,8 @@ public final class ConfigFile {
             } else {
                 writeConfigFile(selectedLocation.getAbsolutePath() + File.separatorChar + Constants.DEFAULT_STORAGE_PATH_NAME);
             }
+        } else { // show the question again what to do
+            init();
         }
     }
 

@@ -70,6 +70,8 @@ public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraft
         c.fill = GridBagConstraints.BOTH;
 
         add(panel, c);
+
+        setFocusable(false);
     }
 
     private void initData() {
