@@ -4,7 +4,7 @@ import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ui.components.tabs.sftp.view.AddressBar;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserEventListener;
+import com.mz.sshclient.ui.components.tabs.sftp.view.IFileBrowserEventListener;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
 import com.mz.sshclient.ui.components.tabs.sftp.view.NavigationHistory;
 import com.mz.sshclient.ui.components.tabs.sftp.view.OverflowMenuHandler;
@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
-public abstract class AbstractFileBrowserView extends JPanel implements FileBrowserEventListener {
+public abstract class AbstractIFileBrowserView extends JPanel implements IFileBrowserEventListener {
 
     public enum PanelOrientation {
         LEFT, RIGHT
@@ -43,7 +43,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FileBrow
 
     protected FileBrowser fileBrowser;
 
-    public AbstractFileBrowserView(PanelOrientation orientation, FileBrowser fileBrowser) {
+    public AbstractIFileBrowserView(PanelOrientation orientation, FileBrowser fileBrowser) {
         super(new BorderLayout());
 
         this.fileBrowser = fileBrowser;

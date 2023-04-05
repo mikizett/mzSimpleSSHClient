@@ -3,7 +3,7 @@ package com.mz.sshclient.ui.components.tabs.sftp.local;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.local.LocalFileSystem;
-import com.mz.sshclient.ui.components.tabs.sftp.AbstractFileBrowserView;
+import com.mz.sshclient.ui.components.tabs.sftp.AbstractIFileBrowserView;
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 import com.mz.sshclient.ui.components.tabs.sftp.view.AddressBar;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LocalFileBrowserView extends AbstractFileBrowserView {
+public class LocalIFileBrowserView extends AbstractIFileBrowserView {
 
-    private static final Logger LOG = LogManager.getLogger(LocalFileBrowserView.class);
+    private static final Logger LOG = LogManager.getLogger(LocalIFileBrowserView.class);
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -31,7 +31,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     private final JPopupMenu addressPopup;
     private LocalFileSystem fs;
 
-    public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
+    public LocalIFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
         super(orientation, fileBrowser);
 
         menuHandler = new LocalMenuHandler(this);

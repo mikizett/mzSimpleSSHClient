@@ -17,7 +17,7 @@ public class FileBrowserPanel extends JPanel {
     private boolean showHiddenFiles = false;
     private List<FileInfo> files;
 
-    public FileBrowserPanel(FileBrowserEventListener listener) {
+    public FileBrowserPanel(IFileBrowserEventListener listener) {
         super(new BorderLayout());
 
         table = new FileBrowserTable(listener);

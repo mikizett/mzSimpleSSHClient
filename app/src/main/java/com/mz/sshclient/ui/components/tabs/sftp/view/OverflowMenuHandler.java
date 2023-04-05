@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.components.tabs.sftp.view;
 
-import com.mz.sshclient.ui.components.tabs.sftp.AbstractFileBrowserView;
+import com.mz.sshclient.ui.components.tabs.sftp.AbstractIFileBrowserView;
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 
 import javax.swing.AbstractAction;
@@ -17,7 +17,6 @@ import javax.swing.SortOrder;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OverflowMenuHandler {
 
@@ -30,12 +29,12 @@ public class OverflowMenuHandler {
     private final KeyStroke ksHideShow;
     private final AbstractAction aHideShow;
     private final JPopupMenu popup;
-    private final AbstractFileBrowserView fileBrowserView;
+    private final AbstractIFileBrowserView fileBrowserView;
     private final JMenu mSortMenu;
     private final FileBrowser fileBrowser;
     private FileBrowserPanel fileBrowserPanel;
 
-    public OverflowMenuHandler(AbstractFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
+    public OverflowMenuHandler(AbstractIFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
         this.fileBrowserView = fileBrowserView;
         this.fileBrowser = fileBrowser;
         ksHideShow = KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK);

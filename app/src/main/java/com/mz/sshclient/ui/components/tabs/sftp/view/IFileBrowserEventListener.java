@@ -4,7 +4,7 @@ import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 
 import javax.swing.JPopupMenu;
 
-public interface FileBrowserEventListener {
+public interface IFileBrowserEventListener {
 
     void addBack(String path);
 

@@ -17,10 +17,10 @@ import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.sftp.SshFileSystem;
 import com.mz.sshclient.ui.OpenedSshSessions;
 import com.mz.sshclient.ui.components.common.animation.ConnectAnimationComponent;
-import com.mz.sshclient.ui.components.tabs.sftp.local.LocalFileBrowserView;
-import com.mz.sshclient.ui.components.tabs.sftp.ssh.SshFileBrowserView;
+import com.mz.sshclient.ui.components.tabs.sftp.local.LocalIFileBrowserView;
+import com.mz.sshclient.ui.components.tabs.sftp.ssh.SshIFileBrowserView;
 import com.mz.sshclient.ui.components.tabs.sftp.transfer.FileTransfer;
-import com.mz.sshclient.ui.components.tabs.sftp.transfer.FileTransferProgress;
+import com.mz.sshclient.ui.components.tabs.sftp.transfer.IFileTransferProgress;
 import com.mz.sshclient.ui.components.tabs.sftp.transfer.TransferProgressPanel;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
 import com.mz.sshclient.ui.components.tabs.terminal.HostKeyVerificationCallback;
@@ -57,17 +57,17 @@ public class FileBrowser extends JPanel {
 
     private final TransferProgressPanel progressPanel = new TransferProgressPanel();
 
-    private final List<AbstractFileBrowserView> viewList = new ArrayList<>(0);
+    private final List<AbstractIFileBrowserView> viewList = new ArrayList<>(0);
     private final Map<String, List<FileInfo>> sshDirCache = new HashMap<>(0);
 
     private SFtpConnector sFtpConnector;
 
     private final JSplitPane horizontalSplitter;
     private FileBrowserContentComponent leftComponent;
-    private LocalFileBrowserView localFileBrowserView;
+    private LocalIFileBrowserView localFileBrowserView;
 
     private FileBrowserContentComponent rightComponent;
-    private SshFileBrowserView sshFileBrowserView;
+    private SshIFileBrowserView sshFileBrowserView;
 
     private FileTransfer ongoingFileTransfer;
 
@@ -83,10 +83,10 @@ public class FileBrowser extends JPanel {
     }
 
     private void initFileBrowserComponents() {
-        localFileBrowserView = new LocalFileBrowserView(this, SystemUtils.USER_HOME, AbstractFileBrowserView.PanelOrientation.LEFT);
+        localFileBrowserView = new LocalIFileBrowserView(this, SystemUtils.USER_HOME, AbstractIFileBrowserView.PanelOrientation.LEFT);
         leftComponent = new FileBrowserContentComponent("Local Filesystem", localFileBrowserView);
 
-        sshFileBrowserView = new SshFileBrowserView(this, null, AbstractFileBrowserView.PanelOrientation.RIGHT);
+        sshFileBrowserView = new SshIFileBrowserView(this, null, AbstractIFileBrowserView.PanelOrientation.RIGHT);
         rightComponent = new FileBrowserContentComponent("Remote Filesystem", sshFileBrowserView);
 
         horizontalSplitter.setLeftComponent(leftComponent);
@@ -202,7 +202,7 @@ public class FileBrowser extends JPanel {
             ConflictAction defaultConflictAction
     ) {
         ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
-                new FileTransferProgress() {
+                new IFileTransferProgress() {
                     @Override
                     public void progress(
                             long processedBytes,
@@ -247,11 +247,11 @@ public class FileBrowser extends JPanel {
         executor.submit(ongoingFileTransfer);
     }
 
-    public void registerForViewNotification(AbstractFileBrowserView view) {
+    public void registerForViewNotification(AbstractIFileBrowserView view) {
         this.viewList.add(view);
     }
 
-    public void unRegisterForViewNotification(AbstractFileBrowserView view) {
+    public void unRegisterForViewNotification(AbstractIFileBrowserView view) {
         this.viewList.remove(view);
     }
 

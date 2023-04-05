@@ -23,11 +23,11 @@ public class LocalMenuHandler {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private final LocalFileOperations fileOperations;
-    private final LocalFileBrowserView fileBrowserView;
+    private final LocalIFileBrowserView fileBrowserView;
     private JMenuItem mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mOpen;
     private FileBrowserPanel fileBrowserPanel;
 
-    public LocalMenuHandler(LocalFileBrowserView fileBrowserView) {
+    public LocalMenuHandler(LocalIFileBrowserView fileBrowserView) {
         this.fileOperations = new LocalFileOperations();
         this.fileBrowserView = fileBrowserView;
     }

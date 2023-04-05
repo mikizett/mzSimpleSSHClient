@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.components.tabs.sftp.transfer;
 
-public interface FileTransferProgress {
+public interface IFileTransferProgress {
 
     void init(long totalSize, long files, FileTransfer fileTransfer);
 

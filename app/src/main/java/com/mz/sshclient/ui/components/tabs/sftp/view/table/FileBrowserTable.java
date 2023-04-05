@@ -2,7 +2,7 @@ package com.mz.sshclient.ui.components.tabs.sftp.view.table;
 
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
-import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserEventListener;
+import com.mz.sshclient.ui.components.tabs.sftp.view.IFileBrowserEventListener;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FolderViewKeyHandler;
 
 import javax.swing.AbstractAction;
@@ -30,10 +30,10 @@ public class FileBrowserTable extends JTable {
     private final TableCellLabelRenderer tableCellLabelRenderer = new TableCellLabelRenderer();
     private final FileBrowserTableSorter fileBrowserTableSorter;
 
-    private final FileBrowserEventListener fileBrowserEventListener;
+    private final IFileBrowserEventListener IFileBrowserEventListener;
 
-    public FileBrowserTable(final FileBrowserEventListener fileBrowserEventListener) {
-        this.fileBrowserEventListener = fileBrowserEventListener;
+    public FileBrowserTable(final IFileBrowserEventListener IFileBrowserEventListener) {
+        this.IFileBrowserEventListener = IFileBrowserEventListener;
 
         fileBrowserTableSorter = new FileBrowserTableSorter(fileBrowserTableModel);
 
@@ -74,7 +74,7 @@ public class FileBrowserTable extends JTable {
                 if (files.length > 0) {
                     if (files[0].getType() == FileType.Directory || files[0].getType() == FileType.DirLink) {
                         String str = files[0].getPath();
-                        fileBrowserEventListener.render(str, true);
+                        IFileBrowserEventListener.render(str, true);
                     }
                 }
             }
@@ -106,13 +106,13 @@ public class FileBrowserTable extends JTable {
                     if (r == getSelectedRow()) {
                         FileInfo fileInfo = fileBrowserTableModel.getItemAt(getRow(r));
                         if (fileInfo.getType() == FileType.Directory || fileInfo.getType() == FileType.DirLink) {
-                            fileBrowserEventListener.addBack(fileInfo.getPath());
-                            fileBrowserEventListener.render(fileInfo.getPath(), true);
+                            IFileBrowserEventListener.addBack(fileInfo.getPath());
+                            IFileBrowserEventListener.render(fileInfo.getPath(), true);
                         }
                     }
                 } else if (e.isPopupTrigger() || e.getButton() == MouseEvent.BUTTON3) {
                     selectRow(e);
-                    fileBrowserEventListener.createMenu(popup, getSelectedFiles());
+                    IFileBrowserEventListener.createMenu(popup, getSelectedFiles());
                     popup.pack();
                     popup.show(FileBrowserTable.this, e.getX(), e.getY());
                 }

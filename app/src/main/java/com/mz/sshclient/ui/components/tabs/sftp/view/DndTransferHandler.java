@@ -4,7 +4,7 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ssh.sftp.filesystem.local.LocalFileSystem;
-import com.mz.sshclient.ui.components.tabs.sftp.AbstractFileBrowserView;
+import com.mz.sshclient.ui.components.tabs.sftp.AbstractIFileBrowserView;
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +35,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
     public static final DataFlavor DATA_FLAVOR_FILE_LIST = DataFlavor.javaFileListFlavor;
     private final FileBrowserPanel fileBrowserPanel;
     private final SessionItemModel info;
-    private final AbstractFileBrowserView fileBrowserView;
+    private final AbstractIFileBrowserView fileBrowserView;
     private DndTransferData transferData;
     private final DndTransferData.DndSourceType sourceType;
     private Win32DragHandler win32DragHandler;
@@ -45,7 +45,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
     public DndTransferHandler(
             FileBrowserPanel fileBrowserPanel,
             SessionItemModel info,
-            AbstractFileBrowserView fileBrowserView,
+            AbstractIFileBrowserView fileBrowserView,
             DndTransferData.DndSourceType sourceType,
             FileBrowser fileBrowser
     ) {

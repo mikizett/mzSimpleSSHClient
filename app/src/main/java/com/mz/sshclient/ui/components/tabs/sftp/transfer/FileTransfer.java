@@ -1,7 +1,6 @@
 package com.mz.sshclient.ui.components.tabs.sftp.transfer;
 
 import com.mz.sshclient.ssh.sftp.ConflictAction;
-import com.mz.sshclient.ssh.sftp.SFtpConnector;
 import com.mz.sshclient.ssh.sftp.SshRemoteFileInputStream;
 import com.mz.sshclient.ssh.sftp.SshRemoteFileOutputStream;
 import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
@@ -9,7 +8,6 @@ import com.mz.sshclient.ssh.sftp.filesystem.FileType;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ssh.sftp.filesystem.InputTransferChannel;
 import com.mz.sshclient.ssh.sftp.filesystem.OutputTransferChannel;
-import com.mz.sshclient.ssh.sftp.filesystem.sftp.SshFileSystem;
 import com.mz.sshclient.utils.PathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,7 +34,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
     private final String targetFolder;
     private final AtomicBoolean stopFlag = new AtomicBoolean(false);
     private long totalSize;
-    private final FileTransferProgress callback;
+    private final IFileTransferProgress callback;
     private long processedBytes;
     private int processedFilesCount;
     private long totalFiles;
@@ -47,7 +45,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
             IFileSystem targetFs,
             FileInfo[] files,
             String targetFolder,
-            FileTransferProgress callback,
+            IFileTransferProgress callback,
             ConflictAction defaultConflictAction
     ) {
         this.sourceFs = sourceFs;
