@@ -110,7 +110,7 @@ public class FileBrowser extends JPanel {
     }
 
     public void reconnect() {
-        final SessionItemModel sessionItemModel = sFtpConnector.getSessionItemModel().deepCopy();
+        final SessionItemModel sessionItemModel = sFtpConnector.getSessionItemModel().clone(false);
         sFtpConnector.close();
 
         anime.start();

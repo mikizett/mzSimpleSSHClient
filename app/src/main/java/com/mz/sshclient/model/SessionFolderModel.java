@@ -29,17 +29,24 @@ public class SessionFolderModel extends AbstractSessionEntryModel {
         return false;
     }
 
-    public SessionFolderModel deepCopy() {
+    public SessionFolderModel clone(boolean useNewIdAndCopyAsSessionName) {
         final SessionFolderModel folder = new SessionFolderModel();
 
-        folder.setId(UUID.randomUUID().toString());
-        folder.setName(this.name + " (Copy)");
-        folder.setFolders(new ArrayList<>(folders));
+        if (useNewIdAndCopyAsSessionName) {
+            folder.setId(UUID.randomUUID().toString());
+            folder.setName(new StringBuilder(this.name).append(" (Copy)").toString());
+        } else {
+            folder.setId(this.id);
+            folder.setName(this.name);
+        }
 
-        final List<SessionItemModel> copySessionItemModelList = new ArrayList<>(items.size());
-        this.items.forEach(item -> copySessionItemModelList.add(item.deepCopy()));
-        folder.setItems(copySessionItemModelList);
-        //folder.setItems(new ArrayList<>(this.items));
+        final List<SessionFolderModel> cloneSessionFolderList = new ArrayList<>(folders.size());
+        folders.forEach(cloneFolder -> cloneSessionFolderList.add(cloneFolder.clone(useNewIdAndCopyAsSessionName)));
+        folder.setFolders(cloneSessionFolderList);
+
+        final List<SessionItemModel> cloneSessionItemModelList = new ArrayList<>(items.size());
+        items.forEach(item -> cloneSessionItemModelList.add(item.clone(useNewIdAndCopyAsSessionName)));
+        folder.setItems(cloneSessionItemModelList);
 
         return folder;
     }

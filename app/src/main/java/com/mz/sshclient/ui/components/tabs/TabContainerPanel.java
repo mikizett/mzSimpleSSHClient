@@ -100,7 +100,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         final ConnectAnimationComponent anime = new ConnectAnimationComponent(mzSimpleSshClientMain.MAIN_FRAME, "Connecting SSH ");
         anime.start();
 
-        final SessionItemModel item = itemRef.copy();
+        final SessionItemModel item = itemRef.clone(false);
 
         try {
             final SshClient sshClient = createSshClient(item);

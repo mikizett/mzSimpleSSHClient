@@ -19,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -85,9 +86,11 @@ public abstract class AbstractIFileBrowserView extends JPanel implements IFileBr
 
         JButton buttonUp = new JButton();
         buttonUp.addActionListener(upAction);
+        buttonUp.setFont(UIManager.getFont("iconFont"));
         buttonUp.setText("\uf062");
 
         JButton buttonHome = new JButton();
+        buttonHome.setFont(UIManager.getFont("iconFont"));
         buttonHome.setText("\uf015");
         buttonHome.addActionListener(e -> {
             addBack(path);
@@ -96,9 +99,11 @@ public abstract class AbstractIFileBrowserView extends JPanel implements IFileBr
 
         JButton buttonReload = new JButton();
         buttonReload.addActionListener(reloadAction);
+        buttonReload.setFont(UIManager.getFont("iconFont"));
         buttonReload.setText("\uf021");
 
         JButton buttonMore = new JButton();
+        buttonMore.setFont(UIManager.getFont("iconFont"));
         buttonMore.setText("\uf142");
         buttonMore.addActionListener(e -> {
             JPopupMenu popupMenu = overflowMenuHandler.getOverflowMenu();

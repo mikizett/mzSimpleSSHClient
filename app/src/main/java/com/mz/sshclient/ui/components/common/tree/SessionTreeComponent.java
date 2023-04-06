@@ -206,7 +206,7 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
         final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node.getParent();
 
         if (node != null && parentNode != null && (nodeUserObject instanceof SessionItemModel)) {
-            final SessionItemModel newSessionItem = ((SessionItemModel) node.getUserObject()).deepCopy();
+            final SessionItemModel newSessionItem = ((SessionItemModel) node.getUserObject()).clone(true);
             final DefaultMutableTreeNode child = new DefaultMutableTreeNode(newSessionItem);
             child.setAllowsChildren(false);
 
@@ -214,7 +214,7 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
 
             selectNode(newSessionItem.getId(), child);
         } else if (node != null && parentNode != null && (nodeUserObject instanceof SessionFolderModel)) {
-            final SessionFolderModel newSessionFolder = ((SessionFolderModel) node.getUserObject()).deepCopy();
+            final SessionFolderModel newSessionFolder = ((SessionFolderModel) node.getUserObject()).clone(true);
             final DefaultMutableTreeNode newFolderTree = new DefaultMutableTreeNode(newSessionFolder);
 
             final Enumeration<TreeNode> children = node.children();
@@ -222,12 +222,12 @@ public class SessionTreeComponent extends JTree implements TreeSelectionListener
                 final DefaultMutableTreeNode defaultMutableTreeNode = (DefaultMutableTreeNode) children.nextElement();
                 final Object defaultMutalbeTreeNodeUserObject = defaultMutableTreeNode.getUserObject();
                 if (defaultMutalbeTreeNodeUserObject instanceof SessionItemModel) {
-                    final SessionItemModel newCopySessionItem = ((SessionItemModel) defaultMutableTreeNode.getUserObject()).deepCopy();
+                    final SessionItemModel newCopySessionItem = ((SessionItemModel) defaultMutableTreeNode.getUserObject()).clone(true);
                     DefaultMutableTreeNode subChild = new DefaultMutableTreeNode(newCopySessionItem);
                     subChild.setAllowsChildren(false);
                     newFolderTree.add(subChild);
                 } else if (defaultMutalbeTreeNodeUserObject instanceof SessionFolderModel) {
-                    final SessionFolderModel copySessionFolder = ((SessionFolderModel) defaultMutalbeTreeNodeUserObject).deepCopy();
+                    final SessionFolderModel copySessionFolder = ((SessionFolderModel) defaultMutalbeTreeNodeUserObject).clone(true);
                     newFolderTree.add(cloneChildFolder(copySessionFolder));
                 }
             }

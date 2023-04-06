@@ -257,18 +257,21 @@ public class SshClient implements Closeable {
                     }
                     break;
             }
-        }
-        if (!authenticated) {
-            if (this.sshj != null) {
-                try {
-                    this.sshj.close();
-                } catch (IOException e) {
-                    LOG.error(e);
-                    // do nothing
-                }
+
+            if (authenticated) {
+                return;
             }
-            throw new SshConnectionException("Could not connect to server: " + sessionItemModel);
         }
+
+        if (this.sshj != null) {
+            try {
+                this.sshj.close();
+            } catch (IOException e) {
+                LOG.error(e);
+                // do nothing
+            }
+        }
+        throw new SshConnectionException("Could not connect to server: " + sessionItemModel);
     }
 
     public void disconnect() throws SshDisconnectException {

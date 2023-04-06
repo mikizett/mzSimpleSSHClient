@@ -8,6 +8,7 @@ import com.mz.sshclient.utils.FormatUtils;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.BorderLayout;
@@ -31,10 +32,10 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 
         textLabel = new JLabel();
         textLabel.setForeground(foreground);
-        textLabel.setText("AAA");
         textLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
 
         iconLabel = new JLabel();
+        iconLabel.setFont(UIManager.getFont("iconFont").deriveFont(Font.PLAIN, 20.f));
         iconLabel.setText("\uf016");
         iconLabel.setForeground(foreground);
 
@@ -80,9 +81,10 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         panel.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         textLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
+        textLabel.setText(ent.getName());
+
         iconLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
         iconLabel.setText(getIconForType(ent));
-        textLabel.setText(ent.getName());
 
         label.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         label.setForeground(isSelected ? table.getSelectionForeground() : foreground);

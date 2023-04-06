@@ -95,6 +95,7 @@ public class AddressBar extends JPanel {
         panBtn2.setBorder(new EmptyBorder(3, 3, 3, 3));
 
         buttonEdit = new JButton();
+        buttonEdit.setFont(UIManager.getFont("iconFont"));
         buttonEdit.setText("\uf023");
         buttonEdit.addActionListener(e -> {
             if (!isSelected()) {

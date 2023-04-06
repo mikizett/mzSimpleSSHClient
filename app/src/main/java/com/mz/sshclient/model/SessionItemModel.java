@@ -10,6 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class SessionItemModel extends AbstractSessionEntryModel {
+
     private String host = "";
     private String port = "";
     private String user = "";
@@ -46,50 +47,40 @@ public class SessionItemModel extends AbstractSessionEntryModel {
         return Objects.hash(host, port, user, password, privateKeyFile, localFolder, remoteFolder, jumpHost);
     }
 
-    public SessionItemModel copy() {
+    public SessionItemModel clone(boolean useNewIdAndCopyAsSessionName) {
         final SessionItemModel copy = new SessionItemModel();
 
-        copy.id = new String(this.id);
-        copy.name = new String(this.name);
-        copy.host = new String(this.host);
-        copy.port = new String(this.port);
-        copy.user = new String(this.user);
-        copy.password = new String(this.password);
-        copy.privateKeyFile = new String(this.privateKeyFile);
-        copy.localFolder = new String(this.localFolder);
-        copy.remoteFolder = new String(this.remoteFolder);
-        copy.jumpHost = new String(this.jumpHost);
+        if (useNewIdAndCopyAsSessionName) {
+            copy.id = UUID.randomUUID().toString();
+            copy.name = new StringBuilder(this.name).append(" (Copy)").toString();
+        } else {
+            copy.id = this.id;
+            copy.name = this.name;
+        }
+
+        copy.host = this.host;
+        copy.port = this.port;
+        copy.user = this.user;
+        copy.password = this.password;
+        copy.privateKeyFile = this.privateKeyFile;
+        copy.localFolder = this.localFolder;
+        copy.remoteFolder = this.remoteFolder;
+        copy.jumpHost = this.jumpHost;
 
         return copy;
     }
 
-    public SessionItemModel deepCopy() {
-        final SessionItemModel copy = new SessionItemModel();
-
-        copy.id = new String(UUID.randomUUID().toString());
-        copy.name = new String(this.name + " (Copy)");
-        copy.host = new String(this.host);
-        copy.port = new String(this.port);
-        copy.user = new String(this.user);
-        copy.password = new String(this.password);
-        copy.privateKeyFile = new String(this.privateKeyFile);
-        copy.localFolder = new String(this.localFolder);
-        copy.remoteFolder = new String(this.remoteFolder);
-        copy.jumpHost = new String(this.jumpHost);
-
-        return copy;
+    public <T extends SessionItemModel> void copyFrom(T model) {
+        id = model.id;
+        name = model.name;
+        host = model.getHost();
+        port = model.getPort();
+        user = model.getUser();
+        password = model.getPassword();
+        privateKeyFile = model.getPrivateKeyFile();
+        localFolder = model.getLocalFolder();
+        remoteFolder = model.getRemoteFolder();
+        jumpHost = model.getJumpHost();
     }
 
-    public <T extends SessionItemModel> void deepCopyFrom(T model) {
-        id = new String(model.id);
-        name = new String(model.name);
-        host = new String(model.getHost());
-        port = new String(model.getPort());
-        user = new String(model.getUser());
-        password = new String(model.getPassword());
-        privateKeyFile = new String(model.getPrivateKeyFile());
-        localFolder = new String(model.getLocalFolder());
-        remoteFolder = new String(model.getRemoteFolder());
-        jumpHost = new String(model.getJumpHost());
-    }
 }

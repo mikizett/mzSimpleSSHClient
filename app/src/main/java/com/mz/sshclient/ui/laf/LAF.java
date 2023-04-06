@@ -7,6 +7,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import java.awt.Font;
+import java.io.InputStream;
 
 public final class LAF {
 
@@ -19,9 +21,7 @@ public final class LAF {
     }
 
     public static void setMetalLookAndFeel() {
-        CustomUIDefaults.read();
         setLookAndFeel(MetalLookAndFeel.class.getName());
-        CustomUIDefaults.write();
     }
 
     public static void setSystemLookAndFeel() {
@@ -30,11 +30,27 @@ public final class LAF {
 
     private static void setLookAndFeel(final String laf) {
         try {
+            CustomUIDefaults.read();
+
             UIManager.setLookAndFeel(laf);
+
+            CustomUIDefaults.write();
+
+            UIManager.getDefaults().put("iconFont", loadFontAwesome());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  UnsupportedLookAndFeelException ex) {
             LOG.error("Could not set LAF: " + laf, ex);
         }
+    }
+
+    private static Font loadFontAwesome() {
+        try (InputStream is = LAF.class.getResourceAsStream("/fonts/fontawesome-webfont.ttf")) {
+            Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+            return font.deriveFont(Font.PLAIN, 14f);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

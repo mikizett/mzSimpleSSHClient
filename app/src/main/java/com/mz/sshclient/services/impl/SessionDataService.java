@@ -85,7 +85,7 @@ public final class SessionDataService implements ISessionDataService {
                     // make sure folder exists
                     checkIfSessionFileLocationExists();
                     objectMapper.writeValue(sessionFile, sessionModel);
-                    loadSessionModelFromFile();
+                    defaultSessionModel.setFolder(sessionModel.getFolder().clone(false));
                 } catch (IOException e) {
                     throw new SaveSessionDataException("Could not save file", e);
                 }

@@ -163,7 +163,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
             tree.setSelectionPath(path);
         } else {
             if (!sessionItemDraftModel.equals(sessionItemModel)) {
-                sessionItemModel.deepCopyFrom(sessionItemDraftModel);
+                sessionItemModel.copyFrom(sessionItemDraftModel);
 
                 ((DefaultTreeModel) tree.getModel()).reload();
                 TreePath path = new TreePath(selectedTreeNode.getPath());
