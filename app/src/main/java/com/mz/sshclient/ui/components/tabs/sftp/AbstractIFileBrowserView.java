@@ -1,14 +1,12 @@
 package com.mz.sshclient.ui.components.tabs.sftp;
 
-import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.sftp.filesystem.IFileSystem;
 import com.mz.sshclient.ui.components.tabs.sftp.view.AddressBar;
 import com.mz.sshclient.ui.components.tabs.sftp.view.DndTransferData;
-import com.mz.sshclient.ui.components.tabs.sftp.view.IFileBrowserEventListener;
 import com.mz.sshclient.ui.components.tabs.sftp.view.FileBrowserPanel;
+import com.mz.sshclient.ui.components.tabs.sftp.view.IFileBrowserEventListener;
 import com.mz.sshclient.ui.components.tabs.sftp.view.NavigationHistory;
 import com.mz.sshclient.ui.components.tabs.sftp.view.OverflowMenuHandler;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import com.mz.sshclient.utils.LayoutUtil;
 import com.mz.sshclient.utils.PathUtils;
 
@@ -25,7 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
 
 public abstract class AbstractIFileBrowserView extends JPanel implements IFileBrowserEventListener {
 
@@ -60,13 +57,17 @@ public abstract class AbstractIFileBrowserView extends JPanel implements IFileBr
                 return;
             }
             if (text != null && text.length() > 0) {
-                final File file = new File(text);
+                // FIXME: this cannot work for remote !!!
+                /*final File file = new File(text);
                 if (!file.exists()) {
                     MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, "Path doesn't exist!");
                 } else {
                     addBack(path);
                     render(text, true);
-                }
+                }*/
+
+                addBack(path);
+                render(text, true);
             }
         });
 
@@ -115,6 +116,7 @@ public abstract class AbstractIFileBrowserView extends JPanel implements IFileBr
         });
 
         LayoutUtil.equalizeSize(buttonMore, buttonReload, buttonUp, buttonHome);
+        resizeAddressBar(buttonUp.getPreferredSize());
 
         Box smallToolbar = Box.createHorizontalBox();
         smallToolbar.add(Box.createHorizontalStrut(5));
@@ -146,6 +148,10 @@ public abstract class AbstractIFileBrowserView extends JPanel implements IFileBr
         getActionMap().put("up", upAction);
 
         fileBrowser.registerForViewNotification(this);
+    }
+
+    private void resizeAddressBar(final Dimension dim) {
+        addressBar.setPreferredSize(new Dimension(addressBar.getWidth(), dim.height));
     }
 
     protected abstract void createAddressBar();

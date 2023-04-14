@@ -31,7 +31,7 @@ public class SshClient implements Closeable {
 
     private static final Logger LOG = LogManager.getLogger(SshClient.class);
 
-    private static final int CONNECTION_TIMEOUT = 60000;
+    private static final int CONNECTION_TIMEOUT = 40000;
 
     private SSHClient sshj;
 
