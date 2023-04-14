@@ -72,7 +72,7 @@ public class LocalIFileBrowserView extends AbstractIFileBrowserView {
     }
 
     public void createAddressBar() {
-        addressBar = new AddressBar(File.separatorChar, e -> {
+        addressBar = new AddressBar(e -> {
             String selectedPath = e.getActionCommand();
             addressPopup.setName(selectedPath);
             MouseEvent me = (MouseEvent) e.getSource();

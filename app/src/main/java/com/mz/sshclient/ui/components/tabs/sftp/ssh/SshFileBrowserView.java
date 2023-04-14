@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SshIFileBrowserView extends AbstractIFileBrowserView {
+public class SshFileBrowserView extends AbstractIFileBrowserView {
     
-    private static final Logger LOG = LogManager.getLogger(SshIFileBrowserView.class);
+    private static final Logger LOG = LogManager.getLogger(SshFileBrowserView.class);
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -36,7 +36,7 @@ public class SshIFileBrowserView extends AbstractIFileBrowserView {
     private final JPopupMenu addressPopup;
     private final DndTransferHandler transferHandler;
 
-    public SshIFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
+    public SshFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
         super(orientation, fileBrowser);
 
         menuHandler = new SshMenuHandler(fileBrowser, this);
@@ -68,7 +68,7 @@ public class SshIFileBrowserView extends AbstractIFileBrowserView {
     }
 
     public void createAddressBar() {
-        addressBar = new AddressBar('/', e -> {
+        addressBar = new AddressBar(this, e -> {
             String selectedPath = e.getActionCommand();
             addressPopup.setName(selectedPath);
             MouseEvent me = (MouseEvent) e.getSource();
@@ -93,24 +93,25 @@ public class SshIFileBrowserView extends AbstractIFileBrowserView {
         return path;
     }
 
-    private void renderDirectory(final String path, final boolean fromCache) throws Exception {
-        List<FileInfo> list = null;
-        if (fromCache) {
-            list = fileBrowser.getSSHDirectoryCache().get(trimPath(path));
+    private void renderDirectory(final String path) throws Exception {
+        final List<FileInfo> list = getRemoteFileRoots(path);
+        if (list != null) {
+            SwingUtilities.invokeLater(() -> {
+                addressBar.setText(path);
+                fileBrowserPanel.setItems(list);
+            });
         }
+    }
+
+    public List<FileInfo> getRemoteFileRoots(final String path) throws Exception {
+        List<FileInfo> list = fileBrowser.getSSHDirectoryCache().get(trimPath(path));
         if (list == null) {
             list = fileBrowser.getSSHFileSystem().list(path);
             if (list != null) {
                 fileBrowser.getSSHDirectoryCache().put(trimPath(path), list);
             }
         }
-        if (list != null) {
-            final List<FileInfo> list2 = list;
-            SwingUtilities.invokeLater(() -> {
-                addressBar.setText(path);
-                fileBrowserPanel.setItems(list2);
-            });
-        }
+        return list;
     }
 
     @Override
@@ -120,11 +121,11 @@ public class SshIFileBrowserView extends AbstractIFileBrowserView {
         executor.submit(() -> {
             while (!fileBrowser.getSFtpConnector().isSessionClosed()) {
                 try {
-                    if (path == null) {
+                    if (this.path == null) {
                         SshFileSystem sshfs = fileBrowser.getSSHFileSystem();
                         this.path = sshfs.getHome();
                     }
-                    renderDirectory(this.path, useCache);
+                    renderDirectory(this.path);
                     break;
                 } catch (SshOperationCanceledException e) {
                     LOG.error(e);
