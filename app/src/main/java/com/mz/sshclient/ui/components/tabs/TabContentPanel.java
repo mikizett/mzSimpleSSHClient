@@ -21,7 +21,7 @@ public class TabContentPanel extends JPanel {
     private JPanel shellOrBrowserPanel;
 
     private JToggleButton shellToggleButton = new JToggleButton("Shell", true);
-    private JToggleButton browserToggleButton = new JToggleButton("Browser");
+    private JToggleButton browserToggleButton = new JToggleButton("sFTP");
 
     private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
 

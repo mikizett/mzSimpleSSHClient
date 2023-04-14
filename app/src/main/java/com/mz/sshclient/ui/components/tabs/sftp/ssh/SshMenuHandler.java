@@ -52,10 +52,10 @@ public class SshMenuHandler {
 
     private final FileBrowser fileBrowser;
     private final SshFileOperations fileOperations;
-    private final SshIFileBrowserView fileBrowserView;
+    private final SshFileBrowserView fileBrowserView;
     private FileBrowserPanel fileBrowserPanel;
 
-    public SshMenuHandler(FileBrowser fileBrowser, SshIFileBrowserView fileBrowserView) {
+    public SshMenuHandler(FileBrowser fileBrowser, SshFileBrowserView fileBrowserView) {
         this.fileBrowser = fileBrowser;
         this.fileOperations = new SshFileOperations();
         this.fileBrowserView = fileBrowserView;

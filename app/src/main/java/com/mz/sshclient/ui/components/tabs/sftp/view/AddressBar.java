@@ -1,7 +1,11 @@
 package com.mz.sshclient.ui.components.tabs.sftp.view;
 
+import com.mz.sshclient.ssh.sftp.filesystem.FileInfo;
 import com.mz.sshclient.ui.components.common.field.SkinnedTextField;
+import com.mz.sshclient.ui.components.tabs.sftp.ssh.SshFileBrowserView;
 import com.mz.sshclient.utils.LayoutUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
@@ -21,24 +25,36 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class AddressBar extends JPanel {
+
+    private static final Logger LOG = LogManager.getLogger(AddressBar.class);
 
     private final AddressBarBreadCrumbs addressBar;
     private final JComboBox<String> comboBoxAddressBar;
     private final JButton buttonEdit;
     private final JPanel addressPanel;
     private boolean updating = false;
-    private ActionListener actionListener;
+    private ActionListener actionListenerRef;
     private JPopupMenu popup;
-    private final char separator;
     private final JPanel panBtn2;
 
-    public AddressBar(char separator, ActionListener popupTriggeredListener) {
+    private final SshFileBrowserView sshFileBrowserView;
+
+    public AddressBar(ActionListener popupTriggeredListener) {
+        this(null, popupTriggeredListener);
+    }
+
+    public AddressBar(SshFileBrowserView sshFileBrowserView, ActionListener popupTriggeredListener) {
+        this.sshFileBrowserView = sshFileBrowserView;
+
         setLayout(new BorderLayout());
         addressPanel = new JPanel(new BorderLayout());
         addressPanel.setBorder(new EmptyBorder(3, 3, 3, 3));
-        this.separator = separator;
 
         JButton buttonRoot = new JButton();
         buttonRoot.setText("/");
@@ -66,8 +82,8 @@ public class AddressBar extends JPanel {
                 if (!found) {
                     comboBoxAddressBar.addItem(item);
                 }
-                if (actionListener != null) {
-                    actionListener.actionPerformed(new ActionEvent(this, 0, item));
+                if (actionListenerRef != null) {
+                    actionListenerRef.actionPerformed(new ActionEvent(this, 0, item));
                 }
             }
         });
@@ -84,10 +100,10 @@ public class AddressBar extends JPanel {
         };
         comboBoxAddressBar.setEditor(cmdEdit);
 
-        addressBar = new AddressBarBreadCrumbs(separator == '/', popupTriggeredListener);
+        addressBar = new AddressBarBreadCrumbs(File.separatorChar == '/', popupTriggeredListener);
         addressBar.addActionListener(e -> {
-            if (actionListener != null) {
-                actionListener.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
+            if (actionListenerRef != null) {
+                actionListenerRef.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
             }
         });
 
@@ -151,7 +167,7 @@ public class AddressBar extends JPanel {
     }
 
     public void addActionListener(ActionListener e) {
-        this.actionListener = e;
+        this.actionListenerRef = e;
     }
 
     private boolean isSelected() {
@@ -165,58 +181,46 @@ public class AddressBar extends JPanel {
             popup.removeAll();
         }
 
-        String itemPath = "item.path";
-        if (separator == '/') {
-            addFileRoots();
-
-            /*JMenuItem item = new JMenuItem("ROOT");
-            item.putClientProperty(itemPath, "/");
-            item.addActionListener(e -> {
-                String selectedText = (String) item.getClientProperty(itemPath);
-                if (a != null) {
-                    a.actionPerformed(new ActionEvent(this, 0, selectedText));
-                }
-            });
-            popup.add(item);*/
+        if (sshFileBrowserView == null) {
+            addLocalFileRoots();
         } else {
-            File[] roots = File.listRoots();
-            for (File f : roots) {
-                JMenuItem item = new JMenuItem(f.getAbsolutePath());
-                item.putClientProperty(itemPath, f.getAbsolutePath());
-                item.addActionListener(e -> {
-                    String selectedText = (String) item.getClientProperty(itemPath);
-                    if (actionListener != null) {
-                        actionListener.actionPerformed(new ActionEvent(this, 0, selectedText));
-                    }
-                });
-                popup.add(item);
-            }
+            addRemoteFileRoots();
         }
 
         popup.show(this, 0, getHeight());
     }
 
-    private void addFileRoots() {
+    private void addLocalFileRoots() {
         final File[] roots = File.listRoots();
         for (File root : roots) {
-            popup.add(createMenuItem(root));
+            popup.add(createMenuItem(root.getAbsolutePath()));
 
             final File[] subFolders = root.listFiles();
+            Arrays.sort(subFolders);
             for (File subFolder : subFolders) {
-                popup.add(createMenuItem(subFolder));
+                popup.add(createMenuItem(subFolder.getAbsolutePath()));
             }
         }
     }
 
-    private JMenuItem createMenuItem(File f) {
+    private void addRemoteFileRoots() {
+        try {
+            final List<FileInfo> list = sshFileBrowserView.getRemoteFileRoots("/");
+            Collections.sort(list, (Comparator.comparing(FileInfo::getName)));
+            list.forEach(fileInfo -> popup.add(createMenuItem(fileInfo.getPath())));
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
+    private JMenuItem createMenuItem(String path) {
         final String itemPath = "item.path";
-        final String path = f.getAbsolutePath();
         final JMenuItem item = new JMenuItem(path);
         item.putClientProperty(itemPath, path);
         item.addActionListener(e -> {
             String selectedText = (String) item.getClientProperty(itemPath);
-            if (actionListener != null) {
-                actionListener.actionPerformed(new ActionEvent(this, 0, selectedText));
+            if (actionListenerRef != null) {
+                actionListenerRef.actionPerformed(new ActionEvent(this, 0, selectedText));
             }
         });
         return item;
