@@ -1,17 +1,10 @@
 package com.mz.sshclient.ui.actions;
 
 import com.mz.sshclient.mzSimpleSshClientMain;
-import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.exceptions.SaveSessionDataException;
-import com.mz.sshclient.services.interfaces.ISessionDataService;
-import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.OpenedSshSessions;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import java.awt.desktop.QuitEvent;
@@ -19,11 +12,7 @@ import java.awt.desktop.QuitHandler;
 import java.awt.desktop.QuitResponse;
 import java.awt.event.ActionEvent;
 
-public class ActionExitApp extends AbstractAction implements QuitHandler {
-
-    private static final Logger LOG = LogManager.getLogger(MainFrame.class);
-
-    private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
+public class ActionExitApp extends AbstractSaveSessionsAction implements QuitHandler {
 
     private final JFrame frame;
 
@@ -42,19 +31,14 @@ public class ActionExitApp extends AbstractAction implements QuitHandler {
     }
 
     private void exit(QuitResponse response) {
-        if (sessionDataService.hasSessionModelChanged()) {
+        if (hasChanged()) {
             int result = MessageDisplayUtil.showYesNoConfirmDialog(
                     mzSimpleSshClientMain.MAIN_FRAME,
                     "Do you want to save the created session folders?",
                     "Save..."
             );
             if (result == JOptionPane.YES_OPTION) {
-                try {
-                    sessionDataService.saveToFile();
-                } catch (SaveSessionDataException ex) {
-                    LOG.error(ex.getMessage(), ex);
-                    MessageDisplayUtil.showErrorMessage(ex.getMessage());
-                }
+                saveToFile();
             }
         }
 

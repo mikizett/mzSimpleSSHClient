@@ -15,6 +15,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public final class SessionDataService implements ISessionDataService {
@@ -25,7 +27,8 @@ public final class SessionDataService implements ISessionDataService {
     private SessionModel sessionModel;
     private SessionModel defaultSessionModel;
 
-    private SessionItemModel selectedSessionItemModel;
+    private final List<SessionItemModel> addedOrModifiedSessionItemModels = new ArrayList<>(0);
+
 
     public SessionDataService() {
         sessionFile = new File(AppConfig.getSessionFileLocation());
@@ -86,6 +89,7 @@ public final class SessionDataService implements ISessionDataService {
                     checkIfSessionFileLocationExists();
                     objectMapper.writeValue(sessionFile, sessionModel);
                     defaultSessionModel.setFolder(sessionModel.getFolder().clone(false));
+                    addedOrModifiedSessionItemModels.clear();
                 } catch (IOException e) {
                     throw new SaveSessionDataException("Could not save file", e);
                 }
@@ -186,6 +190,23 @@ public final class SessionDataService implements ISessionDataService {
     @Override
     public boolean hasSessionModelChanged() {
         return defaultSessionModel != null && sessionModel != null && !defaultSessionModel.equals(sessionModel);
+    }
+
+    @Override
+    public boolean hasAddedOrModifiedSessionItemModels() {
+        return !addedOrModifiedSessionItemModels.isEmpty();
+    }
+
+    @Override
+    public List<SessionItemModel> getNewAndModifiedSessionItemModels() {
+        return addedOrModifiedSessionItemModels;
+    }
+
+    @Override
+    public void addNewOrModifiedSessionItemModel(SessionItemModel sessionItemModel) {
+        if (!addedOrModifiedSessionItemModels.contains(sessionItemModel)) {
+            addedOrModifiedSessionItemModels.add(sessionItemModel);
+        }
     }
 
 }

@@ -5,6 +5,8 @@ import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionModel;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 
+import java.util.List;
+
 public interface ISessionDataService extends IService {
 
     void saveToFile() throws SaveSessionDataException;
@@ -25,5 +27,9 @@ public interface ISessionDataService extends IService {
     void removeSessionFolderFrom(SessionFolderModel parentSessionFolderModel, SessionFolderModel sessionFolderModel);
 
     boolean hasSessionModelChanged();
+
+    boolean hasAddedOrModifiedSessionItemModels();
+    List<SessionItemModel> getNewAndModifiedSessionItemModels();
+    void addNewOrModifiedSessionItemModel(SessionItemModel sessionItemModel);
 
 }

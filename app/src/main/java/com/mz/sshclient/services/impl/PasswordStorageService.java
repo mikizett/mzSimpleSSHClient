@@ -119,7 +119,7 @@ public class PasswordStorageService implements IPasswordStorageService {
         return this.passwordMap.get(id);
     }
 
-    public synchronized void storePassword(final String id, final char[] password) {
+    public void storePassword(final String id, final char[] password) {
         this.passwordMap.put(id, password);
     }
 

@@ -1,14 +1,12 @@
 package com.mz.sshclient.ui.components.session.panels;
 
-import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
-import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
+import com.mz.sshclient.ui.actions.ActionSaveSessions;
 import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
 import com.mz.sshclient.ui.components.session.popup.SessionActionsPopupMenu;
 import com.mz.sshclient.ui.events.listener.ITreeNodeListener;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +25,7 @@ public class SessionOverviewPanel extends JPanel implements ITreeNodeListener {
     private final ISessionDataService sessionDataService = ServiceRegistry.get(ISessionDataService.class);
 
     private final JToggleButton popupButton = new JToggleButton("Actions");
-    private final JButton saveButton = new JButton("Save changes");
+    private final JButton saveButton = new JButton(new ActionSaveSessions());
 
     private SessionTreeComponent sessionTreeComponent;
 
@@ -70,20 +68,8 @@ public class SessionOverviewPanel extends JPanel implements ITreeNodeListener {
                 popupMenu.show(popupButton, 5, popupButton.getHeight() + 1);
             }
         });
+
         north.add(popupButton);
-
-        saveButton.setEnabled(false);
-        saveButton.addActionListener(l -> {
-            try {
-                sessionDataService.saveToFile();
-            } catch (SaveSessionDataException e) {
-                LOG.error(e);
-                MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-            }
-
-            saveButton.setEnabled(false);
-        });
-
         north.add(saveButton);
 
         panel.add(north, BorderLayout.NORTH);

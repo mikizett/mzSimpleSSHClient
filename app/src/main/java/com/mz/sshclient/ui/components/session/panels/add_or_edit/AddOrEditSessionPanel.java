@@ -4,18 +4,11 @@ import com.mz.sshclient.model.SessionFolderModel;
 import com.mz.sshclient.model.SessionItemDraftModel;
 import com.mz.sshclient.model.SessionItemModel;
 import com.mz.sshclient.model.SessionItemModelHelper;
-import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
-import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;
 import com.mz.sshclient.services.interfaces.ISshConnectionObservableService;
-import com.mz.sshclient.ui.components.common.tree.SessionTreeComponent;
-import com.mz.sshclient.ui.components.tabs.terminal.PasswordStorageHandler;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -34,8 +27,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class AddOrEditSessionPanel extends JPanel implements IValueChangeListener {
-
-    private static final Logger LOG = LogManager.getLogger(AddOrEditSessionPanel.class);
 
     private final Window parentWindow;
     private final JTree tree;
@@ -113,14 +104,11 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
 
         connectButton = new JButton("Connect");
         connectButton.setEnabled(false);
-        connectButton.addActionListener(l -> {
-            addOrEditSessionItem(true);
-            sshConnectionService.fireConnectSshEvent(new ConnectSshEvent(this, sessionItemModel));
-        });
+        connectButton.addActionListener(l -> sshConnectionService.fireConnectSshEvent(new ConnectSshEvent(this, sessionItemModel)));
 
-        saveButton = new JButton("Save");
+        saveButton = new JButton(addOrEditEnum == AddOrEditEnum.ADD ? "Add" : "Change");
         saveButton.setEnabled(false);
-        saveButton.addActionListener(l -> addOrEditSessionItem(true));
+        saveButton.addActionListener(l -> addOrEditSessionItem());
 
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(l -> parentWindow.dispose());
@@ -150,7 +138,7 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
                 !sessionItemDraftModel.getHost().isEmpty() && !sessionItemDraftModel.getPort().isEmpty();
     }
 
-    private void addOrEditSessionItem(boolean shouldClose) {
+    private void addOrEditSessionItem() {
         adjustablePanels.forEach(panel -> panel.adjustSessionItemDraft());
 
         if (addOrEditEnum == AddOrEditEnum.ADD) {
@@ -161,6 +149,8 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
             tree.scrollPathToVisible(new TreePath(childNode.getPath()));
             TreePath path = new TreePath(childNode.getPath());
             tree.setSelectionPath(path);
+
+            sessionDataService.addNewOrModifiedSessionItemModel(sessionItemModel);
         } else {
             if (!sessionItemDraftModel.equals(sessionItemModel)) {
                 sessionItemModel.copyFrom(sessionItemDraftModel);
@@ -169,28 +159,12 @@ public class AddOrEditSessionPanel extends JPanel implements IValueChangeListene
                 TreePath path = new TreePath(selectedTreeNode.getPath());
                 tree.scrollPathToVisible(path);
                 tree.setSelectionPath(path);
+
+                sessionDataService.addNewOrModifiedSessionItemModel(sessionItemModel);
             }
         }
 
-        saveSessionItem();
-
-        if (shouldClose) {
-            parentWindow.dispose();
-        }
-    }
-
-    private void saveSessionItem() {
-        if (sessionDataService.hasSessionModelChanged()) {
-            PasswordStorageHandler.getHandler().storePassword(sessionItemModel);
-
-            try {
-                sessionDataService.saveToFile();
-                ((SessionTreeComponent) tree).fireTreeNodeAction();
-            } catch (SaveSessionDataException e) {
-                LOG.error(e);
-                MessageDisplayUtil.showErrorMessage(mzSimpleSshClientMain.MAIN_FRAME, e.getMessage());
-            }
-        }
+        parentWindow.dispose();
     }
 
     @Override
