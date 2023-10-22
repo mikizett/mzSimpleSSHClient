@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.sftp.SFtpConnector;
 import lombok.AllArgsConstructor;

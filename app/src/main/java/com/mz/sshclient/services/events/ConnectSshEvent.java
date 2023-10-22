@@ -1,6 +1,6 @@
 package com.mz.sshclient.services.events;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 
 import java.io.Serializable;
 import java.util.EventObject;

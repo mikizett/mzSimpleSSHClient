@@ -1,5 +1,7 @@
 package com.mz.sshclient.model;
 
+import com.mz.sshclient.model.session.SessionItemDraftModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

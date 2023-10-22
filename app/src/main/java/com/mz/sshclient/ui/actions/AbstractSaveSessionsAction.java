@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.actions;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.exceptions.SaveSessionDataException;
 import com.mz.sshclient.services.interfaces.ISessionDataService;

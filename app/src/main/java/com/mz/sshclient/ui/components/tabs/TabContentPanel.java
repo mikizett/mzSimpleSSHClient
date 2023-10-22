@@ -1,10 +1,14 @@
 package com.mz.sshclient.ui.components.tabs;
 
 import com.jediterm.terminal.ui.JediTermWidget;
-import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.mz.sshclient.ssh.SshTtyConnector;
 import com.mz.sshclient.ssh.sftp.SFtpConnector;
+import com.mz.sshclient.ui.components.tabs.jediterm.AbstractJediTermColorMode;
+import com.mz.sshclient.ui.components.tabs.jediterm.CustomJediTerm;
+import com.mz.sshclient.ui.components.tabs.jediterm.JediTermDarkColorMode;
+import com.mz.sshclient.ui.components.tabs.jediterm.JediTermDefaultColorMode;
 import com.mz.sshclient.ui.components.tabs.sftp.FileBrowser;
+import com.mz.sshclient.ui.config.AppSettings;
 
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -17,17 +21,20 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 
 public class TabContentPanel extends JPanel {
-    private JPanel headerComponent;
-    private JPanel shellOrBrowserPanel;
 
-    private JToggleButton shellToggleButton = new JToggleButton("Shell", true);
-    private JToggleButton browserToggleButton = new JToggleButton("sFTP");
+    private final JToggleButton shellToggleButton = new JToggleButton("Shell", true);
+    private final JToggleButton browserToggleButton = new JToggleButton("sFTP");
 
-    private JediTermWidget jediTermWidget = new JediTermWidget(new DefaultSettingsProvider());
+    private final JediTermWidget jediTermWidget; // = new JediTermWidget(new DefaultSettingsProvider());
 
     private final FileBrowser fileBrowser;
 
     public TabContentPanel(final SshTtyConnector sshTtyConnector, final SFtpConnector sFtpConnector) {
+        final AbstractJediTermColorMode colorMode = AppSettings.isDarkMode()
+                ? new JediTermDarkColorMode()
+                : new JediTermDefaultColorMode();
+
+        jediTermWidget = new CustomJediTerm(colorMode);
         fileBrowser = new FileBrowser(sFtpConnector);
 
         init();
@@ -43,7 +50,7 @@ public class TabContentPanel extends JPanel {
     private void init() {
         setLayout(new BorderLayout());
 
-        headerComponent = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel headerComponent = new JPanel(new FlowLayout(FlowLayout.LEFT));
         headerComponent.setBorder(new MatteBorder(1, 1, 1, 1, Color.GRAY));
         headerComponent.add(shellToggleButton);
         headerComponent.add(browserToggleButton);
@@ -51,7 +58,7 @@ public class TabContentPanel extends JPanel {
         add(headerComponent, BorderLayout.NORTH);
 
         CardLayout cardLayout = new CardLayout();
-        shellOrBrowserPanel = new JPanel(cardLayout);
+        JPanel shellOrBrowserPanel = new JPanel(cardLayout);
 
         JPanel shellPanel = new JPanel(new BorderLayout());
         jediTermWidget.requestFocusInWindow();

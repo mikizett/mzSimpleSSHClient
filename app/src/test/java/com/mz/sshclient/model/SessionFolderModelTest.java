@@ -1,5 +1,6 @@
 package com.mz.sshclient.model;
 
+import com.mz.sshclient.model.session.SessionFolderModel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

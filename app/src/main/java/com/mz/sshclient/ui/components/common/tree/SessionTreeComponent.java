@@ -1,8 +1,8 @@
 package com.mz.sshclient.ui.components.common.tree;
 
-import com.mz.sshclient.model.AbstractSessionEntryModel;
-import com.mz.sshclient.model.SessionFolderModel;
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.AbstractSessionEntryModel;
+import com.mz.sshclient.model.session.SessionFolderModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.interfaces.ISessionDataService;

@@ -4,7 +4,7 @@
  */
 package com.mz.sshclient.ui.laf.metal;
 
-import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneClosable;
+import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneClosable2;
 import com.mz.sshclient.ui.components.common.tabbedpane.IClosableHeaderTabComponent;
 
 import javax.swing.BorderFactory;
@@ -339,7 +339,7 @@ public class CustomMetalTabbedPaneUIDecorator extends /*BasicTabbedPaneUI*/ Meta
     protected void paintHighlightBelowTab() {
     }
 
-    protected void basicTabbedPaneUIPaint(Graphics graphics, JComponent c) {
+    protected void basicTabbedPaneUIPaint(Graphics g, JComponent c) {
         int selectedIndex = tabPane.getSelectedIndex();
         int tabPlacement = tabPane.getTabPlacement();
 
@@ -347,16 +347,16 @@ public class CustomMetalTabbedPaneUIDecorator extends /*BasicTabbedPaneUI*/ Meta
 
         // Paint content border and tab area.
         if (tabsOverlapBorder) {
-            paintContentBorder(graphics, tabPlacement, selectedIndex);
+            paintContentBorder(g, tabPlacement, selectedIndex);
         }
         // If scrollable tabs are enabled, the tab area will be
         // painted by the scrollable tab panel instead.
         //
         if (!isScrollTabLayout()) { // WRAP_TAB_LAYOUT
-            paintTabArea(graphics, tabPlacement, selectedIndex);
+            paintTabArea(g, tabPlacement, selectedIndex);
         }
         if (!tabsOverlapBorder) {
-            paintContentBorder(graphics, tabPlacement, selectedIndex);
+            paintContentBorder(g, tabPlacement, selectedIndex);
         }
     }
 
@@ -416,9 +416,9 @@ public class CustomMetalTabbedPaneUIDecorator extends /*BasicTabbedPaneUI*/ Meta
         tabPane.setLayout(createWrapLayoutManager());
     }
 
-    private CustomTabbedPaneClosable getExtendedTabbedPane() {
-        if (super.tabPane instanceof CustomTabbedPaneClosable) {
-            return (CustomTabbedPaneClosable) super.tabPane;
+    private CustomTabbedPaneClosable2 getExtendedTabbedPane() {
+        if (super.tabPane instanceof CustomTabbedPaneClosable2) {
+            return (CustomTabbedPaneClosable2) super.tabPane;
         }
         throw new Error("Wrong type, JTabbedPaneExtended expected.");
     }
@@ -428,7 +428,7 @@ public class CustomMetalTabbedPaneUIDecorator extends /*BasicTabbedPaneUI*/ Meta
         if (layout instanceof TabbedPaneScrollLayoutDecorator) {
             // temporary change layout manager because the runnable may use
             // BasicTabbedPaneUI.scrollableTabLayoutEnabled()
-            final CustomTabbedPaneClosable extendedPaneExtended = getExtendedTabbedPane();
+            final CustomTabbedPaneClosable2 extendedPaneExtended = getExtendedTabbedPane();
             extendedPaneExtended.setSkipNextInvalidate(true);
             tabPane.setLayout(((TabbedPaneScrollLayoutDecorator) layout).delegate);
             extendedPaneExtended.setSkipNextInvalidate(false);

@@ -1,9 +1,9 @@
 package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
-import com.mz.sshclient.model.SessionFolderModel;
-import com.mz.sshclient.model.SessionItemDraftModel;
-import com.mz.sshclient.model.SessionItemModel;
-import com.mz.sshclient.model.SessionItemModelHelper;
+import com.mz.sshclient.model.session.SessionFolderModel;
+import com.mz.sshclient.model.session.SessionItemDraftModel;
+import com.mz.sshclient.model.session.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModelHelper;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
 import com.mz.sshclient.services.interfaces.ISessionDataService;

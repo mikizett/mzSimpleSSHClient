@@ -1,5 +1,8 @@
 package com.mz.sshclient.ui.laf;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.mz.sshclient.ui.config.AppSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +29,18 @@ public final class LAF {
 
     public static void setSystemLookAndFeel() {
         setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+
+    public static void setFlatLookAndFeel() {
+        if (AppSettings.isDarkMode()) {
+            FlatDarkLaf.setup();
+        } else {
+            FlatLightLaf.setup();
+        }
+
+        UIManager.put( "Component.arrowType", "triangle" );
+
+        UIManager.getDefaults().put("iconFont", loadFontAwesome());
     }
 
     private static void setLookAndFeel(final String laf) {

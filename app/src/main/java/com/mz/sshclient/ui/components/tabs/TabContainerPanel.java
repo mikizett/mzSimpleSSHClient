@@ -1,7 +1,7 @@
 package com.mz.sshclient.ui.components.tabs;
 
 import com.mz.sshclient.Constants;
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.services.ServiceRegistry;
 import com.mz.sshclient.services.events.ConnectSshEvent;
@@ -18,7 +18,7 @@ import com.mz.sshclient.ssh.sftp.SFtpConnector;
 import com.mz.sshclient.ui.OpenedSshSessions;
 import com.mz.sshclient.ui.actions.ActionCloseSshTab;
 import com.mz.sshclient.ui.components.common.animation.ConnectAnimationComponent;
-import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneClosable;
+import com.mz.sshclient.ui.components.common.tabbedpane.CustomTabbedPaneCloseable;
 import com.mz.sshclient.ui.components.tabs.terminal.HostKeyVerificationCallback;
 import com.mz.sshclient.ui.components.tabs.terminal.InteractiveResponseProvider;
 import com.mz.sshclient.ui.components.tabs.terminal.PasswordRetryCallback;
@@ -47,7 +47,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
 
     private final ISshConnectionObservableService sshConnectionService = ServiceRegistry.get(ISshConnectionObservableService.class);
 
-    private CustomTabbedPaneClosable tabbedPane;
+    private CustomTabbedPaneCloseable tabbedPane;
 
     public TabContainerPanel() {
         init();
@@ -59,10 +59,11 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
         setLayout(new BorderLayout());
         setBorder(new MatteBorder(1, 1, 1, 1, Color.GRAY));
 
-        tabbedPane = new CustomTabbedPaneClosable();
+        tabbedPane = new CustomTabbedPaneCloseable();
 
+        // !!! ONLY FOR TESTING !!!
         /*for (int i = 1; i <= 30; i++) {
-            tabbedPane.addTab("Shell-" + i, new TabContentPanel(null));
+            tabbedPane.addTab("Shell-" + i, new TabContentPanel(null, null));
         }*/
 
         add(tabbedPane);
@@ -118,7 +119,7 @@ public class TabContainerPanel extends JPanel implements ISshConnectionListener,
                 final String tabName = OpenedSshSessions.hasSameTabName(item.getName()) ? item.getName() + " - " + (counterSameTabName++) : item.getName();
 
                 tabbedPane.addTabWithAction(tabName, tabContainerPanel, new ActionCloseSshTab(sshTtyConnector));
-                tabbedPane.toggleTabLayoutPolicy();
+                //tabbedPane.toggleTabLayoutPolicy();
 
                 final int index = tabbedPane.getTabCount() - 1;
                 tabbedPane.setSelectedIndex(index);

@@ -1,47 +1,22 @@
 package com.mz.sshclient;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Locale;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JWindow;
-import javax.swing.SwingConstants;
-
 import com.jediterm.terminal.ArrayTerminalDataStream;
 import com.jediterm.terminal.TerminalMode;
 import com.jediterm.terminal.emulator.JediEmulator;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.jediterm.terminal.ui.settings.SettingsProvider;
-import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
-import com.mz.sshclient.ui.config.AppConfig;
-import com.mz.sshclient.ui.config.ConfigFile;
-import com.mz.sshclient.ui.utils.MessageDisplayUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JWindow;
+import javax.swing.SwingConstants;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 //import com.newsrx.gui.TeeStream;
 
 public class JediTermTest {
-
-    static {
-        Locale.setDefault(Locale.US);
-
-        System.setProperty("java.net.useSystemProxies", "true");
-
-        try {
-            ConfigFile.init();
-        } catch (ReadWriteConfigfileException e) {
-            MessageDisplayUtil.showErrorMessage("Error occurred during read/write config file:\n" + e.getMessage());
-            System.exit(-1);
-        }
-
-        System.setProperty("logPath", AppConfig.getLogFileLocation());
-    }
-
-    private static final Logger LOG = LogManager.getLogger(JediTermTest.class);
 
     private static final char ESC = 27;
 

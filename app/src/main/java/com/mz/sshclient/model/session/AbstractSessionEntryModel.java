@@ -1,4 +1,4 @@
-package com.mz.sshclient.model;
+package com.mz.sshclient.model.session;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package com.mz.sshclient.model;
+package com.mz.sshclient.model.session;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

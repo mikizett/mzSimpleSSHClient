@@ -1,5 +1,9 @@
 package com.mz.sshclient.model;
 
+import com.mz.sshclient.model.session.SessionFolderModel;
+import com.mz.sshclient.model.session.SessionItemDraftModel;
+import com.mz.sshclient.model.session.SessionItemModel;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.components.tabs.terminal;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IPasswordRetryCallback;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;

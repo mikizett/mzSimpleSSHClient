@@ -1,4 +1,4 @@
-package com.mz.sshclient.model;
+package com.mz.sshclient.model.session;
 
 import java.io.Serializable;
 

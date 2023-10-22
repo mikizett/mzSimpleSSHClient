@@ -1,12 +1,11 @@
 package com.mz.sshclient;
 
 import com.jediterm.terminal.ui.JediTermWidget;
-import com.mz.sshclient.exceptions.ReadWriteConfigfileException;
 import com.mz.sshclient.services.ServiceRegistration;
 import com.mz.sshclient.services.exceptions.ServiceRegistrationException;
 import com.mz.sshclient.ui.MainFrame;
 import com.mz.sshclient.ui.config.AppConfig;
-import com.mz.sshclient.ui.config.ConfigFile;
+import com.mz.sshclient.ui.config.AppSettings;
 import com.mz.sshclient.ui.laf.LAF;
 import com.mz.sshclient.ui.utils.AWTInvokerUtils;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;
@@ -26,14 +25,6 @@ public class mzSimpleSshClientMain {
         Locale.setDefault(Locale.US);
 
         System.setProperty("java.net.useSystemProxies", "true");
-
-        try {
-            ConfigFile.init();
-        } catch (ReadWriteConfigfileException e) {
-            MessageDisplayUtil.showErrorMessage("Error occurred during read/write config file:\n" + e.getMessage());
-            System.exit(-1);
-        }
-
         System.setProperty("logPath", AppConfig.getLogFileLocation());
     }
 
@@ -74,9 +65,15 @@ public class mzSimpleSshClientMain {
     }
 
     public static void main(String[] args) {
+        // read app settings
+        // should be the first call in the app to have settings loaded before UI starts
+        AppSettings.init();
+
         //LAF.setNimbusLookAndFeel();
         //LAF.setSystemLookAndFeel();
-        LAF.setMetalLookAndFeel();
+        //LAF.setMetalLookAndFeel();
+
+        LAF.setFlatLookAndFeel();
 
         initBountyCastleCryptographySecurityProvider();
         checkMaxLenAES();

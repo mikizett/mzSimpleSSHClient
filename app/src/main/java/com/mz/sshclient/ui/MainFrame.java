@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -31,7 +33,7 @@ public class MainFrame extends JFrame {
     private void init() {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         try {
-            this.setIconImage(ImageIO.read(MainFrame.class.getResource("/img/logo.png")));
+            setIconImage(ImageIO.read(MainFrame.class.getResource("/img/logo.png")));
         } catch (IOException e) {
             LOG.error("Could not load logo img", e);
         }
@@ -78,7 +80,13 @@ public class MainFrame extends JFrame {
     }
 
     private void buildForm() {
-        add(new MainSplitPane());
+        JPanel contentPane = (JPanel) getContentPane();
+        contentPane.setLayout(new BorderLayout());
+
+        contentPane.add(new NorthPanel(), BorderLayout.NORTH);
+        contentPane.add(new MainSplitPane(), BorderLayout.CENTER);
+
+        //add(new MainSplitPane());
     }
 
 }

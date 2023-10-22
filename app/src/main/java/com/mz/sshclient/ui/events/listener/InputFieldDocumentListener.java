@@ -2,8 +2,10 @@ package com.mz.sshclient.ui.events.listener;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
-public class InputFieldDocumentListener implements DocumentListener {
+public class InputFieldDocumentListener implements DocumentListener, ItemListener {
 
     private final IValueChangeListener valueChangeListener;
 
@@ -29,6 +31,13 @@ public class InputFieldDocumentListener implements DocumentListener {
     private void fireEvent() {
         if (valueChangeListener != null) {
             valueChangeListener.valueChanged();
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            fireEvent();
         }
     }
 }

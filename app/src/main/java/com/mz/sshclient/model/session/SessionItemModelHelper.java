@@ -1,4 +1,4 @@
-package com.mz.sshclient.model;
+package com.mz.sshclient.model.session;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

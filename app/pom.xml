@@ -100,6 +100,11 @@
             <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.2.1</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>mzSimpleSshClient-${project.version}</finalName>

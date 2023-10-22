@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.components.tabs.terminal;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.mzSimpleSshClientMain;
 import com.mz.sshclient.ssh.IInteractiveResponseProvider;
 import com.mz.sshclient.ui.utils.MessageDisplayUtil;

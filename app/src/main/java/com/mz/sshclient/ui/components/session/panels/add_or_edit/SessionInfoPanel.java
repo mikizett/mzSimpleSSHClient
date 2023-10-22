@@ -1,6 +1,6 @@
 package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
-import com.mz.sshclient.model.SessionItemDraftModel;
+import com.mz.sshclient.model.session.SessionItemDraftModel;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 
 import javax.swing.JPanel;

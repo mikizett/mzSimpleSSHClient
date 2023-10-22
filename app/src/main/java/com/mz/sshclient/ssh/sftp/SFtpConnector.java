@@ -1,6 +1,6 @@
 package com.mz.sshclient.ssh.sftp;
 
-import com.mz.sshclient.model.SessionItemModel;
+import com.mz.sshclient.model.session.SessionItemModel;
 import com.mz.sshclient.ssh.SshClient;
 import com.mz.sshclient.ssh.exceptions.SshOperationCanceledException;
 import com.mz.sshclient.ssh.sftp.filesystem.sftp.SshFileSystem;

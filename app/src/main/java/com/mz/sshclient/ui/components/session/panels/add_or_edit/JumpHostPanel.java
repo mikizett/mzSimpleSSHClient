@@ -1,24 +1,27 @@
 package com.mz.sshclient.ui.components.session.panels.add_or_edit;
 
 
-import com.mz.sshclient.model.SessionItemDraftModel;
+import com.mz.sshclient.model.session.SessionItemDraftModel;
+import com.mz.sshclient.ui.config.AppSettings;
 import com.mz.sshclient.ui.events.listener.IValueChangeListener;
 import com.mz.sshclient.ui.events.listener.InputFieldDocumentListener;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraftPanel {
 
     private final Insets topInset = new Insets(20, 10, 0, 10);
     private final Insets noInset = new Insets(5, 10, 0, 10);
     private final JLabel jumpHostLabel = new JLabel("Jump Host");
-    private final JTextField jumpHostTextField = new JTextField(30);
+    private final JComboBox<String> jumpHostComboBox = new JComboBox<>();
     private final SessionItemDraftModel sessionItemDraftModel;
     private final IValueChangeListener changeValueListener;
 
@@ -54,12 +57,17 @@ public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraft
         c.insets = topInset;
         add(jumpHostLabel, c);
 
+        final String[] jumpHosts = AppSettings.getJumpHosts();
+        Arrays.stream(jumpHosts).forEach(jumpHostComboBox::addItem);
+
+        jumpHostComboBox.setEditable(false);
+
         c.gridx = 0;
         c.gridy = 13;
         c.gridwidth = 1;
         c.insets = noInset;
         c.weightx = 1;
-        add(jumpHostTextField, c);
+        add(jumpHostComboBox, c);
 
         JPanel panel = new JPanel(new BorderLayout());
         c.gridx = 0;
@@ -75,24 +83,24 @@ public class JumpHostPanel extends JPanel implements IAdjustableSessionItemDraft
     }
 
     private void initData() {
-        jumpHostTextField.setText(sessionItemDraftModel.getJumpHost());
+        jumpHostComboBox.setSelectedItem(sessionItemDraftModel.getJumpHost());
     }
 
     private void addListeners() {
-        jumpHostTextField.getDocument().addDocumentListener(new InputFieldDocumentListener(changeValueListener));
+        jumpHostComboBox.addItemListener(new InputFieldDocumentListener(changeValueListener));
     }
 
     public String getJumpHost() {
-        return jumpHostTextField.getText();
+        return (String) jumpHostComboBox.getSelectedItem();
     }
 
     public boolean hasValueChanged() {
-        return !jumpHostTextField.getText().equals(sessionItemDraftModel.getJumpHost());
+        return !Objects.equals(jumpHostComboBox.getSelectedItem(), sessionItemDraftModel.getJumpHost());
     }
 
     @Override
     public void adjustSessionItemDraft() {
-        sessionItemDraftModel.setJumpHost(jumpHostTextField.getText());
+        sessionItemDraftModel.setJumpHost((String) jumpHostComboBox.getSelectedItem());
     }
 
 }

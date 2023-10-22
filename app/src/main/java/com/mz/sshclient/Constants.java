@@ -9,7 +9,7 @@ public interface Constants {
     String USER_HOME = SystemUtils.USER_HOME;
 
     String APP_VERSION = "v0.0.1-ALPHA";
-    String APP_NAME = "mzSimpleSSHClient";
+    String APP_NAME = "SSH Client";
     String APP_NAME_AND_VERSION = APP_NAME + " | " + APP_VERSION;
 
     String SESSIONS_PATH_NAME = "sessions";
@@ -23,11 +23,12 @@ public interface Constants {
     String PASSWORD_STORAGE_PATH = SESSIONS_PATH_NAME + File.separatorChar;
     String PASSWORD_STORAGE_FILE_LOCATION = SESSIONS_PATH_NAME + File.separatorChar + PASSWORD_STORAGE_FILE_NAME;
 
-    String DEFAULT_STORAGE_PATH_NAME = "mzSimpleSSHClient";
+    String DEFAULT_STORAGE_PATH_NAME = ".sshClientConfig";
     String DEFAULT_STORAGE_LOCATION = USER_HOME + File.separatorChar + DEFAULT_STORAGE_PATH_NAME;
 
-    String CONFIG_FILE_LOCATION = USER_HOME + File.separatorChar + ".mzSimpleSSHClient.conf";
-
     String LOG_PATH_NAME = "log";
+
+    String APP_SETTINGS_FILE_NAME = "app.settings.json";
+    String APP_SETTINGS_LOCATION = USER_HOME + File.separatorChar + DEFAULT_STORAGE_PATH_NAME + File.separatorChar + APP_SETTINGS_FILE_NAME;
 
 }

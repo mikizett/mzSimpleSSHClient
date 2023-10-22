@@ -1,11 +1,6 @@
-/**
- * Reference:
- *   https://github.com/jbw-software/JTabbedPaneExtended/blob/main/src/main/java/javax/swing/extended/ClosableTabComponent.java
- */
 package com.mz.sshclient.ui.components.common.tabbedpane;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -23,15 +18,11 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabComponent {
 
-    private static final Color DEFAULT_BORDER_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_COLOR = Color.GRAY;
     private static final Color DEFAULT_CROSS_ROLL_OVER_COLOR = Color.RED;
     private static final int DEFAULT_TEXT_BUTTON_GAP = (int) UIManager.get("TabbedPane.textIconGap");
@@ -41,30 +32,31 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
     private final JLabel titleLabel;
     private final CloseTabButton closeTabButton;
     private final JPanel titlePanel;
-    private final Color borderColor;
     private final Color crossColor;
     private final Color crossRolloverColor;
     private final int textButtonGap;
 
-    protected ClosableHeaderTabComponent(final JTabbedPane tabbedPane, final String title, final Action action) {
-        this(tabbedPane, title, action, DEFAULT_BORDER_COLOR, DEFAULT_CROSS_COLOR, DEFAULT_CROSS_ROLL_OVER_COLOR, DEFAULT_TEXT_BUTTON_GAP);
+    protected ClosableHeaderTabComponent(
+            final JTabbedPane tabbedPane,
+            final String title,
+            final Action action
+    ) {
+        this(tabbedPane, title, action, DEFAULT_CROSS_COLOR, DEFAULT_CROSS_ROLL_OVER_COLOR, DEFAULT_TEXT_BUTTON_GAP);
     }
 
     protected ClosableHeaderTabComponent(
             final JTabbedPane tabbedPane,
             final String title,
             final Action action,
-            final Color borderColor,
             final Color crossColor,
             final Color crossRolloverColor,
-            int textButtonGap
+            final int textButtonGap
     ) {
         if (tabbedPane == null) {
             throw new NullPointerException("tabbedPane is null.");
         }
 
         this.tabbedPane = tabbedPane;
-        this.borderColor = borderColor;
         this.crossColor = crossColor;
         this.crossRolloverColor = crossRolloverColor;
         this.textButtonGap = textButtonGap;
@@ -75,7 +67,7 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         setName(title);
 
         titleLabel = new JLabel(title);
-        closeTabButton = action != null ? new CloseTabButton(this, action) : new CloseTabButton(this);
+        closeTabButton = action != null ? new CloseTabButton(action) : new CloseTabButton();
 
         titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         titlePanel.setOpaque(false);
@@ -105,26 +97,6 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
             tabLayoutPolicyListener = null;
         }
     }
-
-    private final static MouseListener BUTTON_MOUSE_LISTENER = new MouseAdapter() {
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(true);
-            }
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(false);
-            }
-        }
-    };
 
     private void tabLayoutPolicyChange(PropertyChangeEvent evt) {
         if ("tabLayoutPolicy".equals(evt.getPropertyName())) {
@@ -163,12 +135,11 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         private final AbstractAction DEFAULT_CLOSE_ACTION = new RemoveTabAction();
         private final Action action;
 
-        private CloseTabButton(final ClosableHeaderTabComponent tabComponent) {
-            this(tabComponent, null);
+        private CloseTabButton() {
+            this(null);
         }
 
-        private CloseTabButton(final ClosableHeaderTabComponent tabComponent, final Action action) {
-
+        private CloseTabButton(final Action action) {
             this.action = action;
             setPreferredSize(new Dimension(TAB_BUTTON_SIZE, TAB_BUTTON_SIZE));
 
@@ -178,16 +149,12 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
             setContentAreaFilled(false);
             // No need to be focusable
             setFocusable(false);
-            // Make a simple border
-            setBorder(BorderFactory.createLineBorder(borderColor));
-            setBorderPainted(false);
             // Making nice rollover effect
             setRolloverEnabled(true);
         }
 
         private void installListeners() {
             // Use the same listener for all buttons.
-            addMouseListener(BUTTON_MOUSE_LISTENER);
             if (action != null) {
                 setAction(action);
             }
@@ -197,7 +164,6 @@ class ClosableHeaderTabComponent extends JPanel implements IClosableHeaderTabCom
         }
 
         private void removeListener() {
-            removeMouseListener(BUTTON_MOUSE_LISTENER);
             setAction(null);
         }
 
